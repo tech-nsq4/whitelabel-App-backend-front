@@ -1,0 +1,273 @@
+/* ── Topbar shell ────────────────────────────── */
+.topbar {
+  height: 64px;
+  padding: 0 28px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 80;
+  box-shadow: 0 1px 6px rgba(10, 31, 27, 0.04);
+}
+
+/* ── Breadcrumb ──────────────────────────────── */
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--ink-45);
+}
+.crumb strong {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 13px;
+}
+.crumb .sep {
+  color: var(--ink-25);
+  font-size: 14px;
+}
+
+/* ── Actions group ───────────────────────────── */
+.top-actions {
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Search box ──────────────────────────────── */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 0 12px;
+  width: 270px;
+  height: 38px;
+  color: var(--ink-45);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  font-size: inherit;
+}
+.search-box:hover {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.search-placeholder {
+  flex: 1;
+  text-align: right;
+  font-size: 12.5px;
+  color: var(--ink-45);
+}
+.search-box .kbd {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 10px;
+  color: var(--ink-45);
+  font-family: monospace;
+  flex-shrink: 0;
+}
+
+/* ── Icon buttons ────────────────────────────── */
+.topbar .icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-70);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.topbar .icon-btn:hover {
+  background: var(--sand);
+  border-color: var(--ink-25);
+  color: var(--ink);
+}
+
+/* Notification dot */
+.icon-btn .dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--clay);
+  border: 2px solid var(--card);
+}
+
+/* ── User pill ───────────────────────────────── */
+.user-menu {
+  position: relative;
+}
+
+.role-pill {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 42px;
+  padding: 0 12px 0 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    box-shadow 0.15s;
+}
+.role-pill:hover {
+  border-color: var(--brand);
+  background: var(--card);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.role-pill.open {
+  border-color: var(--brand);
+  background: var(--card);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.role-pill .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.role-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.role-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.role-sub {
+  font-size: 10.5px;
+  color: var(--ink-45);
+}
+
+.role-chevron {
+  color: var(--ink-25);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+.role-pill.open .role-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── User dropdown ───────────────────────────── */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 240px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 16px 40px rgba(10, 31, 27, 0.12),
+    0 4px 10px rgba(10, 31, 27, 0.06);
+  overflow: hidden;
+  z-index: 95;
+  animation: fadeIn 0.15s ease;
+}
+
+/* Head */
+.user-dropdown-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 14px 12px;
+  background: var(--surface-subtle);
+  border-bottom: 1px solid var(--line);
+}
+.user-dropdown-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  font-size: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(15, 107, 92, 0.2);
+}
+.user-dropdown-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.user-dropdown-role {
+  font-size: 11px;
+  color: var(--ink-45);
+  margin-top: 2px;
+}
+
+/* Items */
+.user-dropdown-body {
+  padding: 6px;
+}
+
+.user-dropdown-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 4px 6px;
+}
+
+.user-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  color: var(--ink-70);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: right;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  cursor: pointer;
+}
+.user-dropdown-item:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.user-dropdown-item svg {
+  color: var(--ink-45);
+  flex-shrink: 0;
+}
+.user-dropdown-item:hover svg {
+  color: var(--brand);
+}
+
+.user-dropdown-item--danger {
+  color: var(--danger);
+}
+.user-dropdown-item--danger svg {
+  color: var(--danger);
+}
+.user-dropdown-item--danger:hover {
+  background: rgba(179, 64, 47, 0.06);
+  color: var(--danger);
+}

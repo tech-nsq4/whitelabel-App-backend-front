@@ -1,0 +1,54 @@
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row.c2, .row.c31 { grid-template-columns: 1fr; }
+  .content { padding: 24px; }
+}
+
+@media (max-width: 980px) {
+  .sidebar { width: 72px; }
+  .sidebar .brand { justify-content: center; padding: 18px 0; }
+  .sidebar .brand > :not(.brand-logo),
+  .sidebar .side-section,
+  .sidebar .side-label,
+  .sidebar .side-badge,
+  .sidebar .collapse-btn span { display: none; }
+  .sidebar .side-item,
+  .sidebar .collapse-btn { justify-content: center; padding: 12px 8px; }
+  .sidebar .side-group + .side-group::before { right: 14px; left: 14px; }
+  .topbar { padding: 0 20px; }
+  .search-box { width: 220px; }
+  .content { padding: 22px; }
+}
+
+@media (max-width: 760px) {
+  body { overflow: auto; }
+  .app { min-height: 100vh; height: auto; }
+  .sidebar { width: 64px; }
+  .sidebar .brand { justify-content: center; padding: 18px 0; }
+  .sidebar .brand > :not(.brand-logo),
+  .sidebar .side-section,
+  .sidebar .side-label,
+  .sidebar .side-badge,
+  .sidebar .collapse-btn span { display: none; }
+  .sidebar .side-item,
+  .sidebar .collapse-btn { justify-content: center; padding: 12px; }
+  .topbar { height: 58px; padding: 0 14px; gap: 8px; }
+  .crumb span,
+  .search-box .search-placeholder,
+  .search-box .kbd,
+  .role-info,
+  .role-pill > svg { display: none; }
+  .search-box { width: 38px; min-height: 38px; padding: 0; justify-content: center; }
+  .role-pill { padding: 3px; border-radius: 50%; }
+  .content { overflow: visible; padding: 16px 12px 22px; }
+  .page-head { align-items: flex-start; margin-bottom: 18px; gap: 14px; }
+  .page-head h1 { font-size: 20px; }
+  .page-actions { width: 100%; }
+  .page-actions .btn { flex: 1; justify-content: center; }
+  .kpi-grid, .row.c3, .row.c22 { grid-template-columns: 1fr; gap: 12px; }
+  .field-row { grid-template-columns: 1fr; gap: 0; }
+  .panel-head, .panel-body { padding-left: 14px; padding-right: 14px; }
+  table.data { min-width: 640px; }
+  .filter-bar { gap: 6px; }
+  .filter-chip { padding: 7px 10px; }
+}
