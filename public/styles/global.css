@@ -1,0 +1,15 @@
+/* ─────────────────────────────────────────────
+   Entry point — imports ordered by dependency
+   ───────────────────────────────────────────── */
+
+@import "./variables.css";   /* Design tokens (colors, spacing, radii)  */
+@import "./fonts.css";       /* @font-face declarations                  */
+
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+@import "./base.css";        /* Reset + body/typography defaults         */
+@import "./layout.css";      /* App shell, page-head, grid rows          */
+@import "./components.css";  /* Shared UI: buttons, panels, KPIs, forms  */
+@import "./responsive.css";  /* Breakpoint overrides                     */
