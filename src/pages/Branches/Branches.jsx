@@ -1,84 +1,127 @@
-﻿import { useState } from 'react'
+﻿import { useState, useMemo } from 'react'
 import BranchCard from './components/BranchCard'
-import BranchDetailsModal from './components/BranchDetailsModal'
+import ClinicDetailsPage from './components/ClinicDetailsPage'
 import BranchEditModal from './components/BranchEditModal'
 import NewBranchModal from './components/NewBranchModal'
-import { branches as initialBranches } from './branches.data'
 import { useToast } from '../../components/ui/Toast'
+import { SkeletonCards } from '../../components/ui/Skeleton'
+import { useClinics, useCreateClinic, useUpdateClinic, useDeleteClinic } from '../../hooks/queries/useClinics'
+import { useDoctors } from '../../hooks/queries/useDoctors'
 import './Branches.css'
 
 export default function Branches() {
   const { showToast } = useToast()
-  const [modalOpen, setModalOpen] = useState(false)
-  const [branchList, setBranchList] = useState(initialBranches)
-  const [detailsBranch, setDetailsBranch] = useState(null)
-  const [editingBranch, setEditingBranch] = useState(null)
+  const [modalOpen, setModalOpen]           = useState(false)
+  const [selectedClinic, setSelectedClinic] = useState(null)
+  const [editingBranch, setEditingBranch]   = useState(null)
 
-  function handleAddBranch(data) {
-    if (!data.name.trim()) {
-      showToast('من فضلك اكتب اسم الفرع أولاً')
-      return
+  const { data: branchList = [], isLoading: loading } = useClinics()
+  const { data: allDoctors = [] } = useDoctors()
+  const createClinic = useCreateClinic()
+  const updateClinic = useUpdateClinic()
+  const deleteClinic = useDeleteClinic()
+
+  // count doctors per clinic
+  const doctorsCountMap = useMemo(() => {
+    const map = {}
+    allDoctors.forEach(d => {
+      if (d.clinic_id) map[d.clinic_id] = (map[d.clinic_id] || 0) + 1
+    })
+    return map
+  }, [allDoctors])
+
+  // group clinics by city
+  const grouped = useMemo(() => {
+    const map = {}
+    branchList.forEach(clinic => {
+      const cityAr  = clinic.location?.city?.name?.ar || 'غير محدد'
+      const cityId  = clinic.location?.city?.id || 0
+      const key     = cityId
+      if (!map[key]) map[key] = { cityAr, cityId, clinics: [] }
+      map[key].clinics.push({
+        ...clinic,
+        doctorsCount: doctorsCountMap[clinic.id] || 0,
+      })
+    })
+    return Object.values(map)
+  }, [branchList, doctorsCountMap])
+
+  async function handleAddBranch(data) {
+    if (!data.name?.trim()) return showToast('من فضلك اكتب اسم العيادة أولاً')
+    try {
+      await createClinic.mutateAsync({
+        name: { ar: data.name, en: data.name },
+        address: { ar: data.address || '', en: data.address || '' },
+        location_id: data.location_id || null,
+        lat: 0, lng: 0,
+      })
+      showToast('تم إضافة العيادة بنجاح')
+      setModalOpen(false)
+    } catch { showToast('تعذر إضافة العيادة', 'error') }
+  }
+
+  async function handleEditBranch(updatedBranch) {
+    try {
+      await updateClinic.mutateAsync({
+        id: updatedBranch.id,
+        data: {
+          name: { ar: updatedBranch.name?.ar || updatedBranch.name, en: updatedBranch.name?.en || updatedBranch.name },
+          address: { ar: updatedBranch.address?.ar || updatedBranch.address || '', en: updatedBranch.address?.en || updatedBranch.address || '' },
+          location_id: updatedBranch.location_id,
+        }
+      })
+      setEditingBranch(null)
+      showToast('تم تحديث بيانات العيادة')
+    } catch { showToast('تعذر تحديث العيادة', 'error') }
+  }
+
+  async function handleDelete(id) {
+    try {
+      await deleteClinic.mutateAsync(id)
+      showToast('تم حذف العيادة')
+    } catch (err) {
+      showToast(err.response?.data?.message || 'تعذر الحذف', 'error')
     }
-
-    const newBranch = {
-      id: Date.now(),
-      name: data.name.trim(),
-      city: data.city,
-      address: data.address.trim() || 'لم يتم إدخال عنوان الفرع',
-      phone: data.phone.trim() || 'لم يتم إدخال رقم الهاتف',
-      status: data.status === 'نشط' ? 'active' : 'inactive',
-      manager: data.manager,
-      openTime: data.openTime,
-      closeTime: data.closeTime,
-      clinics: 0,
-      doctors: 0,
-      patients: 0,
-      revenue: '0',
-      toastLabel: `عرض تفاصيل ${data.name.trim()}`,
-    }
-
-    setBranchList((current) => [...current, newBranch])
-    showToast('تم إضافة الفرع بنجاح')
-    setModalOpen(false)
   }
 
   return (
     <div className="branches-page" style={{ animation: 'fadeIn .3s ease' }}>
-      {/* Page header */}
-      <div className="page-head">
-        <div>
-          <h1>الفروع</h1>
-          <div className="sub">{branchList.length} فروع · إجمالي 18 عيادة و24 طبيباً</div>
-        </div>
-        <div className="page-actions">
-          <button className="btn btn-p" onClick={() => setModalOpen(true)}>
-            <svg width="14" height="14" viewBox="0 0 24 24">
-              <path d="M12 5.5v13M5.5 12h13"/>
-            </svg>
-            فرع جديد
-          </button>
-        </div>
-      </div>
+      {selectedClinic ? (
+        <ClinicDetailsPage clinic={selectedClinic} onBack={() => setSelectedClinic(null)} />
+      ) : (
+        <>
+          <div className="page-head">
+            <div>
+              <h1>الفروع</h1>
+              <div className="sub">{grouped.length} فرع · {branchList.length} عيادة</div>
+            </div>
+            <div className="page-actions">
+              <button className="btn btn-p" onClick={() => setModalOpen(true)}>
+                <svg width="14" height="14" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></svg>
+                فرع جديد
+              </button>
+            </div>
+          </div>
 
-      {/* Branch cards grid */}
-      <div className="row c3 branches-grid" style={{ marginBottom: 0 }}>
-        {branchList.map((branch) => (
-          <BranchCard key={branch.id} branch={branch} onDetails={setDetailsBranch} onEdit={setEditingBranch} />
-        ))}
-      </div>
+          {loading
+            ? <SkeletonCards count={3} />
+            : <div className="row c3 branches-grid" style={{ marginBottom: 0 }}>
+                {grouped.map((group) => (
+                  <BranchCard
+                    key={group.cityId}
+                    group={group}
+                    onDetails={setSelectedClinic}
+                    onEdit={setEditingBranch}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+          }
+        </>
+      )}
 
-      {/* New Branch Modal */}
-      <NewBranchModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleAddBranch}
-      />
-      <BranchDetailsModal branch={detailsBranch} onClose={() => setDetailsBranch(null)} />
-      <BranchEditModal
-        branch={editingBranch}
-        onClose={() => setEditingBranch(null)}
-        onSave={(updatedBranch) => { setBranchList((current) => current.map((branch) => branch.id === updatedBranch.id ? updatedBranch : branch)); setEditingBranch(null); showToast('تم تحديث بيانات الفرع') }}
-      />
+      <NewBranchModal open={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleAddBranch} />
+      <BranchEditModal branch={editingBranch} onClose={() => setEditingBranch(null)} onSave={handleEditBranch} />
     </div>
   )
 }

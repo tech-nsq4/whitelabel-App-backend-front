@@ -1,10 +1,11 @@
-﻿import { useState, useMemo } from 'react'
+﻿import { useState, useMemo, useEffect } from 'react'
 import ServiceStats from './components/ServiceStats'
 import ServiceFilters from './components/ServiceFilters'
 import ServiceTable from './components/ServiceTable'
 import NewServiceModal from './components/NewServiceModal'
-import { services } from './services.data'
 import { useToast } from '../../components/ui/Toast'
+import { getSpecializationsApi } from '../../api/specializations.api'
+import { getSubSpecializationsApi } from '../../api/sub-specializations.api'
 
 export default function Services() {
   const { showToast } = useToast()
@@ -12,24 +13,51 @@ export default function Services() {
   const [search, setSearch]             = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
   const [modalOpen, setModalOpen]       = useState(false)
+  const [specialtyFilters, setSpecialtyFilters] = useState([{ id: 'all', label: 'كل التخصصات' }])
+  const [services, setServices]         = useState([])
+  const [loading, setLoading]           = useState(true)
+
+  useEffect(() => {
+    getSpecializationsApi()
+      .then(({ data }) => {
+        const list = data.data || []
+        setSpecialtyFilters([
+          { id: 'all', label: 'كل التخصصات' },
+          ...list.map((s) => ({ id: s.id, label: s.title?.ar || s.title })),
+        ])
+        // Fetch sub-specializations for each specialization
+        return Promise.all(list.map((s) => getSubSpecializationsApi(s.id)))
+      })
+      .then((results) => {
+        const allSubs = results.flatMap((r) => r.data?.data || [])
+        setServices(allSubs.map((s) => ({
+          id: s.id,
+          code: `SVC-${String(s.id).padStart(3, '0')}`,
+          name: s.title?.ar || '',
+          nameEn: s.title?.en || '',
+          specialty: s.specialization?.title?.ar || '',
+          specialtyId: s.specialization_id,
+          description: s.description?.ar || '',
+          status: 'active',
+          priceCash: null,
+          priceInsurance: null,
+          doctors: null,
+        })))
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
   const filtered = useMemo(() => {
     return services.filter((svc) => {
-      const matchFilter =
-        activeFilter === 'all' || svc.specialtyId === activeFilter
-
+      const matchFilter = activeFilter === 'all' || String(svc.specialtyId) === String(activeFilter)
       const q = search.trim().toLowerCase()
-      const matchSearch =
-        !q ||
-        svc.name.includes(q) ||
-        svc.code.toLowerCase().includes(q) ||
-        svc.specialty.includes(q)
-
+      const matchSearch = !q || svc.name.toLowerCase().includes(q) || svc.code.toLowerCase().includes(q) || svc.specialty.toLowerCase().includes(q)
       return matchFilter && matchSearch
     })
-  }, [search, activeFilter])
+  }, [search, activeFilter, services])
 
-  function handleNewService(data) {
+  function handleNewService() {
     showToast('تم إضافة الخدمة بنجاح')
     setModalOpen(false)
   }
@@ -58,7 +86,7 @@ export default function Services() {
         </div>
       </div>
 
-      <ServiceStats />
+      <ServiceStats totalServices={services.length} totalSpecialties={specialtyFilters.length - 1} />
 
       <div style={{ marginTop: 16 }}>
         <ServiceFilters
@@ -66,10 +94,11 @@ export default function Services() {
           activeFilter={activeFilter}
           onSearchChange={setSearch}
           onFilterChange={setActiveFilter}
+          specialtyFilters={specialtyFilters}
         />
       </div>
 
-      <ServiceTable services={filtered} />
+      <ServiceTable services={filtered} loading={loading} />
 
       <NewServiceModal
         open={modalOpen}

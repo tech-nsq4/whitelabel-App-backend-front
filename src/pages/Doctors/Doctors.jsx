@@ -3,50 +3,54 @@ import DoctorStats from './components/DoctorStats'
 import DoctorFilters from './components/DoctorFilters'
 import DoctorTable from './components/DoctorTable'
 import NewDoctorModal from './components/NewDoctorModal'
-import { doctors } from './doctors.data'
 import { useToast } from '../../components/ui/Toast'
+import { useDoctors, useDeleteDoctor } from '../../hooks/queries/useDoctors'
+import { useSpecializations } from '../../hooks/queries/useSpecializations'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 
 export default function Doctors() {
   const { showToast } = useToast()
 
-  const [search, setSearch]           = useState('')
+  const [search, setSearch]             = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
-  const [modalOpen, setModalOpen]     = useState(false)
+  const [modalOpen, setModalOpen]       = useState(false)
+
+  const { data: doctors = [], isLoading } = useDoctors()
+  const { data: specializations = [] }    = useSpecializations()
+  const deleteDoctor                      = useDeleteDoctor()
+
+  const specialtyFilters = useMemo(() => [
+    { id: 'all', label: 'الكل' },
+    ...specializations.map((s) => ({ id: s.id, label: s.title?.ar || s.title })),
+  ], [specializations])
+
+  async function handleDelete(id) {
+    try {
+      await deleteDoctor.mutateAsync(id)
+      showToast('تم حذف الطبيب')
+    } catch (err) {
+      showToast(err.response?.data?.message || 'تعذر الحذف', 'error')
+    }
+  }
 
   const filtered = useMemo(() => {
     return doctors.filter((doc) => {
-      const matchFilter =
-        activeFilter === 'all' || doc.specialtyId === activeFilter
-
+      const matchFilter = activeFilter === 'all' ||
+        doc.specializations?.some((s) => String(s.id) === String(activeFilter))
       const q = search.trim().toLowerCase()
-      const matchSearch =
-        !q ||
-        doc.name.includes(q) ||
-        doc.specialty.includes(q)
-
+      const matchSearch = !q ||
+        (doc.name?.ar || '').toLowerCase().includes(q) ||
+        doc.specializations?.some((s) => (s.title?.ar || '').toLowerCase().includes(q))
       return matchFilter && matchSearch
     })
-  }, [search, activeFilter])
-
-  function handleFilterChange(id) {
-    setActiveFilter(id)
-  }
-
-  function handleSearchChange(val) {
-    setSearch(val)
-  }
-
-  function handleNewDoctor(data) {
-    showToast('تم إضافة الطبيب بنجاح')
-    setModalOpen(false)
-  }
+  }, [search, activeFilter, doctors])
 
   return (
     <div style={{ animation: 'fadeIn .3s ease' }}>
       <div className="page-head">
         <div>
           <h1>الأطباء</h1>
-          <div className="sub">24 طبيباً موزعين على 8 تخصصات و3 فروع</div>
+          <div className="sub">{doctors.length} طبيب</div>
         </div>
         <div className="page-actions">
           <button className="btn btn-q" onClick={() => showToast('جارٍ تصدير البيانات...')}>
@@ -65,21 +69,25 @@ export default function Doctors() {
         </div>
       </div>
 
-      <DoctorStats />
+      <DoctorStats totalDoctors={doctors.length} />
 
       <DoctorFilters
         search={search}
         activeFilter={activeFilter}
-        onSearchChange={handleSearchChange}
-        onFilterChange={handleFilterChange}
+        onSearchChange={setSearch}
+        onFilterChange={setActiveFilter}
+        specialtyFilters={specialtyFilters}
       />
 
-      <DoctorTable doctors={filtered} />
+      {isLoading
+        ? <SkeletonTable rows={6} cols={5} />
+        : <DoctorTable doctors={filtered} onDelete={handleDelete} onRefresh={() => {}} />
+      }
 
       <NewDoctorModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSubmit={handleNewDoctor}
+        onSubmit={() => { showToast('تم إضافة الطبيب بنجاح'); setModalOpen(false) }}
       />
     </div>
   )

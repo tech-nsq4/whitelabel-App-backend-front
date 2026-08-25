@@ -43,5 +43,9 @@
 .patient-file-history strong { display: block; margin-top: 3px; color: var(--ink); font-size: 11px; }
 .calendar-board-scroll::-webkit-scrollbar { width: 7px; height: 7px; }
 .calendar-board-scroll::-webkit-scrollbar-thumb { background: #c9d9d1; border-radius: 99px; }
+.custom-scroll::-webkit-scrollbar { width: 5px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+.custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-25); }
 @media (max-width: 760px) { .calendar-page-head { padding: 15px; } .calendar-toolbar-inner { padding: 12px; align-items: flex-start; flex-direction: column; } .calendar-date-controls { width: 100%; flex-wrap: wrap; } .calendar-branch-filters { width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; } .calendar-board-head { min-width: 760px; } .calendar-board-scroll { overflow: auto; max-height: 520px; } }
 @media (max-width: 460px) { .appointment-detail-grid { grid-template-columns: 1fr; } .patient-file-stats { grid-template-columns: 1fr; } .appointment-detail-actions .btn { flex: 1; justify-content: center; } }

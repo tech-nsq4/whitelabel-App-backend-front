@@ -21,7 +21,10 @@ const Audit     = lazy(() => import("../pages/Audit/Audit"));
 const Branding  = lazy(() => import("../pages/Branding/Branding"));
 const Settings  = lazy(() => import("../pages/Settings/Settings"));
 const Account   = lazy(() => import("../pages/Account/Account"));
-const Roles     = lazy(() => import("../pages/Roles/Roles"));
+const Roles     = lazy(() => import("../pages/Roles/Roles"))
+const Cities    = lazy(() => import("../pages/Cities/Cities"));
+const Locations = lazy(() => import("../pages/Locations/Locations"));
+const ClinicManagers = lazy(() => import("../pages/ClinicManagers/ClinicManagers"));
 
 const protectedRoutes = [
   { path: ROUTES.DASHBOARD, element: <Dashboard /> },
@@ -42,6 +45,9 @@ const protectedRoutes = [
   { path: ROUTES.SETTINGS,  element: <Settings /> },
   { path: ROUTES.ACCOUNT,   element: <Account /> },
   { path: ROUTES.ROLES,     element: <Roles /> },
+  { path: ROUTES.CITIES,    element: <Cities /> },
+  { path: ROUTES.LOCATIONS,        element: <Locations /> },
+  { path: ROUTES.CLINIC_MANAGERS,  element: <ClinicManagers /> },
 ];
 
 export default function AppRoutes() {

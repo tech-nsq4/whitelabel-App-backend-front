@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useToast } from '../../../components/ui/Toast'
+import { SkeletonTable } from '../../../components/ui/Skeleton'
 import ServiceEditModal from './ServiceEditModal'
 
 const EDIT_ICON = (
@@ -85,7 +86,7 @@ function RowMenu({ onEdit, onDeactivate }) {
   )
 }
 
-export default function ServiceTable({ services }) {
+export default function ServiceTable({ services, loading = false }) {
   const { showToast } = useToast()
   const [editModal, setEditModal] = useState({ open: false, service: null })
   const [local, setLocal] = useState(services)
@@ -96,6 +97,8 @@ export default function ServiceTable({ services }) {
     setLocal(prev => prev.map(s => s.id === updated.id ? { ...s, ...updated } : s))
     showToast('تم حفظ التغييرات')
   }
+
+  if (loading) return <SkeletonTable rows={6} cols={6} />
 
   if (local.length === 0) {
     return (

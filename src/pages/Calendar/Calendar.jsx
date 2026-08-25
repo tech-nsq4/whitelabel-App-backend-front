@@ -1,71 +1,105 @@
-﻿import { useState } from 'react'
+﻿import { useState, useRef, useMemo } from 'react'
 import CalendarHeader from './components/CalendarHeader'
 import CalendarView from './components/CalendarView'
 import BookingModal from './components/BookingModal'
 import AppointmentDetailsModal from './components/AppointmentDetailsModal'
 import PatientFileModal from './components/PatientFileModal'
-import { calendarDoctors } from './calendar.data'
+import { useClinics } from '../../hooks/queries/useClinics'
 import { useToast } from '../../components/ui/Toast'
 import './Calendar.css'
 
-const INITIAL_DATE = new Date(2026, 7, 4)
-
-function formatDate(date) {
+function formatDate(date, view) {
+  if (view === 'شهر') {
+    return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', { month: 'long', year: 'numeric' }).format(date)
+  }
+  if (view === 'أسبوع') {
+    const start = getWeekStart(date)
+    const end   = new Date(start); end.setDate(end.getDate() + 6)
+    const fmt = d => new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', { day: 'numeric', month: 'short' }).format(d)
+    return `${fmt(start)} – ${fmt(end)}`
+  }
   return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   }).format(date)
 }
 
+function toStr(date) { return date.toISOString().slice(0, 10) }
+
+function getWeekStart(date) {
+  const d = new Date(date)
+  const day = d.getDay() // 0=Sun
+  d.setDate(d.getDate() - day)
+  return d
+}
+
+function getDateRange(date, view) {
+  if (view === 'يوم') {
+    return { from: toStr(date), to: toStr(date) }
+  }
+  if (view === 'أسبوع') {
+    const start = getWeekStart(date)
+    const end   = new Date(start); end.setDate(end.getDate() + 6)
+    return { from: toStr(start), to: toStr(end) }
+  }
+  // شهر
+  const start = new Date(date.getFullYear(), date.getMonth(), 1)
+  const end   = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+  return { from: toStr(start), to: toStr(end) }
+}
+
 export default function Calendar() {
   const { showToast } = useToast()
+  const { data: clinics = [] } = useClinics()
+  const dateInputRef = useRef(null)
 
-  const [view, setView]               = useState('يوم')
-  const [currentDate, setCurrentDate] = useState(INITIAL_DATE)
-  const [activeBranch, setActiveBranch] = useState('all')
-  const [bookingOpen, setBookingOpen] = useState(false)
-  const [selectedAppointment, setSelectedAppointment] = useState(null)
+  const [view, setView]                 = useState('يوم')
+  const [currentDate, setCurrentDate]   = useState(new Date())
+  const [clinicFilter, setClinicFilter] = useState('all')
+  const [bookingOpen, setBookingOpen]   = useState(false)
+  const [selectedAppointment, setSelectedAppointment]       = useState(null)
   const [patientFileAppointment, setPatientFileAppointment] = useState(null)
 
+  const dateRange = useMemo(() => getDateRange(currentDate, view), [currentDate, view])
+
   function moveDate(direction) {
-    setCurrentDate((date) => {
-      const nextDate = new Date(date)
-      if (view === 'شهر') nextDate.setMonth(nextDate.getMonth() + direction)
-      else nextDate.setDate(nextDate.getDate() + (view === 'أسبوع' ? 7 : 1) * direction)
-      return nextDate
+    setCurrentDate(date => {
+      const d = new Date(date)
+      if (view === 'شهر')   d.setMonth(d.getMonth() + direction)
+      else if (view === 'أسبوع') d.setDate(d.getDate() + 7 * direction)
+      else                  d.setDate(d.getDate() + direction)
+      return d
     })
   }
 
-  function handlePrev() { moveDate(-1) }
-  function handleNext() { moveDate(1) }
-  function handleToday() { setCurrentDate(INITIAL_DATE) }
-
-  function handleAppointmentClick(appointment) {
-    setSelectedAppointment(appointment)
-  }
-
-  function handleBookingSubmit(data) {
-    showToast('تم حجز الموعد بنجاح')
-    setBookingOpen(false)
-  }
+  function handleDateChange(e) { if (e.target.value) setCurrentDate(new Date(e.target.value)) }
+  function handleDateClick()   { dateInputRef.current?.showPicker?.() || dateInputRef.current?.click() }
+  function handleToday()       { setCurrentDate(new Date()) }
+  function handleBookingSubmit() { showToast('تم حجز الموعد بنجاح'); setBookingOpen(false) }
 
   return (
     <div className="calendar-page" style={{ animation: 'fadeIn .3s ease' }}>
       <CalendarHeader
-        currentDate={formatDate(currentDate)}
+        currentDate={formatDate(currentDate, view)}
+        currentDateValue={toStr(currentDate)}
         view={view}
-        activeBranch={activeBranch}
-        onPrev={handlePrev}
-        onNext={handleNext}
+        clinics={clinics}
+        clinicFilter={clinicFilter}
+        dateInputRef={dateInputRef}
+        onPrev={() => moveDate(-1)}
+        onNext={() => moveDate(1)}
         onToday={handleToday}
+        onDateClick={handleDateClick}
+        onDateChange={handleDateChange}
         onViewChange={setView}
-        onBranchChange={setActiveBranch}
+        onClinicChange={setClinicFilter}
         onNewBooking={() => setBookingOpen(true)}
         onExport={() => showToast('جارٍ تصدير الجدول...')}
       />
 
       <CalendarView
-        activeBranch={activeBranch}
-        onAppointmentClick={handleAppointmentClick}
+        clinicFilter={clinicFilter}
+        dateRange={dateRange}
+        view={view}
       />
 
       <BookingModal
@@ -75,13 +109,11 @@ export default function Calendar() {
       />
       <AppointmentDetailsModal
         appointment={selectedAppointment}
-        doctor={calendarDoctors.find((doctor) => doctor.id === selectedAppointment?.doctorId)}
         onClose={() => setSelectedAppointment(null)}
         onViewPatient={() => { setPatientFileAppointment(selectedAppointment); setSelectedAppointment(null) }}
       />
       <PatientFileModal
         appointment={patientFileAppointment}
-        doctor={calendarDoctors.find((doctor) => doctor.id === patientFileAppointment?.doctorId)}
         onClose={() => setPatientFileAppointment(null)}
       />
     </div>

@@ -1,103 +1,129 @@
 import { useState } from 'react'
-import { useToast } from '../../../components/ui/Toast'
 
-const EDIT_ICON = (
-  <svg width="14" height="14" viewBox="0 0 24 24">
-    <path d="M16.5 3.5l4 4L8 20l-4.5.5L4 16z"/>
+const BRANCH_ICON = (
+  <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+    <path d="M9 22V12h6v10"/>
   </svg>
 )
 
 const MORE_ICON = (
   <svg width="14" height="14" viewBox="0 0 24 24">
-    <circle cx="6" cy="12" r="1.5"/>
-    <circle cx="12" cy="12" r="1.5"/>
-    <circle cx="18" cy="12" r="1.5"/>
+    <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
+    <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+    <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
   </svg>
 )
 
-const BRANCH_ICON = (
-  <svg width="22" height="22" viewBox="0 0 24 24">
-    <path d="M4 21V6.5A1.5 1.5 0 015.5 5h13A1.5 1.5 0 0120 6.5V21"/>
-    <path d="M9 21v-4h6v4M8 10h2m4 0h2M12 7v6m-3-3h6"/>
+const EDIT_ICON = (
+  <svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" fill="none" strokeWidth="1.8" strokeLinecap="round">
+    <path d="M16.5 3.5l4 4L8 20l-4.5.5L4 16z"/>
   </svg>
 )
 
-const STATS = [
-  { key: 'clinics',  label: 'عيادة',    highlight: false },
-  { key: 'doctors',  label: 'طبيب',     highlight: false },
-  { key: 'patients', label: 'مريض',     highlight: false },
-  { key: 'revenue',  label: 'إيرادات',  highlight: true  },
-]
+export default function BranchCard({ group, onDetails, onEdit, onDelete }) {
+  const [menuOpen, setMenuOpen] = useState({})
 
-export default function BranchCard({ branch, onDetails, onEdit }) {
-  const { showToast } = useToast()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const copyPhone = async () => {
-    try { await navigator.clipboard?.writeText(branch.phone) } catch { /* Clipboard may be unavailable outside a secure context. */ }
-    showToast('تم نسخ رقم هاتف الفرع')
-  }
+  const totalDoctors = group.clinics.reduce((s, c) => s + (c.doctorsCount || 0), 0)
+
+  function toggleMenu(id) { setMenuOpen(p => ({ ...p, [id]: !p[id] })) }
+  function closeMenu(id)  { setMenuOpen(p => ({ ...p, [id]: false })) }
 
   return (
-    <div className="tile branch-card">
-      {/* Header */}
-      <div className="branch-card-head">
-        <div className="branch-card-title-wrap">
-          <div className="branch-card-icon">
+    <div className="tile branch-card" style={{ padding: 0, overflow: 'hidden' }}>
+      {/* City header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '14px 16px',
+        background: 'linear-gradient(135deg, var(--brand) 0%, var(--brand-d) 100%)',
+        color: '#fff',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {BRANCH_ICON}
           </div>
           <div>
-            <div className="branch-card-title">
-              {branch.name}
-            </div>
-            <div className="branch-card-city">
-              {branch.city}
-            </div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>{group.cityAr}</div>
+            <div style={{ fontSize: 11, opacity: 0.75, marginTop: 1 }}>{group.clinics.length} عيادة · {totalDoctors} طبيب</div>
           </div>
         </div>
-        <span className="chip ok">نشط</span>
+        <span style={{ fontSize: 10.5, fontWeight: 700, padding: '3px 9px', borderRadius: 99, background: 'rgba(255,255,255,0.2)', color: '#fff' }}>
+          نشط
+        </span>
       </div>
 
-      {/* Address */}
-      <div className="branch-card-contact">
-        <div className="branch-card-address">
-          {branch.address}
-        </div>
-        <div className="branch-card-phone" dir="ltr">
-          {branch.phone}
-        </div>
-      </div>
+      {/* Clinics list */}
+      <div style={{ padding: '8px 0' }}>
+        {group.clinics.map((clinic, i) => {
+          const nameAr   = clinic.name?.ar || clinic.name || ''
+          const areaAr   = clinic.location?.area?.name?.ar || clinic.location?.name?.ar || ''
+          const addrAr   = clinic.address?.ar || ''
 
-      {/* Stats grid */}
-      <div className="branch-card-stats">
-        {STATS.map(({ key, label, highlight }) => (
-          <div key={key} className={`branch-stat${highlight ? ' highlight' : ''}`}>
-            <div
-              className="num"
-              style={{ fontSize: key === 'revenue' ? 14 : 15 }}
-            >
-              {branch[key]}
+          return (
+            <div key={clinic.id} style={{
+              padding: '10px 16px',
+              borderBottom: i < group.clinics.length - 1 ? '1px solid var(--line)' : 'none',
+              display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              {/* Area badge */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)' }}>{nameAr}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                  {areaAr && (
+                    <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 7px', borderRadius: 99, background: 'rgba(15,107,92,0.08)', color: 'var(--brand)' }}>
+                      {areaAr}
+                    </span>
+                  )}
+                  {addrAr && (
+                    <span style={{ fontSize: 10.5, color: 'var(--ink-45)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 140 }}>
+                      {addrAr}
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--ink-45)', marginTop: 3 }}>
+                  {clinic.doctorsCount} طبيب
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 4, flexShrink: 0, position: 'relative' }}>
+                <button className="btn btn-q" style={{ padding: '5px 10px', fontSize: 11.5 }} onClick={() => onDetails(clinic)}>
+                  التفاصيل
+                </button>
+                <button className="icon-btn" style={{ width: 30, height: 30 }} onClick={() => onEdit(clinic)}>
+                  {EDIT_ICON}
+                </button>
+                <button className="icon-btn" style={{ width: 30, height: 30 }} onClick={() => toggleMenu(clinic.id)}>
+                  {MORE_ICON}
+                </button>
+                {menuOpen[clinic.id] && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 99, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 10, boxShadow: '0 8px 24px rgba(10,31,27,.12)', minWidth: 140, overflow: 'hidden' }}>
+                    <button style={{ width: '100%', textAlign: 'right', padding: '10px 14px', fontSize: 12.5, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)', display: 'block' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--paper)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      onClick={() => { onDetails(clinic); closeMenu(clinic.id) }}>
+                      عرض التفاصيل
+                    </button>
+                    <button style={{ width: '100%', textAlign: 'right', padding: '10px 14px', fontSize: 12.5, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink)', display: 'block' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--paper)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      onClick={() => { onEdit(clinic); closeMenu(clinic.id) }}>
+                      تعديل العيادة
+                    </button>
+                    <button style={{ width: '100%', textAlign: 'right', padding: '10px 14px', fontSize: 12.5, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', display: 'block' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(179,64,47,0.06)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      onClick={() => { onDelete && onDelete(clinic.id); closeMenu(clinic.id) }}>
+                      حذف العيادة
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="branch-stat-label">{label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Actions */}
-      <div className="branch-card-actions">
-        <button
-          className="btn btn-q"
-          style={{ flex: 1 }}
-          onClick={() => onDetails(branch)}
-        >
-          التفاصيل
-        </button>
-        <button className="btn btn-g" aria-label="تعديل الفرع" onClick={() => onEdit(branch)}>
-          {EDIT_ICON}
-        </button>
-        <div className="branch-more-menu">
-          <button className="btn btn-g" aria-label="المزيد" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>{MORE_ICON}</button>
-          {menuOpen && <div className="branch-actions-dropdown"><button onClick={() => { onDetails(branch); setMenuOpen(false) }}>عرض التفاصيل</button><button onClick={() => { onEdit(branch); setMenuOpen(false) }}>تعديل الفرع</button><button onClick={() => { copyPhone(); setMenuOpen(false) }}>نسخ رقم الهاتف</button></div>}
-        </div>
+          )
+        })}
       </div>
     </div>
   )

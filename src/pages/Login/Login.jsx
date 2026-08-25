@@ -35,18 +35,15 @@ export default function Login() {
     if (!password.trim()) return setError("من فضلك أدخل كلمة المرور");
 
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    const ok = login(email, password);
-    setLoading(false);
-
-    if (ok) navigate(ROUTES.DASHBOARD, { replace: true });
-    else setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
-  }
-
-  function fillDemo(e, p) {
-    setEmail(e);
-    setPassword(p);
-    setError("");
+    try {
+      await login(email, password);
+      navigate(ROUTES.DASHBOARD, { replace: true });
+    } catch (err) {
+      const msg = err.response?.data?.message
+      setError(msg || "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -93,7 +90,7 @@ export default function Login() {
                 <Mail size={15} strokeWidth={1.7} className="login-input-icon" />
                 <input
                   id="email"
-                  className="inp login-inp"
+                  className={`inp login-inp${error ? ' has-error' : ''}`}
                   type="email"
                   placeholder="example@alshifa.sa"
                   value={email}
@@ -111,7 +108,7 @@ export default function Login() {
                 <Lock size={15} strokeWidth={1.7} className="login-input-icon" />
                 <input
                   id="password"
-                  className="inp login-inp"
+                  className={`inp login-inp${error ? ' has-error' : ''}`}
                   type={showPass ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
@@ -151,20 +148,7 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Demo credentials */}
-          <div className="login-demo">
-            <div className="login-demo-label">حسابات تجريبية</div>
-            <div className="login-demo-cards">
-              <button className="login-demo-card" type="button" onClick={() => fillDemo("admin@alshifa.sa", "admin123")}>
-                <span className="login-demo-role">مدير النظام</span>
-                <span className="login-demo-email">admin@alshifa.sa</span>
-              </button>
-              <button className="login-demo-card" type="button" onClick={() => fillDemo("doctor@alshifa.sa", "doctor123")}>
-                <span className="login-demo-role">طبيب</span>
-                <span className="login-demo-email">doctor@alshifa.sa</span>
-              </button>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

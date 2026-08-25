@@ -4,12 +4,8 @@ import Modal from "../../../components/ui/Modal";
 const INITIAL = {
   nameAr: "",
   nameEn: "",
-  branches: { olaya: true, nakheel: true, malqa: false },
-  priceCashFirst: "",
-  priceInsFirst: "",
-  priceCashRepeat: "",
-  priceInsRepeat: "",
-  duration: "30 دقيقة",
+  descAr: "",
+  descEn: "",
 };
 
 export default function NewClinicModal({ open, onClose, onSubmit }) {
@@ -71,109 +67,24 @@ export default function NewClinicModal({ open, onClose, onSubmit }) {
       </div>
 
       <div className="field">
-        <label className="field-label">الفروع المتاحة</label>
-        <div
-          style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}
-        >
-          {[
-            { key: "olaya", label: "العليا" },
-            { key: "nakheel", label: "النخيل" },
-            { key: "malqa", label: "الملقا" },
-          ].map(({ key, label }) => (
-            <label
-              key={key}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                fontSize: "12.5px",
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={form.branches[key]}
-                onChange={() => handleBranchToggle(key)}
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="field-row">
-        <div className="field">
-          <label className="field-label" htmlFor="clinic-price-cash-first">
-            سعر الكشف الأول (نقد)
-          </label>
-          <input
-            id="clinic-price-cash-first"
-            className="inp num"
-            placeholder="150"
-            dir="ltr"
-            value={form.priceCashFirst}
-            onChange={(e) => handleChange("priceCashFirst", e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="clinic-price-ins-first">
-            سعر الكشف الأول (تأمين)
-          </label>
-          <input
-            id="clinic-price-ins-first"
-            className="inp num"
-            placeholder="200"
-            dir="ltr"
-            value={form.priceInsFirst}
-            onChange={(e) => handleChange("priceInsFirst", e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="field-row">
-        <div className="field">
-          <label className="field-label" htmlFor="clinic-price-cash-repeat">
-            سعر إعادة الكشف (نقد)
-          </label>
-          <input
-            id="clinic-price-cash-repeat"
-            className="inp num"
-            placeholder="80"
-            dir="ltr"
-            value={form.priceCashRepeat}
-            onChange={(e) => handleChange("priceCashRepeat", e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="clinic-price-ins-repeat">
-            سعر إعادة الكشف (تأمين)
-          </label>
-          <input
-            id="clinic-price-ins-repeat"
-            className="inp num"
-            placeholder="120"
-            dir="ltr"
-            value={form.priceInsRepeat}
-            onChange={(e) => handleChange("priceInsRepeat", e.target.value)}
-          />
-        </div>
+        <label className="field-label">الوصف (عربي)</label>
+        <input
+          className="inp"
+          placeholder="وصف مختصر للتخصص"
+          value={form.descAr}
+          onChange={(e) => handleChange("descAr", e.target.value)}
+        />
       </div>
 
       <div className="field">
-        <label className="field-label" htmlFor="clinic-duration">
-          مدة الكشف الافتراضية
-        </label>
-        <select
-          id="clinic-duration"
+        <label className="field-label">الوصف (إنجليزي)</label>
+        <input
           className="inp"
-          value={form.duration}
-          onChange={(e) => handleChange("duration", e.target.value)}
-        >
-          <option>15 دقيقة</option>
-          <option>30 دقيقة</option>
-          <option>45 دقيقة</option>
-          <option>60 دقيقة</option>
-        </select>
+          dir="ltr"
+          placeholder="Brief description"
+          value={form.descEn}
+          onChange={(e) => handleChange("descEn", e.target.value)}
+        />
       </div>
 
       <div

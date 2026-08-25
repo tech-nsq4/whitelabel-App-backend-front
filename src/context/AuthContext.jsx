@@ -1,12 +1,7 @@
 import { createContext, useContext, useState } from 'react'
+import { loginApi, logoutApi } from '../api/auth.api'
 
 const AuthContext = createContext(null)
-
-// Demo credentials — replace with real API calls later
-const DEMO_USERS = [
-  { email: 'admin@alshifa.sa',  password: 'admin123',  name: 'ناصر السالم',  role: 'مدير النظام' },
-  { email: 'doctor@alshifa.sa', password: 'doctor123', name: 'د. سارة العمري', role: 'طبيب' },
-]
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -18,18 +13,19 @@ export function AuthProvider({ children }) {
     }
   })
 
-  function login(email, password) {
-    const found = DEMO_USERS.find(
-      (u) => u.email === email.trim().toLowerCase() && u.password === password
-    )
-    if (!found) return false
-    const userData = { email: found.email, name: found.name, role: found.role }
+  async function login(email, password) {
+    const { data } = await loginApi(email.trim().toLowerCase(), password)
+    const userData = data.data.admin
+    const token    = data.data.token
+    localStorage.setItem('token', token)
     localStorage.setItem('auth_user', JSON.stringify(userData))
     setUser(userData)
     return true
   }
 
-  function logout() {
+  async function logout() {
+    try { await logoutApi() } catch { /* ignore */ }
+    localStorage.removeItem('token')
     localStorage.removeItem('auth_user')
     setUser(null)
   }

@@ -1,37 +1,57 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Modal from '../../../components/ui/Modal'
+import { createDoctorApi } from '../../../api/doctors.api'
+import { getClinicsApi } from '../../../api/clinics.api'
+import { getSpecializationsApi } from '../../../api/specializations.api'
+import { useToast } from '../../../components/ui/Toast'
 
 const INITIAL = {
-  firstName:      '',
-  lastName:       '',
-  specialty:      'باطنة عامة',
-  phone:          '',
-  email:          '',
-  branches:       { العليا: true, النخيل: false, الملقا: false },
-  licenseNo:      '',
-  licenseExpiry:  '',
-  priceCash:      '',
-  priceInsurance: '',
-  bio:            '',
+  nameAr:          '',
+  nameEn:          '',
+  descAr:          '',
+  descEn:          '',
+  experience:      '',
+  price:           '',
+  clinic_id:       '',
+  specialization_id: '',
 }
 
 export default function NewDoctorModal({ open, onClose, onSubmit }) {
-  const [form, setForm] = useState(INITIAL)
+  const { showToast } = useToast()
+  const [form, setForm]           = useState(INITIAL)
+  const [clinics, setClinics]     = useState([])
+  const [specializations, setSpecializations] = useState([])
+  const [saving, setSaving]       = useState(false)
+
+  useEffect(() => {
+    getClinicsApi().then(({ data }) => setClinics(data.data || [])).catch(() => {})
+    getSpecializationsApi().then(({ data }) => setSpecializations(data.data || [])).catch(() => {})
+  }, [])
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  function handleBranchToggle(branch) {
-    setForm((prev) => ({
-      ...prev,
-      branches: { ...prev.branches, [branch]: !prev.branches[branch] },
-    }))
-  }
-
-  function handleSubmit() {
-    onSubmit(form)
-    setForm(INITIAL)
+  async function handleSubmit() {
+    if (!form.nameAr.trim()) return showToast('من فضلك أدخل اسم الطبيب', 'error')
+    setSaving(true)
+    try {
+      await createDoctorApi({
+        name: { ar: form.nameAr, en: form.nameEn || form.nameAr },
+        description: { ar: form.descAr || form.nameAr, en: form.descEn || form.nameEn || form.nameAr },
+        experience: Number(form.experience) || 0,
+        price: form.price || '0',
+        clinic_id: form.clinic_id || clinics[0]?.id,
+        specialization_ids: form.specialization_id ? [Number(form.specialization_id)] : [],
+        sub_specialization_ids: [],
+      })
+      onSubmit()
+      setForm(INITIAL)
+    } catch (err) {
+      showToast(err.response?.data?.message || 'تعذر إضافة الطبيب', 'error')
+    } finally {
+      setSaving(false)
+    }
   }
 
   function handleClose() {
@@ -43,96 +63,51 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
     <Modal open={open} onClose={handleClose} title="طبيب جديد" subtitle="أضف طبيباً للمجمع">
       <div className="field-row">
         <div className="field">
-          <label className="field-label" htmlFor="doctor-first-name">الاسم الأول</label>
-          <input id="doctor-first-name" className="inp" placeholder="الاسم الأول" value={form.firstName}
-            onChange={(e) => handleChange('firstName', e.target.value)} />
+          <label className="field-label">الاسم بالعربي</label>
+          <input className="inp" placeholder="د. أحمد محمد" value={form.nameAr} onChange={(e) => handleChange('nameAr', e.target.value)} />
         </div>
         <div className="field">
-          <label className="field-label" htmlFor="doctor-last-name">اسم العائلة</label>
-          <input id="doctor-last-name" className="inp" placeholder="اسم العائلة" value={form.lastName}
-            onChange={(e) => handleChange('lastName', e.target.value)} />
+          <label className="field-label">الاسم بالإنجليزي</label>
+          <input className="inp" dir="ltr" placeholder="Dr. Ahmed Mohamed" value={form.nameEn} onChange={(e) => handleChange('nameEn', e.target.value)} />
         </div>
       </div>
 
       <div className="field-row">
         <div className="field">
-          <label className="field-label" htmlFor="doctor-specialty">التخصص</label>
-          <select id="doctor-specialty" className="inp" value={form.specialty}
-            onChange={(e) => handleChange('specialty', e.target.value)}>
-            <option>باطنة عامة</option>
-            <option>جلدية</option>
-            <option>أسنان</option>
-            <option>أطفال</option>
-            <option>نساء وولادة</option>
-            <option>عظام</option>
-            <option>عيون</option>
-            <option>أنف وأذن</option>
+          <label className="field-label">العيادة</label>
+          <select className="inp" value={form.clinic_id} onChange={(e) => handleChange('clinic_id', e.target.value)}>
+            <option value="">اختر العيادة</option>
+            {clinics.map((c) => <option key={c.id} value={c.id}>{c.name?.ar || c.name}</option>)}
           </select>
         </div>
         <div className="field">
-          <label className="field-label" htmlFor="doctor-phone">الجوال</label>
-          <input id="doctor-phone" className="inp num" placeholder="+966 55 XXX XXXX" dir="ltr"
-            value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} />
-        </div>
-      </div>
-
-      <div className="field">
-        <label className="field-label" htmlFor="doctor-email">البريد الإلكتروني</label>
-        <input id="doctor-email" className="inp" placeholder="doctor@shifa.sa" dir="ltr"
-          value={form.email} onChange={(e) => handleChange('email', e.target.value)} />
-      </div>
-
-      <div className="field">
-        <label className="field-label">الفروع</label>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
-          {Object.keys(form.branches).map((branch) => (
-            <label key={branch} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12.5px', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={form.branches[branch]}
-                onChange={() => handleBranchToggle(branch)}
-              />
-              {branch}
-            </label>
-          ))}
+          <label className="field-label">التخصص</label>
+          <select className="inp" value={form.specialization_id} onChange={(e) => handleChange('specialization_id', e.target.value)}>
+            <option value="">اختر التخصص</option>
+            {specializations.map((s) => <option key={s.id} value={s.id}>{s.title?.ar}</option>)}
+          </select>
         </div>
       </div>
 
       <div className="field-row">
         <div className="field">
-          <label className="field-label" htmlFor="doctor-license-no">رقم الرخصة الطبية</label>
-          <input id="doctor-license-no" className="inp num" placeholder="SCFHS-XXXXX" dir="ltr"
-            value={form.licenseNo} onChange={(e) => handleChange('licenseNo', e.target.value)} />
+          <label className="field-label">سعر الكشف</label>
+          <input className="inp num" placeholder="350" dir="ltr" value={form.price} onChange={(e) => handleChange('price', e.target.value)} />
         </div>
         <div className="field">
-          <label className="field-label" htmlFor="doctor-license-expiry">تاريخ انتهاء الرخصة</label>
-          <input id="doctor-license-expiry" className="inp num" type="date"
-            value={form.licenseExpiry} onChange={(e) => handleChange('licenseExpiry', e.target.value)} />
-        </div>
-      </div>
-
-      <div className="field-row">
-        <div className="field">
-          <label className="field-label" htmlFor="doctor-price-cash">سعر الكشف (نقد)</label>
-          <input id="doctor-price-cash" className="inp num" placeholder="150" dir="ltr"
-            value={form.priceCash} onChange={(e) => handleChange('priceCash', e.target.value)} />
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="doctor-price-insurance">سعر الكشف (تأمين)</label>
-          <input id="doctor-price-insurance" className="inp num" placeholder="200" dir="ltr"
-            value={form.priceInsurance} onChange={(e) => handleChange('priceInsurance', e.target.value)} />
+          <label className="field-label">سنوات الخبرة</label>
+          <input className="inp num" placeholder="10" dir="ltr" value={form.experience} onChange={(e) => handleChange('experience', e.target.value)} />
         </div>
       </div>
 
       <div className="field">
-        <label className="field-label" htmlFor="doctor-bio">نبذة عن الطبيب</label>
-        <textarea id="doctor-bio" className="inp" rows="2" placeholder="الخبرة والشهادات…"
-          value={form.bio} onChange={(e) => handleChange('bio', e.target.value)} />
+        <label className="field-label">الوصف (عربي)</label>
+        <textarea className="inp" rows="2" placeholder="استشاري باطنة وقلب..." value={form.descAr} onChange={(e) => handleChange('descAr', e.target.value)} />
       </div>
 
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 6 }}>
         <button className="btn btn-q" onClick={handleClose}>إلغاء</button>
-        <button className="btn btn-p" onClick={handleSubmit}>إضافة الطبيب</button>
+        <button className="btn btn-p" onClick={handleSubmit} disabled={saving}>إضافة الطبيب</button>
       </div>
     </Modal>
   )

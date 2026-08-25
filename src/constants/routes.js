@@ -21,4 +21,7 @@ export const ROUTES = {
   SETTINGS:   '/settings',
   ACCOUNT:    '/account',
   ROLES:      '/roles',
+  CITIES:     '/cities',
+  LOCATIONS:  '/locations',
+  CLINIC_MANAGERS: '/clinic-managers',
 }

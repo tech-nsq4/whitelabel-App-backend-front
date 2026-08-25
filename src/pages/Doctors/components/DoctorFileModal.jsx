@@ -31,35 +31,28 @@ function Row({ label, value, mono }) {
 export default function DoctorFileModal({ open, onClose, doctor, index = 0 }) {
   if (!doctor) return null
   const avatarBg = AVATAR_COLORS[index % AVATAR_COLORS.length]
-  const status   = STATUS_CONFIG[doctor.status] || STATUS_CONFIG.active
+  const nameAr   = doctor.name?.ar || doctor.name || ''
+  const specialty = doctor.specializations?.[0]?.title?.ar || '—'
+  const clinicName = doctor.clinic?.name?.ar || '—'
 
   return (
-    <Modal open={open} onClose={onClose} title="ملف الطبيب" subtitle={doctor.specialty}>
-      {/* Header */}
+    <Modal open={open} onClose={onClose} title="ملف الطبيب" subtitle={specialty}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, padding: '14px 18px', background: 'var(--paper)', borderRadius: 12, border: '1px solid var(--line)' }}>
         <div style={{ width: 52, height: 52, borderRadius: 14, background: avatarBg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Readex Pro'", fontSize: 18, fontWeight: 700, flexShrink: 0 }}>
-          {doctor.initial}
+          {nameAr.charAt(3) || nameAr.charAt(0)}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "'Readex Pro'", fontSize: 15, fontWeight: 700, color: 'var(--ink)' }}>{doctor.name}</div>
-          <div style={{ fontSize: 12, color: 'var(--ink-45)', marginTop: 3 }}>{doctor.specialty} · {doctor.branch}</div>
+          <div style={{ fontFamily: "'Readex Pro'", fontSize: 15, fontWeight: 700, color: 'var(--ink)' }}>{nameAr}</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-45)', marginTop: 3 }}>{specialty} · {clinicName}</div>
         </div>
-        <span style={{ fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 99, color: status.color, background: status.bg }}>
-          {status.label}
-        </span>
+        <span className="chip ok">نشط</span>
       </div>
 
-      {/* Info rows */}
-      <Row label="الجوال"            value={doctor.phone}   mono />
-      <Row label="الفرع"             value={doctor.branch} />
-      <Row label="رقم الرخصة"       value={doctor.license} mono />
-      <Row label="زيارات هذا الشهر" value={`${doctor.visits} زيارة`} mono />
-      <Row label="متوسط التقييم"    value={`${doctor.rating} / 5`}   mono />
-      {doctor.licenseExpiring && (
-        <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(169,118,18,0.08)', border: '1px solid rgba(169,118,18,0.2)', borderRadius: 10, fontSize: 12, color: 'var(--warn)', fontWeight: 500 }}>
-          ⚠ الرخصة تحتاج تجديد قريباً
-        </div>
-      )}
+      <Row label="العيادة"       value={clinicName} />
+      <Row label="التخصص"       value={specialty} />
+      <Row label="سعر الكشف"   value={`${doctor.price} ج.م`} mono />
+      <Row label="سنوات الخبرة" value={`${doctor.experience} سنة`} mono />
+      <Row label="الوصف"        value={doctor.description?.ar || '—'} />
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18 }}>
         <button className="btn btn-q" onClick={onClose}>إغلاق</button>

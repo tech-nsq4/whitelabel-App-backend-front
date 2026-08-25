@@ -1,10 +1,9 @@
-import { specialtyFilters } from "../services.data";
-
 export default function ServiceFilters({
   search,
   activeFilter,
   onSearchChange,
   onFilterChange,
+  specialtyFilters = [],
 }) {
   return (
     <div className="panel" style={{ marginBottom: 16 }}>

@@ -14,8 +14,6 @@ export const specialtyFilters = [
   { id: 'more',     label: '+4' },
 ]
 
-// status: 'active' | 'leave' | 'inactive'
-// licenseExpiring: true = show warn chip
 export const doctors = [
   {
     id: 1, initial: 'خ', name: 'د. خالد العتيبي',  specialty: 'باطنة عامة',    specialtyId: 'internal',

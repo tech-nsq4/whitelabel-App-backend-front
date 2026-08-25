@@ -1,6 +1,4 @@
-import { specialtyFilters } from '../doctors.data'
-
-export default function DoctorFilters({ search, activeFilter, onSearchChange, onFilterChange }) {
+export default function DoctorFilters({ search, activeFilter, onSearchChange, onFilterChange, specialtyFilters = [] }) {
   return (
     <div className="panel" style={{ marginBottom: 16 }}>
       <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>

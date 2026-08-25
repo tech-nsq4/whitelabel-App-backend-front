@@ -22,4 +22,5 @@ export const PAGE_TITLES = {
   [ROUTES.SETTINGS]:   'الإعدادات العامة',
   [ROUTES.ACCOUNT]:    'إدارة الحساب',
   [ROUTES.ROLES]:      'تبديل الدور',
+  [ROUTES.CLINIC_MANAGERS]: 'مديرو العيادات',
 }

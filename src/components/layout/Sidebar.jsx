@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   ListOrdered,
@@ -19,9 +20,11 @@ import {
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
+  MapPin,
 } from "lucide-react";
 import "./Sidebar.css";
 import { useBranding } from "../../hooks/useBranding";
+import { getClinicsApi } from "../../api/clinics.api";
 
 const NAV = [
   {
@@ -62,7 +65,24 @@ const NAV = [
         label: "الفروع",
         path: "/branches",
         icon: <Building2 size={18} strokeWidth={1.7} />,
-        badge: "3",
+      },
+      {
+        id: "cities",
+        label: "المدن والمناطق",
+        path: "/cities",
+        icon: <MapPin size={18} strokeWidth={1.7} />,
+      },
+      {
+        id: "locations",
+        label: "المواقع",
+        path: "/locations",
+        icon: <MapPin size={18} strokeWidth={1.7} />,
+      },
+      {
+        id: "clinic-managers",
+        label: "مديرو العيادات",
+        path: "/clinic-managers",
+        icon: <UserCog size={18} strokeWidth={1.7} />,
       },
       {
         id: "clinics",
@@ -151,6 +171,13 @@ const NAV = [
 
 export default function Sidebar({ collapsed, onToggle }) {
   const { nameAr, nameEn, logo } = useBranding();
+  const [clinicsCount, setClinicsCount] = useState(null);
+
+  useEffect(() => {
+    getClinicsApi()
+      .then(({ data }) => setClinicsCount((data.data || []).length))
+      .catch(() => {})
+  }, [])
 
   return (
     <div className={`sidebar${collapsed ? " collapsed" : ""}`}>

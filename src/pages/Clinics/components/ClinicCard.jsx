@@ -188,7 +188,7 @@ const MORE_ICON = (
   </svg>
 );
 
-export default function ClinicCard({ specialty: initialSpecialty }) {
+export default function ClinicCard({ specialty: initialSpecialty, onDelete, onUpdate }) {
   const { showToast } = useToast();
   const [specialty, setSpecialty] = useState(initialSpecialty);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -196,7 +196,9 @@ export default function ClinicCard({ specialty: initialSpecialty }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  const config = SPECIALTY_CONFIG[specialty.nameAr] || DEFAULT_CONFIG;
+  const nameAr = specialty.title?.ar || specialty.nameAr || ''
+  const nameEn = specialty.title?.en || specialty.nameEn || ''
+  const config = SPECIALTY_CONFIG[nameAr] || DEFAULT_CONFIG;
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -260,7 +262,7 @@ export default function ClinicCard({ specialty: initialSpecialty }) {
                   lineHeight: 1.2,
                 }}
               >
-                {specialty.nameAr}
+                {nameAr}
               </div>
               <div
                 style={{
@@ -269,7 +271,7 @@ export default function ClinicCard({ specialty: initialSpecialty }) {
                   marginTop: 3,
                 }}
               >
-                {specialty.nameEn}
+                {nameEn}
               </div>
             </div>
           </div>
@@ -327,7 +329,7 @@ export default function ClinicCard({ specialty: initialSpecialty }) {
                   {
                     label: "حذف التخصص",
                     action: () => {
-                      showToast("تم الحذف");
+                      onDelete && onDelete(specialty.id);
                       setMenuOpen(false);
                     },
                     danger: true,
@@ -416,14 +418,16 @@ export default function ClinicCard({ specialty: initialSpecialty }) {
             ))}
           </div>
 
-          {/* Branches */}
+          {/* Sub Specializations count */}
+          {specialty.sub_specializations?.length > 0 && (
           <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-            {specialty.branches.map((b) => (
-              <span key={b} className="chip mut" style={{ fontSize: 10.5 }}>
-                {b}
+            {specialty.sub_specializations.map((s) => (
+              <span key={s.id} className="chip mut" style={{ fontSize: 10.5 }}>
+                {s.title?.ar || s.title}
               </span>
             ))}
           </div>
+          )}
 
           {/* Actions */}
           <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
@@ -467,7 +471,7 @@ export default function ClinicCard({ specialty: initialSpecialty }) {
         open={editOpen}
         onClose={() => setEditOpen(false)}
         specialty={specialty}
-        onSave={handleSave}
+        onSave={onUpdate}
       />
     </>
   );
