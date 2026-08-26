@@ -1,0 +1,370 @@
+/* ── Medical Records ─────────────────────── */
+
+.mr-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+/* Status tabs */
+.mr-status-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--paper);
+  padding: 3px;
+  border-radius: 10px;
+}
+.mr-status-tab {
+  padding: 6px 13px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-45);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  white-space: nowrap;
+}
+.mr-status-tab:hover {
+  color: var(--ink);
+}
+.mr-status-tab.active {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(10, 31, 27, 0.07);
+}
+
+/* Action tabs */
+.mr-action-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.mr-action-tab {
+  padding: 6px 13px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-45);
+  background: var(--card);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.mr-action-tab:hover {
+  border-color: var(--brand);
+  color: var(--ink);
+}
+.mr-action-tab.active {
+  background: rgba(15, 107, 92, 0.08);
+  border-color: rgba(15, 107, 92, 0.3);
+  color: var(--brand-d);
+  font-weight: 600;
+}
+
+/* Card list */
+.mr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Single card */
+.mr-card {
+  background: var(--card);
+  border: 1px solid transparent;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(10, 31, 27, 0.07), 0 1px 3px rgba(10, 31, 27, 0.04);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.mr-card:hover {
+  box-shadow: 0 8px 28px rgba(10, 31, 27, 0.11), 0 2px 8px rgba(10, 31, 27, 0.06);
+  transform: translateY(-1px);
+}
+
+/* Card head */
+.mr-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+}
+.mr-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.mr-card-info {
+  flex: 1;
+  min-width: 0;
+}
+.mr-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.mr-patient-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.mr-no {
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--brand-d);
+  background: rgba(15, 107, 92, 0.07);
+  padding: 1px 7px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+.mr-status-chip {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 99px;
+}
+.mr-card-meta {
+  font-size: 11.5px;
+  color: var(--ink-45);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.mr-sep {
+  color: var(--ink-25);
+}
+.mr-card-type {
+  flex-shrink: 0;
+}
+.mr-new-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(44, 109, 170, 0.1);
+  color: #2c6daa;
+}
+.mr-type-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--paper);
+  color: var(--ink-45);
+}
+
+/* Note row */
+.mr-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  font-size: 12.5px;
+  color: var(--ink-70);
+  background: #fff;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Actions row */
+.mr-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  flex-wrap: wrap;
+  background: #fff;
+}
+.mr-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-70);
+  background: #fff;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.mr-action-btn:hover {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--ink-25);
+}
+.mr-action-btn.empty {
+  opacity: 0.45;
+  cursor: default;
+}
+.mr-action-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mr-detail-btn {
+  margin-right: auto;
+  min-width: 100px;
+  justify-content: center;
+}
+
+/* ── Data Modal ── */
+.mr-modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 31, 27, 0.35);
+  backdrop-filter: blur(2px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.15s ease;
+}
+.mr-modal {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+.mr-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-subtle);
+}
+.mr-modal-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mr-modal-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.mr-modal-sub {
+  font-size: 11px;
+  color: var(--ink-45);
+  margin-top: 2px;
+}
+.mr-modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-45);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.mr-modal-close:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+.mr-modal-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.mr-modal-empty {
+  padding: 28px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-45);
+}
+.mr-modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 13px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.mr-modal-row-main {
+  flex: 1;
+  min-width: 0;
+}
+.mr-modal-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.mr-modal-item-sub {
+  font-size: 11px;
+  color: var(--ink-45);
+  margin-top: 2px;
+}
+.mr-modal-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mr-modal-badge.green {
+  background: rgba(15, 107, 92, 0.1);
+  color: #0f6b5c;
+}
+.mr-modal-badge.blue {
+  background: rgba(44, 109, 170, 0.1);
+  color: #2c6daa;
+}
+.mr-modal-badge.warn {
+  background: rgba(201, 162, 39, 0.1);
+  color: #a97612;
+}
+.mr-modal-badge.gold {
+  background: rgba(201, 162, 39, 0.1);
+  color: #a97612;
+}
+.mr-modal-badge.pink {
+  background: rgba(219, 39, 119, 0.1);
+  color: #db2777;
+}

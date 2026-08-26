@@ -32,7 +32,7 @@ function ShiftPill({ start, end, color, soft }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 7, marginBottom: 5, background: soft, border: `1px solid ${color}25` }}>
       <div style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0 }} />
-      <span style={{ fontSize: 12.5, fontWeight: 700, color, fontFamily: 'monospace', letterSpacing: 0.3 }} dir="ltr">
+      <span style={{ fontSize: 12.5, fontWeight: 700, color, letterSpacing: 0.3 }} dir="ltr">
         {start} – {end}
       </span>
     </div>
@@ -70,7 +70,7 @@ function DoctorRow({ table, days, isEven }) {
             </div>
           </div>
         </div>
-        <div style={{ fontSize: 11, color: 'var(--ink-45)', marginBottom: 7, fontFamily: 'monospace', direction: 'ltr', textAlign: 'right' }}>
+        <div style={{ fontSize: 11, color: 'var(--ink-45)', marginBottom: 7, direction: 'ltr', textAlign: 'right' }}>
           {table.start_date} → {table.end_date}
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'nowrap' }}>
@@ -142,25 +142,19 @@ export default function CalendarView({ clinicFilter = 'all', dateRange, view }) 
         {/* Clinic filter — removed, now in CalendarHeader */}
 
         {/* Type filter */}
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div className="cal-tabs-inline" style={{ position: 'static', transform: 'none' }}>
           {[
             { id: 'all',    label: 'الكل' },
-            { id: 'clinic', label: 'عيادة', color: TYPE_META.clinic.color },
-            { id: 'home',   label: 'منزل',  color: TYPE_META.home.color  },
-            { id: 'video',  label: 'فيديو', color: TYPE_META.video.color },
-          ].map(f => {
-            const active = typeFilter === f.id
-            return (
-              <button key={f.id} onClick={() => setTypeFilter(f.id)} style={{
-                padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                border: `1.5px solid ${active && f.color ? f.color : active ? 'var(--brand)' : 'var(--line)'}`,
-                background: active ? (f.color ? `${f.color}12` : 'var(--sand)') : 'var(--card)',
-                color: active ? (f.color || 'var(--brand)') : 'var(--ink-70)',
-              }}>
-                {f.label}
-              </button>
-            )
-          })}
+            { id: 'clinic', label: 'عيادة' },
+            { id: 'home',   label: 'منزل'  },
+            { id: 'video',  label: 'فيديو' },
+          ].map(f => (
+            <button key={f.id}
+              className={`cal-tab-inline${typeFilter === f.id ? ' active' : ''}`}
+              onClick={() => setTypeFilter(f.id)}>
+              {f.label}
+            </button>
+          ))}
         </div>
 
         <span style={{ marginRight: 'auto', fontSize: 12, color: 'var(--ink-45)' }}>{filtered.length} جدول</span>

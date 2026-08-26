@@ -1,0 +1,284 @@
+/* ── ClinicDetailsPage ───────────────────────────────── */
+
+.cdp { animation: fadeIn .3s ease; }
+
+/* Header card */
+.cdp-header {
+  margin-bottom: 16px;
+  padding: 20px 22px;
+}
+
+.cdp-header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cdp-title-wrap {
+  flex: 1;
+}
+
+.cdp-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cdp-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cdp-address {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--ink-45);
+}
+
+/* Meta row (phone / manager / hours) */
+.cdp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  gap: 0;
+}
+
+.cdp-meta-item {
+  flex: 1;
+  min-width: 150px;
+  padding: 0 20px;
+  border-left: 1px solid var(--line);
+}
+
+.cdp-meta-item:last-child {
+  border-left: none;
+}
+
+.cdp-meta-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--ink-45);
+  margin-bottom: 5px;
+}
+
+.cdp-meta-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cdp-meta-value.mono {
+  font-family: monospace;
+}
+
+/* KPI grid */
+.cdp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cdp-kpi-card {
+  border-radius: 14px;
+  padding: 18px 16px;
+  text-align: center;
+  border: 1px solid;
+}
+
+.cdp-kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'Careem', sans-serif;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.cdp-kpi-label {
+  font-size: 11px;
+  color: var(--ink-45);
+}
+
+/* Metrics grid */
+.cdp-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.cdp-metric-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.cdp-metric-value {
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Careem', sans-serif;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.cdp-metric-label {
+  font-size: 11px;
+  color: var(--ink-45);
+}
+
+/* Two-column section */
+.cdp-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* Section header inside panel */
+.cdp-section-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+/* Spec row */
+.cdp-spec-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cdp-spec-row:last-child {
+  border-bottom: none;
+}
+
+.cdp-spec-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.cdp-spec-sub {
+  font-size: 11px;
+  color: var(--ink-45);
+}
+
+.cdp-spec-revenue {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--brand-d);
+  font-family: 'Careem', sans-serif;
+}
+
+/* Doctor row */
+.cdp-doc-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.cdp-doc-row:last-child {
+  border-bottom: none;
+}
+
+.cdp-doc-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cdp-doc-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.cdp-doc-sub {
+  font-size: 11px;
+  color: var(--ink-45);
+}
+
+.cdp-doc-stats {
+  flex-shrink: 0;
+  text-align: left;
+}
+
+.cdp-doc-revenue {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--brand-d);
+  font-family: 'Careem', sans-serif;
+}
+
+.cdp-doc-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  justify-content: flex-end;
+  font-size: 10.5px;
+  color: #D97706;
+  margin-top: 2px;
+}
+
+/* Empty state */
+.cdp-empty {
+  padding: 28px 20px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-45);
+}
+
+/* Footer actions */
+.cdp-footer {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .cdp-kpi-grid,
+  .cdp-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cdp-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .cdp-meta-item {
+    border-left: none;
+    border-bottom: 1px solid var(--line);
+    padding: 10px 0;
+  }
+
+  .cdp-meta-item:last-child {
+    border-bottom: none;
+  }
+}

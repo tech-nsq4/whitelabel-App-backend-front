@@ -5,6 +5,7 @@ import {
   User, ArrowLeftRight, LogOut
 } from 'lucide-react'
 import NotificationDropdown from '../notifications/NotificationDropdown'
+import SendNotificationModal from '../notifications/SendNotificationModal'
 import GlobalSearch from '../search/GlobalSearch'
 import { PAGE_TITLES } from '../../constants'
 import { useAuth } from '../../context/AuthContext'
@@ -17,9 +18,10 @@ export default function Topbar({ onToast }) {
   const { user, logout } = useAuth()
   const { nameAr } = useBranding()
 
-  const [notifOpen,  setNotifOpen]  = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [userOpen,   setUserOpen]   = useState(false)
+  const [notifOpen,   setNotifOpen]   = useState(false)
+  const [composeOpen, setComposeOpen] = useState(false)
+  const [searchOpen,  setSearchOpen]  = useState(false)
+  const [userOpen,    setUserOpen]    = useState(false)
 
   const notifRef = useRef(null)
   const userRef  = useRef(null)
@@ -81,6 +83,7 @@ export default function Topbar({ onToast }) {
             <NotificationDropdown
               open={notifOpen}
               onMarkAllRead={() => { onToast('تم تعليم الكل كمقروء'); setNotifOpen(false) }}
+              onCompose={() => { setNotifOpen(false); setComposeOpen(true) }}
             />
           </div>
 
@@ -131,6 +134,7 @@ export default function Topbar({ onToast }) {
       </div>
 
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SendNotificationModal open={composeOpen} onClose={() => setComposeOpen(false)} />
     </>
   )
 }

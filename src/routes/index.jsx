@@ -27,27 +27,27 @@ const Locations = lazy(() => import("../pages/Locations/Locations"));
 const ClinicManagers = lazy(() => import("../pages/ClinicManagers/ClinicManagers"));
 
 const protectedRoutes = [
-  { path: ROUTES.DASHBOARD, element: <Dashboard /> },
-  { path: ROUTES.QUEUE,     element: <Queue /> },
-  { path: ROUTES.CALENDAR,  element: <Calendar /> },
-  { path: ROUTES.PATIENTS,  element: <Patients /> },
-  { path: ROUTES.BRANCHES,  element: <Branches /> },
-  { path: ROUTES.CLINICS,   element: <Clinics /> },
-  { path: ROUTES.DOCTORS,   element: <Doctors /> },
-  { path: ROUTES.SERVICES,  element: <Services /> },
-  { path: ROUTES.STAFF,     element: <Staff /> },
-  { path: ROUTES.BILLING,   element: <Billing /> },
-  { path: ROUTES.INSURANCE, element: <Insurance /> },
-  { path: ROUTES.REPORTS,   element: <Reports /> },
-  { path: ROUTES.ANALYTICS, element: <Analytics /> },
-  { path: ROUTES.AUDIT,     element: <Audit /> },
-  { path: ROUTES.BRANDING,  element: <Branding /> },
-  { path: ROUTES.SETTINGS,  element: <Settings /> },
-  { path: ROUTES.ACCOUNT,   element: <Account /> },
-  { path: ROUTES.ROLES,     element: <Roles /> },
-  { path: ROUTES.CITIES,    element: <Cities /> },
-  { path: ROUTES.LOCATIONS,        element: <Locations /> },
-  { path: ROUTES.CLINIC_MANAGERS,  element: <ClinicManagers /> },
+  { path: ROUTES.DASHBOARD,       element: <Dashboard /> },
+  { path: ROUTES.QUEUE,           element: <Queue />,            permission: 'appointments.view' },
+  { path: ROUTES.CALENDAR,        element: <Calendar />,         permission: 'appointments.view' },
+  { path: ROUTES.PATIENTS,        element: <Patients /> },
+  { path: ROUTES.BRANCHES,        element: <Branches />,         permission: 'clinics.view' },
+  { path: ROUTES.CLINICS,         element: <Clinics />,          permission: 'clinics.view' },
+  { path: ROUTES.DOCTORS,         element: <Doctors />,          permission: 'doctors.view' },
+  { path: ROUTES.SERVICES,        element: <Services /> },
+  { path: ROUTES.STAFF,           element: <Staff />,            permission: 'admins.view' },
+  { path: ROUTES.BILLING,         element: <Billing /> },
+  { path: ROUTES.INSURANCE,       element: <Insurance /> },
+  { path: ROUTES.REPORTS,         element: <Reports /> },
+  { path: ROUTES.ANALYTICS,       element: <Analytics /> },
+  { path: ROUTES.AUDIT,           element: <Audit /> },
+  { path: ROUTES.BRANDING,        element: <Branding /> },
+  { path: ROUTES.SETTINGS,        element: <Settings /> },
+  { path: ROUTES.ACCOUNT,         element: <Account /> },
+  { path: ROUTES.ROLES,           element: <Roles />,            permission: 'roles.view' },
+  { path: ROUTES.CITIES,          element: <Cities />,           permission: 'cities.view' },
+  { path: ROUTES.LOCATIONS,       element: <Locations />,        permission: 'locations.view' },
+  { path: ROUTES.CLINIC_MANAGERS, element: <ClinicManagers />,   permission: 'clinic-managers.view' },
 ];
 
 export default function AppRoutes() {
@@ -59,11 +59,11 @@ export default function AppRoutes() {
         <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
         {/* Protected — requires authentication */}
-        {protectedRoutes.map(({ path, element }) => (
+        {protectedRoutes.map(({ path, element, permission }) => (
           <Route
             key={path}
             path={path}
-            element={<ProtectedRoute>{element}</ProtectedRoute>}
+            element={<ProtectedRoute permission={permission}>{element}</ProtectedRoute>}
           />
         ))}
       </Routes>

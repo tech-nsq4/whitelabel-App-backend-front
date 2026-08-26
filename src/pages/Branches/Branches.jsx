@@ -1,4 +1,5 @@
 ﻿import { useState, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import BranchCard from './components/BranchCard'
 import ClinicDetailsPage from './components/ClinicDetailsPage'
 import BranchEditModal from './components/BranchEditModal'
@@ -11,15 +12,31 @@ import './Branches.css'
 
 export default function Branches() {
   const { showToast } = useToast()
-  const [modalOpen, setModalOpen]           = useState(false)
-  const [selectedClinic, setSelectedClinic] = useState(null)
-  const [editingBranch, setEditingBranch]   = useState(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [modalOpen, setModalOpen]       = useState(false)
+  const [editingBranch, setEditingBranch] = useState(null)
+
+  const selectedClinicId = searchParams.get('clinic')
 
   const { data: branchList = [], isLoading: loading } = useClinics()
   const { data: allDoctors = [] } = useDoctors()
   const createClinic = useCreateClinic()
   const updateClinic = useUpdateClinic()
   const deleteClinic = useDeleteClinic()
+
+  // find selected clinic object from URL param
+  const selectedClinic = useMemo(
+    () => branchList.find(c => String(c.id) === selectedClinicId) || null,
+    [branchList, selectedClinicId]
+  )
+
+  function openClinic(clinic) {
+    setSearchParams({ clinic: String(clinic.id) })
+  }
+
+  function closeClinic() {
+    setSearchParams({})
+  }
 
   // count doctors per clinic
   const doctorsCountMap = useMemo(() => {
@@ -87,7 +104,7 @@ export default function Branches() {
   return (
     <div className="branches-page" style={{ animation: 'fadeIn .3s ease' }}>
       {selectedClinic ? (
-        <ClinicDetailsPage clinic={selectedClinic} onBack={() => setSelectedClinic(null)} />
+        <ClinicDetailsPage clinic={selectedClinic} onBack={closeClinic} />
       ) : (
         <>
           <div className="page-head">
@@ -110,7 +127,7 @@ export default function Branches() {
                   <BranchCard
                     key={group.cityId}
                     group={group}
-                    onDetails={setSelectedClinic}
+                    onDetails={openClinic}
                     onEdit={setEditingBranch}
                     onDelete={handleDelete}
                   />

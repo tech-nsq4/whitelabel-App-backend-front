@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import "./Sidebar.css";
 import { useBranding } from "../../hooks/useBranding";
+import { useAuth } from "../../context/AuthContext";
 import { getClinicsApi } from "../../api/clinics.api";
 
 const NAV = [
@@ -42,12 +43,14 @@ const NAV = [
         path: "/queue",
         icon: <ListOrdered size={18} strokeWidth={1.7} />,
         badge: "18",
+        permission: "appointments.view",
       },
       {
         id: "calendar",
         label: "الحجوزات والمواعيد",
         path: "/calendar",
         icon: <CalendarDays size={18} strokeWidth={1.7} />,
+        permission: "appointments.view",
       },
       {
         id: "patients",
@@ -65,36 +68,42 @@ const NAV = [
         label: "الفروع",
         path: "/branches",
         icon: <Building2 size={18} strokeWidth={1.7} />,
+        permission: "clinics.view",
       },
       {
         id: "cities",
         label: "المدن والمناطق",
         path: "/cities",
         icon: <MapPin size={18} strokeWidth={1.7} />,
+        permission: "cities.view",
       },
       {
         id: "locations",
         label: "المواقع",
         path: "/locations",
         icon: <MapPin size={18} strokeWidth={1.7} />,
+        permission: "locations.view",
       },
       {
         id: "clinic-managers",
         label: "مديرو العيادات",
         path: "/clinic-managers",
         icon: <UserCog size={18} strokeWidth={1.7} />,
+        permission: "clinic-managers.view",
       },
       {
         id: "clinics",
         label: "العيادات والتخصصات",
         path: "/clinics",
         icon: <Stethoscope size={18} strokeWidth={1.7} />,
+        permission: "clinics.view",
       },
       {
         id: "doctors",
         label: "الأطباء",
         path: "/doctors",
         icon: <UserRound size={18} strokeWidth={1.7} />,
+        permission: "doctors.view",
       },
       {
         id: "services",
@@ -107,6 +116,7 @@ const NAV = [
         label: "المستخدمون والصلاحيات",
         path: "/staff",
         icon: <UserCog size={18} strokeWidth={1.7} />,
+        permission: "admins.view",
       },
     ],
   },
@@ -171,13 +181,14 @@ const NAV = [
 
 export default function Sidebar({ collapsed, onToggle }) {
   const { nameAr, nameEn, logo } = useBranding();
+  const { hasPermission } = useAuth();
   const [clinicsCount, setClinicsCount] = useState(null);
 
   useEffect(() => {
     getClinicsApi()
       .then(({ data }) => setClinicsCount((data.data || []).length))
-      .catch(() => {})
-  }, [])
+      .catch(() => {});
+  }, []);
 
   return (
     <div className={`sidebar${collapsed ? " collapsed" : ""}`}>
@@ -209,10 +220,15 @@ export default function Sidebar({ collapsed, onToggle }) {
 
       {/* Nav */}
       <div className="side-scroll">
-        {NAV.map((group) => (
+        {NAV.map((group) => {
+          const visibleItems = group.items.filter(item =>
+            !item.permission || hasPermission(item.permission)
+          )
+          if (visibleItems.length === 0) return null
+          return (
           <div key={group.section} className="side-group">
             {!collapsed && <div className="side-section">{group.section}</div>}
-            {group.items.map((item) => (
+            {visibleItems.map((item) => (
               <NavLink
                 key={item.id}
                 to={item.path}
@@ -236,7 +252,8 @@ export default function Sidebar({ collapsed, onToggle }) {
               </NavLink>
             ))}
           </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Footer */}

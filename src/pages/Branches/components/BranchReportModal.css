@@ -1,0 +1,149 @@
+/* ── BranchReportModal ───────────────────────────────── */
+
+.brm {
+  padding: 0 2px;
+}
+
+/* KPI row — 3 cards */
+.brm-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.brm-kpi-card {
+  border: 1px solid;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+
+.brm-kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'Careem', sans-serif;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.brm-kpi-label {
+  font-size: 11px;
+  color: var(--ink-45);
+}
+
+/* Metrics row */
+.brm-metrics-row {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.brm-metric {
+  flex: 1;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.brm-metric-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  font-family: 'Careem', sans-serif;
+  margin-bottom: 4px;
+}
+
+.brm-metric-label {
+  font-size: 11px;
+  color: var(--ink-45);
+}
+
+/* Divider */
+.brm-divider {
+  height: 1px;
+  background: var(--line);
+  margin-bottom: 18px;
+}
+
+/* Section title */
+.brm-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+/* Spec list */
+.brm-spec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.brm-spec-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.brm-spec-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+.brm-spec-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.brm-spec-count {
+  font-size: 11px;
+  color: var(--ink-45);
+}
+
+.brm-spec-bar-wrap {
+  width: 160px;
+  height: 6px;
+  background: var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.brm-spec-bar {
+  height: 100%;
+  background: var(--brand);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.brm-spec-revenue {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  font-family: 'Careem', sans-serif;
+  min-width: 60px;
+  text-align: left;
+}
+
+/* Empty */
+.brm-empty {
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-45);
+  padding: 20px 0;
+  margin-bottom: 22px;
+}
+
+/* Footer */
+.brm-footer {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+}

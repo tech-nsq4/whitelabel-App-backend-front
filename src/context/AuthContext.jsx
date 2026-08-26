@@ -13,12 +13,20 @@ export function AuthProvider({ children }) {
     }
   })
 
+  const permissions = user?.permissions ?? []
+  const isSuperAdmin = user?.is_super_admin === true || permissions.length === 0
+
+  function hasPermission(slug) {
+    if (isSuperAdmin) return true
+    return permissions.includes(slug)
+  }
+
   async function login(email, password) {
     const { data } = await loginApi(email.trim().toLowerCase(), password)
     const userData = data.data.admin
     const token    = data.data.token
     localStorage.setItem('token', token)
-    localStorage.setItem('auth_user', JSON.stringify(userData))
+    localStorage.setItem('auth_user', JSON.stringify(userData))   
     setUser(userData)
     return true
   }
@@ -31,7 +39,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, hasPermission, isSuperAdmin }}>
       {children}
     </AuthContext.Provider>
   )
