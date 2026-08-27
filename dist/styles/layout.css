@@ -1,0 +1,66 @@
+/* App shell */
+.app {
+  display: flex;
+  height: 100vh;
+  direction: rtl;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 30px;
+  background: var(--app-background);
+}
+
+/* Page header */
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.page-head h1 {
+  font-size: 23px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.2px;
+}
+
+.page-head .sub {
+  font-size: 12.5px;
+  color: var(--ink-45);
+  margin-top: 4px;
+}
+
+.page-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Grid rows */
+.row {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.row.c2  { grid-template-columns: 2fr 1fr; }
+.row.c3  { grid-template-columns: 1fr 1fr 1fr; }
+.row.c22 { grid-template-columns: 1fr 1fr; }
+.row.c31 { grid-template-columns: 1.5fr 1fr; }
+
+/* Chart placeholder */
+.chart {
+  height: 220px;
+  position: relative;
+}

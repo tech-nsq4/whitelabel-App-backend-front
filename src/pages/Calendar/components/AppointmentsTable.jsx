@@ -60,7 +60,7 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
       if (statusFilter !== "all" && a.status !== statusFilter) return false;
       if (
         clinicFilter !== "all" &&
-        String(a.doctor?.clinic_id) !== String(clinicFilter)
+        String(a.doctor?.clinic?.id) !== String(clinicFilter)
       )
         return false;
       if (applyDate && dateRange?.from) {

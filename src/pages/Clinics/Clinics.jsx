@@ -1,11 +1,12 @@
-﻿import { useState } from "react";
+﻿import { useState, useMemo } from "react";
 import ClinicCard from "./components/ClinicCard";
 import NewClinicModal from "./components/NewClinicModal";
-import { clinicStats } from "./clinics.data";
 import { useToast } from "../../components/ui/Toast";
 import KpiCard from "../../components/ui/KpiCard";
 import { SkeletonCards } from "../../components/ui/Skeleton";
 import { useSpecializations, useCreateSpecialization, useDeleteSpecialization } from "../../hooks/queries/useSpecializations";
+import { useClinics } from "../../hooks/queries/useClinics";
+import { useDoctors } from "../../hooks/queries/useDoctors";
 
 const S = {
   stroke: "currentColor",
@@ -75,8 +76,23 @@ export default function Clinics() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const { data: specialties = [], isLoading: loading } = useSpecializations()
+  const { data: clinics = [] }    = useClinics()
+  const { data: doctors = [] }    = useDoctors()
   const createSpecialization = useCreateSpecialization()
   const deleteSpecialization = useDeleteSpecialization()
+
+  // top specialty by doctors_count
+  const topSpecialty = useMemo(() => {
+    if (!specialties.length) return '—'
+    return [...specialties].sort((a, b) => (b.doctors_count ?? 0) - (a.doctors_count ?? 0))[0]?.title?.ar || '—'
+  }, [specialties])
+
+  const clinicStats = [
+    { id: 'specialties', label: 'التخصصات',      value: specialties.length, note: 'تخصص طبي متاح',   icon: 'clinic' },
+    { id: 'total',       label: 'إجمالي العيادات', value: clinics.length,    note: `في ${new Set(clinics.map(c => c.location_id)).size} مواقع`, icon: 'service' },
+    { id: 'doctors',     label: 'أطباء نشطون',    value: doctors.length,    note: 'إجمالي الأطباء',   icon: 'doctor' },
+    { id: 'top',         label: 'أعلى تخصص',      value: topSpecialty,      note: 'حسب عدد الأطباء',  icon: 'chart', isText: true },
+  ]
 
   async function handleCreate(form) {
     try {
@@ -161,7 +177,7 @@ export default function Clinics() {
           {specialties.map((s) => (
             <ClinicCard
               key={s.id}
-              specialty={s}
+              specialty={{ ...s, doctors: s.doctors_count ?? 0 }}
               onDelete={handleDelete}
               onUpdate={() => {}}
             />

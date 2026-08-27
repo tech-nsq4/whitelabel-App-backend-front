@@ -14,6 +14,7 @@ export function usePushNotifications() {
     queryFn: () => getPushNotificationsApi().then(r => r.data.data || []),
     enabled: !!token,
     refetchInterval: 30000,
+    retry: 0,
   })
 }
 

@@ -97,8 +97,8 @@ export default function Topbar({ onToast }) {
             >
               <div className="avatar">{userInitial}</div>
               <div className="role-info">
-                <div className="role-name">{user?.role  || 'مدير النظام'}</div>
-                <div className="role-sub">{user?.name   || 'المستخدم'}</div>
+                <div className="role-name">{user?.roles?.[0]?.name || 'مدير النظام'}</div>
+                <div className="role-sub">{user?.name || 'المستخدم'}</div>
               </div>
               <ChevronDown size={13} strokeWidth={2} className="role-chevron" />
             </button>
@@ -109,7 +109,7 @@ export default function Topbar({ onToast }) {
                   <div className="avatar user-dropdown-avatar">{userInitial}</div>
                   <div>
                     <div className="user-dropdown-name">{user?.name  || 'المستخدم'}</div>
-                    <div className="user-dropdown-role">{user?.role  || 'مدير النظام'}</div>
+                    <div className="user-dropdown-role">{user?.roles?.[0]?.name || 'مدير النظام'}</div>
                   </div>
                 </div>
                 <div className="user-dropdown-body">

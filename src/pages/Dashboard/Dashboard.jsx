@@ -15,12 +15,16 @@ export default function Dashboard() {
   const { user } = useAuth()
   const firstName = user?.name?.split(' ')[0] || 'بك'
 
+  const todayLabel = new Intl.DateTimeFormat('ar-SA-u-ca-gregory', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  }).format(new Date())
+
   return (
     <div className="dashboard-page" style={{ animation: 'fadeIn .3s ease' }}>
       <div className="page-head">
         <div>
           <h1>مرحباً، {firstName} 👋</h1>
-          <div className="sub">لمحة سريعة على أداء المجمع اليوم — الاثنين 4 أغسطس 2026</div>
+          <div className="sub">لمحة سريعة على أداء المجمع اليوم — {todayLabel}</div>
         </div>
         <div className="page-actions">
           <div className="seg">

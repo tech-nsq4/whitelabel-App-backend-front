@@ -1,0 +1,18 @@
+@font-face {
+  font-family: "Careem";
+  src: url("/fonts/CAREEM-REGULAR.DB5F2BCA26992ED25A89.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IcoFont";
+  src:
+    url("/fonts/icofont.woff2") format("woff2"),
+    url("/fonts/icofont.woff") format("woff"),
+    url("/fonts/icofont.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}

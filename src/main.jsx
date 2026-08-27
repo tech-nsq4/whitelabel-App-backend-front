@@ -27,7 +27,6 @@ if (savedId) {
 }
 
 const rootEl = document.getElementById("root");
-console.log("root element:", rootEl);
 
 try {
   ReactDOM.createRoot(rootEl).render(

@@ -4,8 +4,6 @@ import CalendarView from "./components/CalendarView";
 import AppointmentsTable from "./components/AppointmentsTable";
 import MedicalRecords from "./components/MedicalRecords";
 import BookingModal from "./components/BookingModal";
-import AppointmentDetailsModal from "./components/AppointmentDetailsModal";
-import PatientFileModal from "./components/PatientFileModal";
 import { useClinics } from "../../hooks/queries/useClinics";
 import { useToast } from "../../components/ui/Toast";
 import "./styles/calendar.css";
@@ -78,8 +76,6 @@ export default function Calendar() {
   const [clinicFilter, setClinicFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("schedule");
   const [bookingOpen, setBookingOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [patientFileAppointment, setPatientFileAppointment] = useState(null);
 
   const dateRange = useMemo(
     () => getDateRange(currentDate, view),
@@ -150,18 +146,6 @@ export default function Calendar() {
         open={bookingOpen}
         onClose={() => setBookingOpen(false)}
         onSubmit={handleBookingSubmit}
-      />
-      <AppointmentDetailsModal
-        appointment={selectedAppointment}
-        onClose={() => setSelectedAppointment(null)}
-        onViewPatient={() => {
-          setPatientFileAppointment(selectedAppointment);
-          setSelectedAppointment(null);
-        }}
-      />
-      <PatientFileModal
-        appointment={patientFileAppointment}
-        onClose={() => setPatientFileAppointment(null)}
       />
     </div>
   );
