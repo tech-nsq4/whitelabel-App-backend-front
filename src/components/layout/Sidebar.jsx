@@ -21,6 +21,9 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   MapPin,
+  Bell,
+  CalendarClock,
+  FileText,
 } from "lucide-react";
 import "./Sidebar.css";
 import { useBranding } from "../../hooks/useBranding";
@@ -39,10 +42,9 @@ const NAV = [
       },
       {
         id: "queue",
-        label: "طابور اليوم",
+        label: "حجوزات اليوم",
         path: "/queue",
         icon: <ListOrdered size={18} strokeWidth={1.7} />,
-        badge: "18",
         permission: "appointments.view",
       },
       {
@@ -106,6 +108,12 @@ const NAV = [
         permission: "doctors.view",
       },
       {
+        id: "time-tables",
+        label: "جداول الأطباء",
+        path: "/time-tables",
+        icon: <CalendarClock size={18} strokeWidth={1.7} />,
+      },
+      {
         id: "services",
         label: "الخدمات والأسعار",
         path: "/services",
@@ -117,6 +125,20 @@ const NAV = [
         path: "/staff",
         icon: <UserCog size={18} strokeWidth={1.7} />,
         permission: "admins.view",
+      },
+      {
+        id: "roles",
+        label: "الأدوار والصلاحيات",
+        path: "/roles",
+        icon: <ShieldCheck size={18} strokeWidth={1.7} />,
+        permission: "roles.view",
+      },
+      {
+        id: "notifications",
+        label: "الإشعارات",
+        path: "/notifications",
+        icon: <Bell size={18} strokeWidth={1.7} />,
+        permission: "push-notifications.view",
       },
     ],
   },
@@ -168,6 +190,12 @@ const NAV = [
         label: "الهوية البصرية",
         path: "/branding",
         icon: <Palette size={18} strokeWidth={1.7} />,
+      },
+      {
+        id: "pages",
+        label: "الصفحات",
+        path: "/pages",
+        icon: <FileText size={18} strokeWidth={1.7} />,
       },
       {
         id: "settings",

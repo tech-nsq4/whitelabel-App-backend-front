@@ -209,7 +209,7 @@ function DoctorRow({ table, days, isEven }) {
                 whiteSpace: "nowrap",
               }}
             >
-              <b style={{ color: "var(--ink)" }}>{price}</b> ج.م
+              <b style={{ color: "var(--ink)" }}>{price}</b> ر.س
             </span>
           )}
           {exp && (

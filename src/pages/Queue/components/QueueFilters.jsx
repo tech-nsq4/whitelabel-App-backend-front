@@ -1,30 +1,22 @@
-import { clinicFilters, branchFilters } from '../queue.data'
-
-export default function QueueFilters({ activeClinic, activeBranch, onClinicChange, onBranchChange }) {
+export default function QueueFilters({ clinics = [], clinicFilter, onClinicChange }) {
   return (
     <div className="queue-filters">
       <div className="filter-bar">
-      {clinicFilters.map((f) => (
         <div
-          key={f.id}
-          className={`filter-chip${activeClinic === f.id ? ' active' : ''}`}
-          onClick={() => onClinicChange(f.id)}
+          className={`filter-chip${clinicFilter === 'all' ? ' active' : ''}`}
+          onClick={() => onClinicChange('all')}
         >
-          {f.label}
+          جميع العيادات
         </div>
-      ))}
-
-      <div style={{ width: 1, height: 26, background: 'var(--line)', margin: '0 8px' }} />
-
-      {branchFilters.map((f) => (
-        <div
-          key={f.id}
-          className={`filter-chip${activeBranch === f.id ? ' active' : ''}`}
-          onClick={() => onBranchChange(f.id)}
-        >
-          {f.label}
-        </div>
-      ))}
+        {clinics.map(c => (
+          <div
+            key={c.id}
+            className={`filter-chip${String(clinicFilter) === String(c.id) ? ' active' : ''}`}
+            onClick={() => onClinicChange(c.id)}
+          >
+            {c.name?.ar || c.name}
+          </div>
+        ))}
       </div>
     </div>
   )

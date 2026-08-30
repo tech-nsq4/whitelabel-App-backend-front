@@ -37,7 +37,7 @@
   padding: 3px;
   border-radius: 10px;
   position: absolute;
-  left: 50%;
+  left: 40%;
   transform: translateX(-50%);
 }
 .cal-tab-inline {

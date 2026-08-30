@@ -1,5 +1,3 @@
-import { patientStats } from '../patients.data'
-
 const ICONS = {
   group: (
     <svg width="16" height="16" viewBox="0 0 24 24">
@@ -14,10 +12,10 @@ const ICONS = {
       <path d="M4.5 20c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/>
     </svg>
   ),
-  star: (
+  calendar: (
     <svg width="16" height="16" viewBox="0 0 24 24">
-      <path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>
-      <circle cx="12" cy="12" r="3.5"/>
+      <rect x="3" y="4" width="18" height="17" rx="2"/>
+      <path d="M16 2v4M8 2v4M3 10h18"/>
     </svg>
   ),
   plus: (
@@ -27,31 +25,36 @@ const ICONS = {
   ),
 }
 
-const UP_ICON = (
-  <svg width="12" height="12" viewBox="0 0 24 24">
-    <path d="M4 17l6-6 4 4 6-8"/><path d="M14 7h6v6"/>
-  </svg>
-)
+export default function PatientStats({ patients = [], isLoading }) {
+  const verified   = patients.filter((p) => p.phone_verified_at).length
+  const withAppts  = patients.filter((p) => (p.appointments_count ?? 0) > 0).length
+  const today      = patients.filter((p) => {
+    const d = new Date(p.created_at)
+    const now = new Date()
+    return d.getFullYear() === now.getFullYear() &&
+           d.getMonth()    === now.getMonth()    &&
+           d.getDate()     === now.getDate()
+  }).length
 
-export default function PatientStats() {
+  const stats = [
+    { id: 'total',    label: 'إجمالي المرضى',      value: patients.length, note: 'مريض مسجل',          icon: 'group'    },
+    { id: 'verified', label: 'موثقو الجوال',        value: verified,        note: 'رقم جوال موثق',      icon: 'person'   },
+    { id: 'active',   label: 'لديهم مواعيد',        value: withAppts,       note: 'مريض له موعد',       icon: 'calendar' },
+    { id: 'today',    label: 'التسجيلات اليوم',     value: today,           note: 'مريض جديد اليوم',    icon: 'plus'     },
+  ]
+
   return (
     <div className="kpi-grid patients-kpi-grid">
-      {patientStats.map((stat) => (
+      {stats.map((stat) => (
         <div key={stat.id} className={`kpi patients-kpi patients-kpi-${stat.id}`}>
           <div className="kpi-head">
             <div className="kpi-label">{stat.label}</div>
             <div className="kpi-icon">{ICONS[stat.icon]}</div>
           </div>
-          <div className="kpi-value num">{stat.value}</div>
-          <div>
-            {stat.delta && (
-              <span className={`kpi-delta ${stat.deltaType}`}>
-                {stat.deltaType === 'up' && UP_ICON}
-                {stat.delta}
-              </span>
-            )}
-            <span className="kpi-note">{stat.note}</span>
+          <div className="kpi-value num">
+            {isLoading ? '—' : stat.value.toLocaleString('ar-SA')}
           </div>
+          <div><span className="kpi-note">{stat.note}</span></div>
         </div>
       ))}
     </div>

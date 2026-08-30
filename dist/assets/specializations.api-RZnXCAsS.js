@@ -1,1 +1,0 @@
-import{h as a}from"./index-BqdDOU_E.js";const p=()=>a.get("/api/admin/specializations"),s=i=>a.post("/api/admin/specializations",i),n=(i,t)=>a.put(`/api/admin/specializations/${i}`,t),o=i=>a.delete(`/api/admin/specializations/${i}`);export{s as c,o as d,p as g,n as u};

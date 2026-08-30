@@ -50,7 +50,7 @@ export default function DoctorFileModal({ open, onClose, doctor, index = 0 }) {
 
       <Row label="العيادة"       value={clinicName} />
       <Row label="التخصص"       value={specialty} />
-      <Row label="سعر الكشف"   value={`${doctor.price} ج.م`} mono />
+      <Row label="سعر الكشف"   value={`${doctor.price} ر.س`} mono />
       <Row label="سنوات الخبرة" value={`${doctor.experience} سنة`} mono />
       <Row label="الوصف"        value={doctor.description?.ar || '—'} />
 

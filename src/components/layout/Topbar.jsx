@@ -4,7 +4,7 @@ import {
   Search, HelpCircle, Bell, ChevronDown,
   User, ArrowLeftRight, LogOut
 } from 'lucide-react'
-import NotificationDropdown from '../notifications/NotificationDropdown'
+import NotificationPanel from '../notifications/NotificationPanel'
 import SendNotificationModal from '../notifications/SendNotificationModal'
 import GlobalSearch from '../search/GlobalSearch'
 import { PAGE_TITLES } from '../../constants'
@@ -74,17 +74,12 @@ export default function Topbar({ onToast }) {
           </button>
 
           {/* Notifications */}
-          <div style={{ position: 'relative' }} ref={notifRef}>
+          <div ref={notifRef}>
             <button className="icon-btn" aria-label="الإشعارات"
               onClick={() => setNotifOpen((v) => !v)}>
               <Bell size={17} strokeWidth={1.7} />
               <span className="dot" />
             </button>
-            <NotificationDropdown
-              open={notifOpen}
-              onMarkAllRead={() => { onToast('تم تعليم الكل كمقروء'); setNotifOpen(false) }}
-              onCompose={() => { setNotifOpen(false); setComposeOpen(true) }}
-            />
           </div>
 
           {/* User menu */}
@@ -134,7 +129,16 @@ export default function Topbar({ onToast }) {
       </div>
 
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <SendNotificationModal open={composeOpen} onClose={() => setComposeOpen(false)} />
+      <SendNotificationModal
+        open={composeOpen}
+        onClose={() => { setComposeOpen(false); setNotifOpen(true) }}
+      />
+      <NotificationPanel
+        open={notifOpen}
+        pushed={composeOpen}
+        onClose={() => setNotifOpen(false)}
+        onCompose={() => { setNotifOpen(false); setComposeOpen(true) }}
+      />
     </>
   )
 }

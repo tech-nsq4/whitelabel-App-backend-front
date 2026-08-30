@@ -7,7 +7,7 @@ import App from "./App";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2, // 2 minutes
+      staleTime: 1000 * 60 * 2, 
       retry: 1,
     },
   },
@@ -15,7 +15,6 @@ const queryClient = new QueryClient({
 import "./styles/global.css";
 import { colorPalettes } from "./pages/Branding/branding.data";
 
-// Restore saved palette on load
 const savedId = localStorage.getItem("brandingPalette");
 if (savedId) {
   const saved = colorPalettes.find((p) => p.id === savedId);

@@ -2,115 +2,58 @@ import { useState } from 'react'
 import Modal from '../../../components/ui/Modal'
 
 const INITIAL = {
-  firstName: '',
-  lastName:  '',
-  idNo:      '',
-  phone:     '',
-  gender:    'ذكر',
-  birthDate: '',
-  insurance: 'بدون تأمين',
+  name:          '',
+  phone:         '',
+  email:         '',
+  date_of_birth: '',
+  height:        '',
+  weight:        '',
 }
 
-export default function NewPatientModal({ open, onClose, onSubmit }) {
+export default function NewPatientModal({ open, onClose, onSubmit, isLoading }) {
   const [form, setForm] = useState(INITIAL)
 
-  function handleChange(field, value) {
-    setForm((prev) => ({ ...prev, [field]: value }))
-  }
+  function update(field, value) { setForm((f) => ({ ...f, [field]: value })) }
 
-  function handleSubmit() {
-    onSubmit(form)
-    setForm(INITIAL)
-  }
+  function handleSubmit() { onSubmit(form) }
 
-  function handleClose() {
-    setForm(INITIAL)
-    onClose()
-  }
+  function handleClose() { setForm(INITIAL); onClose() }
 
   return (
     <Modal open={open} onClose={handleClose} title="تسجيل مريض جديد">
-      <div className="field-row">
-        <div className="field">
-          <label className="field-label" htmlFor="patient-first-name">الاسم الأول</label>
-          <input
-            id="patient-first-name"
-            className="inp"
-            placeholder="الاسم الأول"
-            value={form.firstName}
-            onChange={(e) => handleChange('firstName', e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="patient-last-name">اسم العائلة</label>
-          <input
-            id="patient-last-name"
-            className="inp"
-            placeholder="اسم العائلة"
-            value={form.lastName}
-            onChange={(e) => handleChange('lastName', e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="field-row">
-        <div className="field">
-          <label className="field-label" htmlFor="patient-id-no">رقم الهوية</label>
-          <input
-            id="patient-id-no"
-            className="inp num"
-            placeholder="10 أرقام"
-            dir="ltr"
-            value={form.idNo}
-            onChange={(e) => handleChange('idNo', e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="patient-phone">الجوال</label>
-          <input
-            id="patient-phone"
-            className="inp num"
-            placeholder="+966 5X XXX XXXX"
-            dir="ltr"
-            value={form.phone}
-            onChange={(e) => handleChange('phone', e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="field-row">
-        <div className="field">
-          <label className="field-label" htmlFor="patient-gender">الجنس</label>
-          <select id="patient-gender" className="inp" value={form.gender} onChange={(e) => handleChange('gender', e.target.value)}>
-            <option>ذكر</option>
-            <option>أنثى</option>
-          </select>
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor="patient-birth-date">تاريخ الميلاد</label>
-          <input
-            id="patient-birth-date"
-            className="inp num"
-            type="date"
-            value={form.birthDate}
-            onChange={(e) => handleChange('birthDate', e.target.value)}
-          />
-        </div>
-      </div>
-
       <div className="field">
-        <label className="field-label" htmlFor="patient-insurance">شركة التأمين (اختياري)</label>
-        <select id="patient-insurance" className="inp" value={form.insurance} onChange={(e) => handleChange('insurance', e.target.value)}>
-          <option>بدون تأمين</option>
-          <option>بوبا العربية</option>
-          <option>التعاونية</option>
-          <option>ميدغلف</option>
-        </select>
+        <label className="field-label" htmlFor="new-name">الاسم</label>
+        <input id="new-name" className="inp" placeholder="اسم المريض" value={form.name} onChange={(e) => update('name', e.target.value)} />
       </div>
-
+      <div className="field-row">
+        <div className="field">
+          <label className="field-label" htmlFor="new-phone">الجوال *</label>
+          <input id="new-phone" className="inp num" dir="ltr" placeholder="+966 5X XXX XXXX" value={form.phone} onChange={(e) => update('phone', e.target.value)} required />
+        </div>
+        <div className="field">
+          <label className="field-label" htmlFor="new-email">البريد الإلكتروني</label>
+          <input id="new-email" className="inp" dir="ltr" placeholder="example@email.com" value={form.email} onChange={(e) => update('email', e.target.value)} />
+        </div>
+      </div>
+      <div className="field-row">
+        <div className="field">
+          <label className="field-label" htmlFor="new-dob">تاريخ الميلاد</label>
+          <input id="new-dob" className="inp" type="date" max={new Date().toISOString().split('T')[0]} value={form.date_of_birth} onChange={(e) => update('date_of_birth', e.target.value)} />
+        </div>
+        <div className="field">
+          <label className="field-label" htmlFor="new-height">الطول (cm)</label>
+          <input id="new-height" className="inp num" dir="ltr" placeholder="170" value={form.height} onChange={(e) => update('height', e.target.value)} />
+        </div>
+        <div className="field">
+          <label className="field-label" htmlFor="new-weight">الوزن (kg)</label>
+          <input id="new-weight" className="inp num" dir="ltr" placeholder="70" value={form.weight} onChange={(e) => update('weight', e.target.value)} />
+        </div>
+      </div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 6 }}>
-        <button className="btn btn-q" onClick={handleClose}>إلغاء</button>
-        <button className="btn btn-p" onClick={handleSubmit}>تسجيل المريض</button>
+        <button className="btn btn-q" onClick={handleClose} disabled={isLoading}>إلغاء</button>
+        <button className="btn btn-p" onClick={handleSubmit} disabled={isLoading || !form.phone}>
+          {isLoading ? 'جارٍ التسجيل...' : 'تسجيل المريض'}
+        </button>
       </div>
     </Modal>
   )

@@ -25,6 +25,11 @@ const Roles     = lazy(() => import("../pages/Roles/Roles"))
 const Cities    = lazy(() => import("../pages/Cities/Cities"));
 const Locations = lazy(() => import("../pages/Locations/Locations"));
 const ClinicManagers = lazy(() => import("../pages/ClinicManagers/ClinicManagers"));
+const Notifications  = lazy(() => import("../pages/Notifications/Notifications"));
+const TimeTables     = lazy(() => import("../pages/TimeTables/TimeTables"));
+const NewTimeTable   = lazy(() => import("../pages/TimeTables/NewTimeTable"));
+const EditTimeTable  = lazy(() => import("../pages/TimeTables/EditTimeTable"));
+const Pages          = lazy(() => import("../pages/Pages/Pages"));
 
 const protectedRoutes = [
   { path: ROUTES.DASHBOARD,       element: <Dashboard /> },
@@ -48,6 +53,11 @@ const protectedRoutes = [
   { path: ROUTES.CITIES,          element: <Cities />,           permission: 'cities.view' },
   { path: ROUTES.LOCATIONS,       element: <Locations />,        permission: 'locations.view' },
   { path: ROUTES.CLINIC_MANAGERS, element: <ClinicManagers />,   permission: 'clinic-managers.view' },
+  { path: ROUTES.NOTIFICATIONS,  element: <Notifications />,    permission: 'push-notifications.view' },
+  { path: ROUTES.TIME_TABLES,            element: <TimeTables /> },
+  { path: ROUTES.TIME_TABLES + '/new',   element: <NewTimeTable /> },
+  { path: ROUTES.TIME_TABLES + '/:id/edit', element: <EditTimeTable /> },
+  { path: ROUTES.PAGES, element: <Pages /> },
 ];
 
 export default function AppRoutes() {

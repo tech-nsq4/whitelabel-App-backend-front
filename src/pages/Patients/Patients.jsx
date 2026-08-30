@@ -3,42 +3,31 @@ import PatientStats from './components/PatientStats'
 import PatientFilters from './components/PatientFilters'
 import PatientTable from './components/PatientTable'
 import NewPatientModal from './components/NewPatientModal'
-import { patients as initialPatients } from './patients.data'
+import { usePatients, useCreatePatient } from '../../hooks/queries/usePatients'
 import { useToast } from '../../components/ui/Toast'
 import './Patients.css'
-
-const TOTAL_COUNT = 3241
 
 export default function Patients() {
   const { showToast } = useToast()
 
-  const [search, setSearch]           = useState('')
-  const [patientList, setPatientList] = useState(initialPatients)
-  const [activeFilter, setActiveFilter] = useState('all')
+  const [search, setSearch]         = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [modalOpen, setModalOpen]     = useState(false)
+  const [modalOpen, setModalOpen]   = useState(false)
 
+  const { data: patientList = [], isLoading } = usePatients()
+  const createPatient = useCreatePatient()
+
+  // client-side filter (no server-side search param in this API)
   const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return patientList
     return patientList.filter((p) => {
-      const matchFilter =
-        activeFilter === 'all' ||
-        p.status === activeFilter
-
-      const q = search.trim().toLowerCase()
-      const matchSearch =
-        !q ||
-        p.name.includes(q) ||
-        p.fileNo.includes(q) ||
-        p.idNo.includes(q)
-
-      return matchFilter && matchSearch
+      const name  = (p.name  ?? '').toLowerCase()
+      const phone = (p.phone ?? '').toLowerCase()
+      const email = (p.email ?? '').toLowerCase()
+      return name.includes(q) || phone.includes(q) || email.includes(q)
     })
-  }, [search, activeFilter, patientList])
-
-  function handleFilterChange(id) {
-    setActiveFilter(id)
-    setCurrentPage(1)
-  }
+  }, [search, patientList])
 
   function handleSearchChange(val) {
     setSearch(val)
@@ -46,17 +35,26 @@ export default function Patients() {
   }
 
   function handleNewPatient(data) {
-    showToast('تم تسجيل المريض بنجاح')
-    setModalOpen(false)
+    createPatient.mutate(data, {
+      onSuccess: () => { showToast('تم تسجيل المريض بنجاح'); setModalOpen(false) },
+      onError:   (err) => {
+        const msg = err?.response?.data?.message
+          ?? Object.values(err?.response?.data?.errors ?? {})?.[0]?.[0]
+          ?? 'حدث خطأ أثناء التسجيل'
+        showToast(msg)
+        console.error('Create patient error:', err?.response?.status, err?.response?.data)
+      },
+    })
   }
 
   return (
     <div className="patients-page" style={{ animation: 'fadeIn .3s ease' }}>
-      {/* Page header */}
       <div className="page-head">
         <div>
           <h1>المرضى</h1>
-          <div className="sub">إجمالي 3,241 مريضاً مسجلاً في المجمع</div>
+          <div className="sub">
+            {isLoading ? 'جارٍ التحميل...' : `إجمالي ${patientList.length.toLocaleString('ar-SA')} مريض مسجل`}
+          </div>
         </div>
         <div className="page-actions">
           <button className="btn btn-q" onClick={() => showToast('جارٍ تصدير البيانات...')}>
@@ -75,31 +73,25 @@ export default function Patients() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <PatientStats />
+      <PatientStats patients={patientList} isLoading={isLoading} />
 
-      {/* Search + Filters */}
       <PatientFilters
         search={search}
-        activeFilter={activeFilter}
         onSearchChange={handleSearchChange}
-        onFilterChange={handleFilterChange}
       />
 
-      {/* Table + Pagination */}
       <PatientTable
         patients={filtered}
         currentPage={currentPage}
-        totalCount={TOTAL_COUNT}
         onPageChange={setCurrentPage}
-        onUpdate={(updatedPatient) => setPatientList((current) => current.map((patient) => patient.id === updatedPatient.id ? updatedPatient : patient))}
+        isLoading={isLoading}
       />
 
-      {/* New Patient Modal */}
       <NewPatientModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={handleNewPatient}
+        isLoading={createPatient.isPending}
       />
     </div>
   )

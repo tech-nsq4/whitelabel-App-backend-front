@@ -1,0 +1,6 @@
+import{c as o,g as a,h as u,i as n,k as s}from"./index-BSDNFDL6.js";/**
+ * @license lucide-react v1.32.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const r=[["path",{d:"M8 2v3",key:"1ioesn"}],["path",{d:"M16 2v3",key:"otl347"}],["rect",{x:"3",y:"3",width:"18",height:"18",rx:"2",key:"h1oib"}],["path",{d:"M3 9h18",key:"1pudct"}]],y=o("calendar",r),l=e=>a.get("/api/admin/time-tables",{params:e}),d=e=>a.get(`/api/admin/time-tables/${e}`),m=e=>a.post("/api/admin/time-tables",e),T=(e,t)=>a.put(`/api/admin/time-tables/${e}`,t),b=e=>a.delete(`/api/admin/time-tables/${e}`),i=["time-tables"];function h(e){return u({queryKey:[...i,e],queryFn:()=>l(e).then(t=>t.data.data||[])})}function q(e){return u({queryKey:[...i,e],queryFn:()=>d(e).then(t=>t.data.data),enabled:!!e})}function f(){const e=n();return s({mutationFn:t=>m(t),onSuccess:()=>e.invalidateQueries({queryKey:i})})}function g(){const e=n();return s({mutationFn:({id:t,data:c})=>T(t,c),onSuccess:()=>e.invalidateQueries({queryKey:i})})}function A(){const e=n();return s({mutationFn:t=>b(t),onSuccess:()=>e.invalidateQueries({queryKey:i})})}export{y as C,q as a,A as b,f as c,g as d,h as u};

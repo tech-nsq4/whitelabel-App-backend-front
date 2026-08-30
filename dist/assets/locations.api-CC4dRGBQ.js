@@ -1,1 +1,0 @@
-import{h as a}from"./index-BqdDOU_E.js";const n=()=>a.get("/api/admin/locations"),c=o=>a.post("/api/admin/locations",o),s=(o,t)=>a.put(`/api/admin/locations/${o}`,t),e=o=>a.delete(`/api/admin/locations/${o}`);export{c,e as d,n as g,s as u};

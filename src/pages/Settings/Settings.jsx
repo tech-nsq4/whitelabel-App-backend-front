@@ -120,10 +120,24 @@ function SectionHeader({ icon, title, sub }) {
   )
 }
 
+const STORAGE_KEY = 'app_settings'
+
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings
+  } catch { return defaultSettings }
+}
+
 export default function Settings() {
   const { showToast } = useToast()
-  const [form, setForm] = useState(defaultSettings)
+  const [form, setForm] = useState(loadSettings)
   function set(field, value) { setForm(prev => ({ ...prev, [field]: value })) }
+
+  function handleSave() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(form))
+    showToast('تم حفظ التغييرات')
+  }
 
   return (
     <div style={{ animation: 'fadeIn .3s ease' }}>
@@ -133,7 +147,7 @@ export default function Settings() {
           <div className="sub">إعدادات النظام والتشغيل</div>
         </div>
         <div className="page-actions">
-          <button className="btn btn-p" onClick={() => showToast('تم حفظ التغييرات')}>
+          <button className="btn btn-p" onClick={handleSave}>
             <svg width="14" height="14" viewBox="0 0 24 24" {...S}><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
             حفظ التغييرات
           </button>

@@ -23,5 +23,8 @@ export const ROUTES = {
   ROLES:      '/roles',
   CITIES:     '/cities',
   LOCATIONS:  '/locations',
+  NOTIFICATIONS:   '/notifications',
   CLINIC_MANAGERS: '/clinic-managers',
+  TIME_TABLES:     '/time-tables',
+  PAGES:           '/pages',
 }

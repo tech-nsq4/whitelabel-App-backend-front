@@ -25,42 +25,36 @@ const BG_COLORS = [
 
 function RowMenu({ onViewFile, onEdit, onSchedule, onDeactivate }) {
   const [open, setOpen] = useState(false)
-  const [pos,  setPos]  = useState({ top: 0, left: 0 })
-  const btnRef  = useRef(null)
-  const menuRef = useRef(null)
+  const ref = useRef(null)
 
   useEffect(() => {
     if (!open) return
     function handler(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target) &&
-          btnRef.current  && !btnRef.current.contains(e.target)) setOpen(false)
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
-  function handleOpen() {
-    if (btnRef.current) {
-      const r = btnRef.current.getBoundingClientRect()
-      setPos({ top: r.bottom + 4, left: r.left })
-    }
-    setOpen(v => !v)
-  }
-
   const items = [
-    { label: 'عرض الملف',      action: () => { onViewFile();    setOpen(false) } },
-    { label: 'تعديل البيانات', action: () => { onEdit();        setOpen(false) } },
-    { label: 'جدول المواعيد',  action: () => { onSchedule();   setOpen(false) } },
+    { label: 'عرض الملف',      action: () => { onViewFile();   setOpen(false) } },
+    { label: 'تعديل البيانات', action: () => { onEdit();       setOpen(false) } },
+    { label: 'جدول المواعيد',  action: () => { onSchedule();  setOpen(false) } },
     { label: 'حذف الطبيب',    action: () => { onDeactivate(); setOpen(false) }, danger: true },
   ]
 
   return (
-    <>
-      <button ref={btnRef} className="icon-btn" style={{ width: 32, height: 32 }} aria-label="المزيد" onClick={handleOpen}>
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button className="icon-btn" style={{ width: 32, height: 32 }} aria-label="المزيد" onClick={() => setOpen(v => !v)}>
         {MORE_ICON}
       </button>
       {open && (
-        <div ref={menuRef} style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 10, boxShadow: '0 8px 24px rgba(10,31,27,0.12)', minWidth: 155, overflow: 'hidden' }}>
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, zIndex: 9999,
+          background: 'var(--card)', border: '1px solid var(--line)',
+          borderRadius: 10, boxShadow: '0 8px 24px rgba(10,31,27,0.12)',
+          minWidth: 155, overflow: 'hidden', marginTop: 4,
+        }}>
           {items.map((item) => (
             <button key={item.label} onClick={item.action}
               style={{ width: '100%', textAlign: 'right', padding: '10px 14px', fontSize: 12.5, background: 'none', border: 'none', cursor: 'pointer', color: item.danger ? 'var(--danger)' : 'var(--ink)', display: 'block' }}
@@ -70,7 +64,7 @@ function RowMenu({ onViewFile, onEdit, onSchedule, onDeactivate }) {
           ))}
         </div>
       )}
-    </>
+    </div>
   )
 }
 
@@ -79,17 +73,13 @@ export default function DoctorTable({ doctors, onDelete, onRefresh }) {
   const [fileModal,     setFileModal]     = useState({ open: false, doctor: null, index: 0 })
   const [editModal,     setEditModal]     = useState({ open: false, doctor: null })
   const [scheduleModal, setScheduleModal] = useState({ open: false, doctor: null })
-  const [localDoctors,  setLocalDoctors]  = useState(doctors)
-
-  useEffect(() => { setLocalDoctors(doctors) }, [doctors])
 
   function handleSave(updated) {
-    setLocalDoctors(prev => prev.map(d => d.id === updated.id ? { ...d, ...updated } : d))
     showToast('تم حفظ التغييرات')
     onRefresh && onRefresh()
   }
 
-  if (localDoctors.length === 0) {
+  if (doctors.length === 0) {
     return (
       <div className="panel" style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--ink-45)', fontSize: 13 }}>
         لا يوجد أطباء مطابقون للبحث
@@ -113,7 +103,7 @@ export default function DoctorTable({ doctors, onDelete, onRefresh }) {
             </tr>
           </thead>
           <tbody>
-            {localDoctors.map((doc, idx) => {
+            {doctors.map((doc, idx) => {
               const nameAr    = doc.name?.ar || doc.name || ''
               const specialty = doc.specializations?.[0]?.title?.ar || '—'
               const clinicName = doc.clinic?.name?.ar || '—'
@@ -133,11 +123,11 @@ export default function DoctorTable({ doctors, onDelete, onRefresh }) {
                   </td>
                   <td style={{ fontSize: 12.5, color: 'var(--ink-70)' }}>{clinicName}</td>
                   <td><span className="chip mut" style={{ fontSize: 11 }}>{specialty}</span></td>
-                  <td><span className="num" style={{ fontWeight: 700 }}>{doc.price}</span> <span style={{ fontSize: 11, color: 'var(--ink-45)' }}>ج.م</span></td>
+                  <td><span className="num" style={{ fontWeight: 700 }}>{doc.price}</span> <span style={{ fontSize: 11, color: 'var(--ink-45)' }}>ر.س</span></td>
                   <td><span className="num">{doc.experience}</span> <span style={{ fontSize: 11, color: 'var(--ink-45)' }}>سنة</span></td>
                   <td><span className="chip ok">نشط</span></td>
-                  <td>
-                    <div style={{ display: 'flex', gap: 5, justifyContent: 'flex-end' }}>
+                  <td style={{ overflow: 'visible' }}>
+                    <div style={{ display: 'flex', gap: 5, justifyContent: 'flex-end', position: 'relative' }}>
                       <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => setEditModal({ open: true, doctor: doc })}>
                         <svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16.5 3.5l4 4L8 20l-4.5.5L4 16z"/></svg>
                       </button>

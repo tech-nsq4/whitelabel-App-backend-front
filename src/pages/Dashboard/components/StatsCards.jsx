@@ -1,6 +1,8 @@
 import { Banknote, CalendarCheck, Users, Clock } from 'lucide-react'
 import { kpiDataByPeriod } from '../dashboard.data'
 import KpiCard from '../../../components/ui/KpiCard'
+import { useAppointments } from '../../../hooks/queries/useAppointments'
+import { usePatients } from '../../../hooks/queries/usePatients'
 
 const ICONS = {
   revenue:   <Banknote     size={18} strokeWidth={1.7} />,
@@ -17,7 +19,19 @@ const TINTS = {
 }
 
 export default function StatsCards({ period }) {
-  const kpiData = kpiDataByPeriod[period] || kpiDataByPeriod['اليوم']
+  const { data: appointments } = useAppointments({ per_page: 1 })
+  const { data: patients }     = usePatients({ per_page: 1 })
+
+  const staticKpis = kpiDataByPeriod[period] || kpiDataByPeriod['اليوم']
+
+  // Merge real counts into the static KPI array (only for 'اليوم' period)
+  const kpiData = staticKpis.map((kpi) => {
+    if (kpi.id === 'appointments' && period === 'اليوم' && appointments?.meta?.total != null)
+      return { ...kpi, value: appointments.meta.total.toLocaleString('ar-SA') }
+    if (kpi.id === 'patients' && patients?.meta?.total != null)
+      return { ...kpi, value: patients.meta.total.toLocaleString('ar-SA') }
+    return kpi
+  })
 
   return (
     <div className="kpi-grid dashboard-kpi-grid">

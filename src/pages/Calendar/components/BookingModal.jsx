@@ -449,7 +449,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
     { value: "", label: "اختر الطبيب" },
     ...filteredDoctors.map((d) => ({
       value: d.id,
-      label: `${d.name?.ar || d.name}${d.price ? ` — ${d.price} ج.م` : ""}`,
+      label: `${d.name?.ar || d.name}${d.price ? ` — ${d.price} ر.س` : ""}`,
     })),
   ];
   const visitOptions = VISIT_TYPES.map((v) => ({
@@ -547,7 +547,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
                 whiteSpace: "nowrap",
               }}
             >
-              {selectedDoctor.price} ج.م
+              {selectedDoctor.price} ر.س
             </span>
           )}
         </div>

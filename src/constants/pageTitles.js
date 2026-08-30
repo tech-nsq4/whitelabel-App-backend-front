@@ -5,7 +5,7 @@ import { ROUTES } from './routes'
  */
 export const PAGE_TITLES = {
   [ROUTES.DASHBOARD]:  'اللوحة الرئيسية',
-  [ROUTES.QUEUE]:      'طابور اليوم',
+  [ROUTES.QUEUE]:      'حجوزات اليوم',
   [ROUTES.CALENDAR]:   'الحجوزات والمواعيد',
   [ROUTES.PATIENTS]:   'المرضى',
   [ROUTES.BRANCHES]:   'الفروع',
@@ -21,6 +21,9 @@ export const PAGE_TITLES = {
   [ROUTES.BRANDING]:   'الهوية البصرية',
   [ROUTES.SETTINGS]:   'الإعدادات العامة',
   [ROUTES.ACCOUNT]:    'إدارة الحساب',
-  [ROUTES.ROLES]:      'تبديل الدور',
+  [ROUTES.ROLES]:      'الأدوار والصلاحيات',
   [ROUTES.CLINIC_MANAGERS]: 'مديرو العيادات',
+  [ROUTES.NOTIFICATIONS]:   'الإشعارات',
+  [ROUTES.TIME_TABLES]:     'جداول الأطباء',
+  [ROUTES.PAGES]:           'الصفحات',
 }

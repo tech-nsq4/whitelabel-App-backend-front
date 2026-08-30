@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowRight, Phone, Clock, User, Star } from 'lucide-react'
 import { useDoctors } from '../../../hooks/queries/useDoctors'
+import { useAppointmentStatistics } from '../../../hooks/queries/useAppointments'
 import { SkeletonTable } from '../../../components/ui/Skeleton'
 import BranchReportModal from './BranchReportModal'
 import './ClinicDetailsPage.css'
@@ -18,13 +19,6 @@ const KPIS = [
   { key: 'patients', label: 'مرضى',   color: '#2C6DAA', bg: '#eff5fd', border: '#c5d9f5' },
   { key: 'doctors',  label: 'طبيب',   color: '#7C3AED', bg: '#f4f0fe', border: '#d9ccfa' },
   { key: 'specs',    label: 'عيادة',  color: '#D97706', bg: '#fdf8ec', border: '#f0e0b0' },
-]
-
-const METRICS = [
-  { label: 'رضا المرضى',     value: '4.8',  color: '#D97706' },
-  { label: 'نسبة الإلغاء',   value: '5.2%', color: 'var(--ink)' },
-  { label: 'الإشغال',        value: '82%',  color: 'var(--ink)' },
-  { label: 'متوسط الانتظار', value: '10 د', color: 'var(--ink)' },
 ]
 
 function fmt(n) {
@@ -45,6 +39,7 @@ export default function ClinicDetailsPage({ clinic, onBack }) {
 
   const [reportOpen, setReportOpen] = useState(false)
 
+  const { data: stats } = useAppointmentStatistics()
   const { data: allDoctors = [], isLoading } = useDoctors()
 
   const doctors = useMemo(
@@ -82,10 +77,18 @@ export default function ClinicDetailsPage({ clinic, onBack }) {
 
   const kpiValues = {
     revenue:  fmt(totalRevenue || 145000) + ' ر.س',
-    patients: fmt(totalVisits  || 1420),
+    patients: fmt(stats?.test_requests?.total ?? totalVisits ?? 1420),
     doctors:  String(doctors.length || 10),
     specs:    String(specData.length || 7),
   }
+
+  const apptByStatus = stats?.appointments?.by_status || {}
+  const metrics = [
+    { label: 'رضا المرضى',     value: '4.8',                                         color: '#D97706' },
+    { label: 'نسبة الإلغاء',   value: stats ? `${apptByStatus.cancelled ?? 0} إلغاء` : '5.2%', color: 'var(--ink)' },
+    { label: 'مكتملة',         value: String(apptByStatus.completed ?? '—'),          color: '#0F6B5C' },
+    { label: 'قيد التنفيذ',    value: String(apptByStatus.in_progress ?? '—'),        color: '#2C6DAA' },
+  ]
 
   return (
     <div className="cdp">
@@ -139,7 +142,7 @@ export default function ClinicDetailsPage({ clinic, onBack }) {
 
       {/* ── Metrics ── */}
       <div className="cdp-metrics-grid">
-        {METRICS.map(m => (
+        {metrics.map(m => (
           <div key={m.label} className="cdp-metric-card">
             <div className="cdp-metric-value" style={{ color: m.color }}>{m.value}</div>
             <div className="cdp-metric-label">{m.label}</div>

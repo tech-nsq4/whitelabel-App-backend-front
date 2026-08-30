@@ -1,20 +1,20 @@
 import { useEffect } from 'react'
 import './Modal.css'
 
-export default function Modal({ open, onClose, title, subtitle, children }) {
+export default function Modal({ open, onClose, title, subtitle, size, children }) {
   useEffect(() => {
     function handle(e) {
       if (e.key === 'Escape') onClose()
     }
-    if (open) document.addEventListener('keydown', handle)
+    document.addEventListener('keydown', handle)
     return () => document.removeEventListener('keydown', handle)
-  }, [open, onClose])
+  }, [onClose])
 
-  if (!open) return null
+  if (open === false) return null
 
   return (
     <div className="modal-bg" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
+      <div className="modal" style={size === 'lg' ? { maxWidth: 780 } : size === 'sm' ? { maxWidth: 420 } : undefined}>
         <div className="modal-head">
           <div>
             <div className="modal-title">{title}</div>

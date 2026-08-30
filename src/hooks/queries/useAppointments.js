@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAppointmentsApi, getAppointmentApi, updateAppointmentApi } from '../../api/appointments.api'
+import { getAppointmentsApi, getAppointmentApi, updateAppointmentApi, getAppointmentStatisticsApi, uploadTestResultApi, uploadPrescriptionImageApi } from '../../api/appointments.api'
 
 export const APPOINTMENTS_KEY = ['appointments']
 
@@ -19,9 +19,33 @@ export function useAppointment(id) {
 }
 
 export function useUpdateAppointment() {
-  const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, data }) => updateAppointmentApi(id, data),
+    // no invalidate — optimistic UI handles the update locally
+  })
+}
+
+export function useAppointmentStatistics() {
+  return useQuery({
+    queryKey: [...APPOINTMENTS_KEY, 'statistics'],
+    queryFn: () => getAppointmentStatisticsApi().then(r => r.data.data),
+  })
+}
+
+export function useUploadTestResult() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ appointmentId, testRequestId, formData }) =>
+      uploadTestResultApi(appointmentId, testRequestId, formData),
+    onSuccess: () => qc.invalidateQueries({ queryKey: APPOINTMENTS_KEY }),
+  })
+}
+
+export function useUploadPrescriptionImage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ appointmentId, formData }) =>
+      uploadPrescriptionImageApi(appointmentId, formData),
     onSuccess: () => qc.invalidateQueries({ queryKey: APPOINTMENTS_KEY }),
   })
 }
