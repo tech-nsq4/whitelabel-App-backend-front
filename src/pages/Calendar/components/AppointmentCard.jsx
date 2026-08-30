@@ -1,3 +1,5 @@
+import '../styles/appointment-card.css'
+
 export default function AppointmentCard({
   patientName,
   doctorShortName,
@@ -8,67 +10,35 @@ export default function AppointmentCard({
   if (isSlot) {
     return (
       <div
+        className="appt-slot"
         style={{
-          padding: "5px 10px",
-          borderRadius: 7,
           background: `${color}10`,
           border: `1px dashed ${color}40`,
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          cursor: "default",
         }}
       >
         <div
-          style={{
-            width: 5,
-            height: 5,
-            borderRadius: "50%",
-            background: `${color}60`,
-            flexShrink: 0,
-          }}
+          className="appt-slot-dot"
+          style={{ background: `${color}60` }}
         />
-        <span
-          style={{
-            fontSize: 11.5,
-            fontWeight: 600,
-            color,
-            fontFamily: "monospace",
-          }}
-        >
+        <span className="appt-slot-time" style={{ color }}>
           {patientName}
         </span>
-        <span
-          style={{ fontSize: 10, color: "var(--ink-45)", marginRight: "auto" }}
-        >
-          متاح
-        </span>
+        <span className="appt-slot-label">متاح</span>
       </div>
-    );
+    )
   }
 
   return (
     <div
       className="appointment-card"
       style={{
-        "--appointment-color": color,
-        "--appointment-soft": `${color}15`,
+        '--appointment-color': color,
+        '--appointment-soft': `${color}15`,
       }}
       onClick={onClick}
     >
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          color: "var(--ink)",
-          lineHeight: 1.3,
-        }}
-      >
-        {patientName}
-      </div>
-      <div style={{ fontSize: 9.5, color: "var(--ink-45)", marginTop: 1 }}>
-        {doctorShortName}
-      </div>
+      <div className="appt-card-name">{patientName}</div>
+      <div className="appt-card-doctor">{doctorShortName}</div>
     </div>
-  );
+  )
 }

@@ -1,48 +1,87 @@
 ﻿import { useState } from "react";
+
+import { useToast } from "../../components/ui/Toast";
+
 import AnalyticsStats from "./components/AnalyticsStats";
 import RevenueBySpecialty from "./components/RevenueBySpecialty";
 import PeakHoursChart from "./components/PeakHoursChart";
+
 import { periodOptions } from "./analytics.data";
-import { useToast } from "../../components/ui/Toast";
 
 export default function Analytics() {
   const { showToast } = useToast();
+
   const [activePeriod, setActivePeriod] = useState("الشهر");
+
+  function handlePeriodChange(period) {
+    setActivePeriod(period);
+  }
+
+  function handleExportPdf() {
+    showToast("جارٍ تصدير PDF...");
+  }
 
   return (
     <div style={{ animation: "fadeIn .3s ease" }}>
+      {/* Page Header */}
       <div className="page-head">
         <div>
           <h1>التحليلات والذكاء</h1>
-          <div className="sub">رؤية متكاملة لأداء المجمع بالأرقام والرسوم</div>
+
+          <div className="sub">
+            رؤية متكاملة لأداء المجمع بالأرقام والرسوم
+          </div>
         </div>
+
         <div className="page-actions">
+          {/* Period Selector */}
           <div className="seg">
-            {periodOptions.map((p) => (
+            {periodOptions.map((period) => (
               <button
-                key={p}
-                className={`seg-btn${activePeriod === p ? " active" : ""}`}
-                onClick={() => setActivePeriod(p)}
+                key={period}
+                type="button"
+                className={`seg-btn${
+                  activePeriod === period ? " active" : ""
+                }`}
+                onClick={() => handlePeriodChange(period)}
               >
-                {p}
+                {period}
               </button>
             ))}
           </div>
+
+          {/* Export PDF */}
           <button
+            type="button"
             className="btn btn-q"
-            onClick={() => showToast("جارٍ تصدير PDF...")}
+            onClick={handleExportPdf}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24">
-              <path d="M12 15V4M12 15l-4-4M12 15l4-4" />
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 15V4" />
+              <path d="M12 15l-4-4" />
+              <path d="M12 15l4-4" />
               <path d="M4 17v2.5A1.5 1.5 0 005.5 21h13a1.5 1.5 0 001.5-1.5V17" />
             </svg>
+
             تصدير PDF
           </button>
         </div>
       </div>
 
+      {/* Analytics Statistics */}
       <AnalyticsStats />
 
+      {/* Charts */}
       <div className="row c31">
         <RevenueBySpecialty />
         <PeakHoursChart />

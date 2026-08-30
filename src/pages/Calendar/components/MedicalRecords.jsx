@@ -1,19 +1,20 @@
 import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
-  Pill,
-  FlaskConical,
-  ScanLine,
-  FileText,
-  ChevronLeft,
-  X,
-  CalendarCheck,
-  Upload,
+  Pill, FlaskConical, ScanLine, FileText,
+  ChevronLeft, X, CalendarCheck, Upload,
 } from "lucide-react";
 import {
   usePatients,
   usePatientHistory,
 } from "../../../hooks/queries/usePatients";
-import { useAppointmentStatistics, useUploadTestResult, useUploadPrescriptionImage } from "../../../hooks/queries/useAppointments";
+import {
+  useAppointmentStatistics,
+  useAppointment,
+  useUploadTestResult,
+  useUploadPrescriptionImage,
+} from "../../../hooks/queries/useAppointments";
+import { useToast } from "../../../components/ui/Toast";
 import "../styles/medical-records.css";
 
 const AVATAR_COLORS = [
@@ -37,27 +38,6 @@ const STATUS = {
   completed: { label: "مكمل", bg: "rgba(124,58,237,.1)", color: "#7C3AED" },
   cancelled: { label: "ملغي", bg: "rgba(179,64,47,.1)", color: "#B3402F" },
 };
-
-const ACTION_BTNS = [
-  {
-    key: "prescriptions",
-    label: "الأدوية",
-    icon: <Pill size={14} strokeWidth={1.7} />,
-    color: "#0F6B5C",
-  },
-  {
-    key: "analysis",
-    label: "التحاليل",
-    icon: <FlaskConical size={14} strokeWidth={1.7} />,
-    color: "#2C6DAA",
-  },
-  {
-    key: "xray",
-    label: "الأشعة",
-    icon: <ScanLine size={14} strokeWidth={1.7} />,
-    color: "#DB2777",
-  },
-];
 
 const MODAL_CONFIG = {
   prescriptions: {
@@ -95,19 +75,8 @@ const MODAL_CONFIG = {
     color: "#DB2777",
     render: (items) =>
       items.map((t) => (
-        <div
-          key={t.id}
-          className="mr-modal-row"
-          style={{ flexDirection: "column", alignItems: "flex-start", gap: 8 }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
-          >
+        <div key={t.id} className="mr-modal-row mr-xray-row">
+          <div className="mr-xray-row-top">
             <div className="mr-modal-item-name">{t.test?.name || "—"}</div>
             <span
               className={`mr-modal-badge ${t.has_result ? "green" : "pink"}`}
@@ -120,18 +89,12 @@ const MODAL_CONFIG = {
               href={t.url}
               target="_blank"
               rel="noreferrer"
-              style={{ width: "100%" }}
+              className="mr-xray-img-wrap"
             >
               <img
                 src={t.url}
                 alt={t.test?.name || "أشعة"}
-                style={{
-                  width: "100%",
-                  borderRadius: 8,
-                  maxHeight: 220,
-                  objectFit: "cover",
-                  border: "1px solid var(--line)",
-                }}
+                className="mr-xray-img"
               />
             </a>
           )}
@@ -140,91 +103,374 @@ const MODAL_CONFIG = {
   },
 };
 
-/* ── Upload Test Result Modal ── */
-function UploadTestResultModal({ appt, testRequest, onClose }) {
-  const [resultRate, setResultRate] = useState('normal')
-  const [note, setNote]             = useState('')
-  const [file, setFile]             = useState(null)
-  const fileRef                     = useRef()
-  const upload                      = useUploadTestResult()
+/* ── Appointment Media Viewer ── */
+function AppointmentMedia({ apptId, inline }) {
+  const { data: appt, isLoading } = useAppointment(apptId);
+  const [lightboxIdx, setLightboxIdx] = useState(null);
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    const fd = new FormData()
-    fd.append('result_rate', resultRate)
-    fd.append('note', note)
-    if (file) fd.append('image', file)
-    await upload.mutateAsync({ appointmentId: appt.id, testRequestId: testRequest.id, formData: fd })
-    onClose()
-  }
+  if (isLoading) return null;
 
-  const typeLabel = testRequest.type === 'xray' ? 'الأشعة' : 'التحليل'
+  const rxImage = appt?.prescription_image?.url || null;
+  const testImages = (appt?.test_requests || []).filter(
+    t => t.url || t.image_url || t.result?.url || t.result?.image_url
+  ).map(t => ({
+    ...t,
+    resolvedUrl: t.url || t.image_url || t.result?.url || t.result?.image_url,
+  }));
+
+  // build flat images array for slider
+  const allImages = [
+    ...(rxImage ? [{ url: rxImage, label: "الروشتة" }] : []),
+    ...testImages.map(t => ({
+      url: t.resolvedUrl,
+      label: t.test?.name || (t.type === "xray" ? "أشعة" : "تحليل"),
+    })),
+  ];
+
+  if (allImages.length === 0) return null;
+
+  const total = allImages.length;
+
+  const thumbs = (
+    <>
+      {allImages.map((img, i) => (
+        <button
+          key={i}
+          className="mr-action-btn mr-thumb-btn"
+          onClick={() => setLightboxIdx(i)}
+          title={img.label}
+        >
+          <img src={img.url} alt={img.label} className="mr-thumb-img" />
+          <span>{img.label}</span>
+        </button>
+      ))}
+    </>
+  );
 
   return (
-    <div className="mr-modal-bg" onClick={e => e.target === e.currentTarget && onClose()}>
+    <>
+      {inline ? thumbs : null}
+
+      {lightboxIdx !== null && createPortal(
+        <div className="mr-lightbox" onClick={() => setLightboxIdx(null)}>
+          <button className="mr-lightbox-close" onClick={() => setLightboxIdx(null)}>
+            <X size={20} />
+          </button>
+
+          {total > 1 && (
+            <button
+              className="mr-lightbox-nav mr-lightbox-prev"
+              onClick={e => { e.stopPropagation(); setLightboxIdx((lightboxIdx + total - 1) % total); }}
+            >‹</button>
+          )}
+
+          <img
+            src={allImages[lightboxIdx].url}
+            alt={allImages[lightboxIdx].label}
+            className="mr-lightbox-img"
+            onClick={e => e.stopPropagation()}
+          />
+
+          {total > 1 && (
+            <button
+              className="mr-lightbox-nav mr-lightbox-next"
+              onClick={e => { e.stopPropagation(); setLightboxIdx((lightboxIdx + 1) % total); }}
+            >›</button>
+          )}
+
+          <div className="mr-lightbox-caption" onClick={e => e.stopPropagation()}>
+            <span>{allImages[lightboxIdx].label}</span>
+            {total > 1 && <span>{lightboxIdx + 1} / {total}</span>}
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+}
+function UploadReportModal({ apptId, onClose }) {
+  const { data: appt, isLoading } = useAppointment(apptId);
+  const { showToast } = useToast();
+  const [selected, setSelected]   = useState(null);
+  const [resultRate, setResultRate] = useState("normal");
+  const [note, setNote]             = useState("");
+  const [file, setFile]             = useState(null);
+  const fileRef = useRef();
+  const upload  = useUploadTestResult();
+
+  const testRequests = appt?.test_requests || [];
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!selected) return;
+    try {
+      const fd = new FormData();
+      fd.append("result_rate", resultRate);
+      fd.append("note", note);
+      if (file) fd.append("image", file);
+      await upload.mutateAsync({ appointmentId: apptId, testRequestId: selected.id, formData: fd });
+      showToast("تم رفع النتيجة بنجاح");
+      onClose();
+    } catch (err) {
+      const msg = err?.response?.data?.message
+        || Object.values(err?.response?.data?.errors || {})?.[0]?.[0]
+        || "تعذر رفع النتيجة";
+      const arabicMsg = msg.includes("already been submitted") 
+        ? "تم رفع نتيجة لهذا الطلب مسبقاً"
+        : msg;
+      showToast(arabicMsg, "error");
+      console.error("422 details:", err?.response?.data);
+    }
+  }
+
+  return (
+    <div className="mr-modal-bg" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="mr-modal">
         <div className="mr-modal-head">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div className="mr-modal-icon" style={{ background: '#2C6DAA15', color: '#2C6DAA' }}>
-              {testRequest.type === 'xray' ? <ScanLine size={16} /> : <FlaskConical size={16} />}
+          <div className="mr-modal-head-inner">
+            <div className="mr-modal-icon" style={{ background: "#2C6DAA15", color: "#2C6DAA" }}>
+              <FlaskConical size={16} />
             </div>
             <div>
-              <div className="mr-modal-title">رفع نتيجة {typeLabel}</div>
-              <div className="mr-modal-sub">{testRequest.test?.name || '—'}</div>
+              <div className="mr-modal-title">رفع نتيجة تحليل / أشعة</div>
+              <div className="mr-modal-sub">موعد #{apptId}</div>
             </div>
           </div>
           <button className="mr-modal-close" onClick={onClose}><X size={16} /></button>
         </div>
-        <form className="mr-modal-body" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+        <div className="mr-modal-body mr-form">
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "20px", color: "var(--ink-45)", fontSize: 13 }}>
+              جارٍ التحميل...
+            </div>
+          ) : testRequests.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "24px 16px" }}>
+              <FlaskConical size={32} color="var(--ink-25)" style={{ marginBottom: 10 }} />
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)", marginBottom: 6 }}>
+                لا توجد تحاليل أو أشعة مطلوبة
+              </div>
+              <div style={{ fontSize: 12, color: "var(--ink-45)", lineHeight: 1.6 }}>
+                لم يطلب الطبيب أي تحاليل أو أشعة لهذا الموعد بعد.
+                <br />يجب أن يضيف الطبيب الطلب أولاً من تطبيقه.
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {/* Select test request */}
+              <div>
+                <label className="mr-form-label">اختر التحليل / الأشعة</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {testRequests.map((tr) => (
+                    <button
+                      key={tr.id}
+                      type="button"
+                      onClick={() => !tr.has_result && setSelected(tr)}
+                      style={{
+                        textAlign: "right",
+                        padding: "10px 14px",
+                        borderRadius: 10,
+                        border: `1.5px solid ${selected?.id === tr.id ? "var(--brand)" : tr.has_result ? "var(--line)" : "var(--line)"}`,
+                        background: selected?.id === tr.id ? "rgba(15,107,92,.06)" : tr.has_result ? "var(--paper)" : "var(--paper)",
+                        cursor: tr.has_result ? "not-allowed" : "pointer",
+                        opacity: tr.has_result ? 0.6 : 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
+                      {tr.type === "xray" ? <ScanLine size={14} color="#DB2777" /> : <FlaskConical size={14} color="#2C6DAA" />}
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>
+                        {tr.test?.name || `#${tr.id}`}
+                      </span>
+                      <span style={{ fontSize: 11, color: "var(--ink-45)", marginRight: "auto" }}>
+                        {tr.type === "xray" ? "أشعة" : "تحليل"}
+                      </span>
+                      {tr.has_result && (
+                        <span className="mr-modal-badge green">مكتمل</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {selected && (
+                <>
+                  <div>
+                    <label className="mr-form-label">النتيجة</label>
+                    <select className="inp" value={resultRate} onChange={(e) => setResultRate(e.target.value)}>
+                      <option value="normal">طبيعي</option>
+                      <option value="not_normal">غير طبيعي</option>
+                      <option value="caution">تحذير</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mr-form-label">ملاحظات</label>
+                    <textarea className="inp" rows={3} value={note} onChange={(e) => setNote(e.target.value)} style={{ resize: "none" }} />
+                  </div>
+                  <div>
+                    <label className="mr-form-label">صورة النتيجة (اختياري)</label>
+                    <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => setFile(e.target.files[0])} />
+                    <button type="button" className="btn btn-q mr-file-btn" onClick={() => fileRef.current.click()}>
+                      <Upload size={14} /> {file ? file.name : "اختر صورة"}
+                    </button>
+                  </div>
+                  <button type="submit" className="btn btn-p mr-modal-submit" disabled={upload.isPending}>
+                    {upload.isPending ? "جارٍ الرفع..." : "رفع النتيجة"}
+                  </button>
+                </>
+              )}
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Upload Test Result Modal ── */
+function UploadTestResultModal({ appt, testRequest, onClose }) {  const [resultRate, setResultRate] = useState("normal");
+  const [note, setNote] = useState("");
+  const [file, setFile] = useState(null);
+  const fileRef = useRef();
+  const upload = useUploadTestResult();
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    try {
+      const fd = new FormData();
+      fd.append("result_rate", resultRate);
+      fd.append("note", note);
+      if (file) fd.append("image", file);
+      await upload.mutateAsync({
+        appointmentId: appt.id,
+        testRequestId: testRequest.id,
+        formData: fd,
+      });
+      onClose();
+    } catch (err) {
+      console.error("upload error", err?.response?.data || err);
+    }
+  }
+
+  const typeLabel = testRequest.type === "xray" ? "الأشعة" : "التحليل";
+
+  return (
+    <div
+      className="mr-modal-bg"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="mr-modal">
+        <div className="mr-modal-head">
+          <div className="mr-modal-head-inner">
+            <div
+              className="mr-modal-icon"
+              style={{ background: "#2C6DAA15", color: "#2C6DAA" }}
+            >
+              {testRequest.type === "xray" ? (
+                <ScanLine size={16} />
+              ) : (
+                <FlaskConical size={16} />
+              )}
+            </div>
+            <div>
+              <div className="mr-modal-title">رفع نتيجة {typeLabel}</div>
+              <div className="mr-modal-sub">
+                {testRequest.test?.name || "—"}
+              </div>
+            </div>
+          </div>
+          <button className="mr-modal-close" onClick={onClose}>
+            <X size={16} />
+          </button>
+        </div>
+        <form className="mr-modal-body mr-form" onSubmit={handleSubmit}>
           <div>
-            <label style={{ fontSize: 12, color: 'var(--ink-45)', display: 'block', marginBottom: 6 }}>النتيجة</label>
-            <select className="inp" value={resultRate} onChange={e => setResultRate(e.target.value)}>
+            <label className="mr-form-label">النتيجة</label>
+            <select
+              className="inp"
+              value={resultRate}
+              onChange={(e) => setResultRate(e.target.value)}
+            >
               <option value="normal">طبيعي</option>
               <option value="not_normal">غير طبيعي</option>
               <option value="caution">تحذير</option>
             </select>
           </div>
           <div>
-            <label style={{ fontSize: 12, color: 'var(--ink-45)', display: 'block', marginBottom: 6 }}>ملاحظات</label>
-            <textarea className="inp" rows={3} value={note} onChange={e => setNote(e.target.value)} style={{ resize: 'none' }} />
+            <label className="mr-form-label">ملاحظات</label>
+            <textarea
+              className="inp"
+              rows={3}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              style={{ resize: "none" }}
+            />
           </div>
           <div>
-            <label style={{ fontSize: 12, color: 'var(--ink-45)', display: 'block', marginBottom: 6 }}>الصورة</label>
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => setFile(e.target.files[0])} />
-            <button type="button" className="btn btn-q" style={{ width: '100%', justifyContent: 'center', gap: 6 }} onClick={() => fileRef.current.click()}>
-              <Upload size={14} /> {file ? file.name : 'اختر صورة'}
+            <label className="mr-form-label">الصورة</label>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => setFile(e.target.files[0])}
+            />
+            <button
+              type="button"
+              className="btn btn-q mr-file-btn"
+              onClick={() => fileRef.current.click()}
+            >
+              <Upload size={14} /> {file ? file.name : "اختر صورة"}
             </button>
           </div>
-          <button type="submit" className="btn btn-p" disabled={upload.isPending} style={{ marginTop: 4 }}>
-            {upload.isPending ? 'جارٍ الرفع...' : 'رفع النتيجة'}
+          <button
+            type="submit"
+            className="btn btn-p mr-modal-submit"
+            disabled={upload.isPending}
+          >
+            {upload.isPending ? "جارٍ الرفع..." : "رفع النتيجة"}
           </button>
         </form>
       </div>
     </div>
-  )
+  );
 }
 
 /* ── Upload Prescription Image Modal ── */
 function UploadPrescriptionModal({ appt, onClose }) {
-  const [file, setFile] = useState(null)
-  const fileRef         = useRef()
-  const upload          = useUploadPrescriptionImage()
+  const [file, setFile] = useState(null);
+  const fileRef = useRef();
+  const upload = useUploadPrescriptionImage();
+  const { showToast } = useToast();
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    if (!file) return
-    const fd = new FormData()
-    fd.append('prescription_image', file)
-    await upload.mutateAsync({ appointmentId: appt.id, formData: fd })
-    onClose()
+    e.preventDefault();
+    if (!file) return;
+    try {
+      const fd = new FormData();
+      fd.append("prescription_image", file);
+      await upload.mutateAsync({ appointmentId: appt.id, formData: fd });
+      showToast("تم رفع الروشتة بنجاح");
+      onClose();
+    } catch (err) {
+      const msg = err?.response?.data?.message || "تعذر رفع الروشتة";
+      showToast(msg, "error");
+    }
   }
 
   return (
-    <div className="mr-modal-bg" onClick={e => e.target === e.currentTarget && onClose()}>
+    <div
+      className="mr-modal-bg"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div className="mr-modal">
         <div className="mr-modal-head">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div className="mr-modal-icon" style={{ background: '#0F6B5C15', color: '#0F6B5C' }}>
+          <div className="mr-modal-head-inner">
+            <div
+              className="mr-modal-icon"
+              style={{ background: "#0F6B5C15", color: "#0F6B5C" }}
+            >
               <Pill size={16} />
             </div>
             <div>
@@ -232,26 +478,46 @@ function UploadPrescriptionModal({ appt, onClose }) {
               <div className="mr-modal-sub">موعد #{appt.id}</div>
             </div>
           </div>
-          <button className="mr-modal-close" onClick={onClose}><X size={16} /></button>
+          <button className="mr-modal-close" onClick={onClose}>
+            <X size={16} />
+          </button>
         </div>
-        <form className="mr-modal-body" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => setFile(e.target.files[0])} />
-          <button type="button" className="btn btn-q" style={{ width: '100%', justifyContent: 'center', gap: 6 }} onClick={() => fileRef.current.click()}>
-            <Upload size={14} /> {file ? file.name : 'اختر صورة الروشتة'}
+        <form className="mr-modal-body mr-form" onSubmit={handleSubmit}>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => setFile(e.target.files[0])}
+          />
+          <button
+            type="button"
+            className="btn btn-q mr-file-btn"
+            onClick={() => fileRef.current.click()}
+          >
+            <Upload size={14} /> {file ? file.name : "اختر صورة الروشتة"}
           </button>
           {file && (
-            <img src={URL.createObjectURL(file)} alt="preview" style={{ width: '100%', borderRadius: 8, maxHeight: 200, objectFit: 'cover', border: '1px solid var(--line)' }} />
+            <img
+              src={URL.createObjectURL(file)}
+              alt="preview"
+              className="mr-preview-img"
+            />
           )}
-          <button type="submit" className="btn btn-p" disabled={!file || upload.isPending}>
-            {upload.isPending ? 'جارٍ الرفع...' : 'رفع الروشتة'}
+          <button
+            type="submit"
+            className="btn btn-p"
+            disabled={!file || upload.isPending}
+          >
+            {upload.isPending ? "جارٍ الرفع..." : "رفع الروشتة"}
           </button>
         </form>
       </div>
     </div>
-  )
+  );
 }
 
-
+/* ── Data Modal ── */
 function DataModal({ patientName, items, type, onClose }) {
   if (!type) return null;
   const cfg = MODAL_CONFIG[type];
@@ -265,7 +531,7 @@ function DataModal({ patientName, items, type, onClose }) {
           className="mr-modal-head"
           style={{ borderBottom: `2px solid ${cfg.color}20` }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="mr-modal-head-inner">
             <div
               className="mr-modal-icon"
               style={{ background: `${cfg.color}15`, color: cfg.color }}
@@ -296,13 +562,12 @@ function DataModal({ patientName, items, type, onClose }) {
 /* ── Patient history view ── */
 function PatientHistory({ patient, onBack }) {
   const { data: history, isLoading } = usePatientHistory(patient.id);
-  const [modal, setModal]           = useState(null) // { appt, type }
-  const [uploadTest, setUploadTest] = useState(null) // { appt, testRequest }
-  const [uploadRx, setUploadRx]     = useState(null) // appt
+  const [modal, setModal] = useState(null);
+  const [uploadTest, setUploadTest] = useState(null);
+  const [uploadRx, setUploadRx] = useState(null);
+  const [uploadReport, setUploadReport] = useState(null);
 
   const appointments = history?.appointments || [];
-  const prescriptions = history?.prescriptions || [];
-  const testRequests = history?.test_requests || [];
 
   function getModalItems(appt, type) {
     if (type === "prescriptions") return appt.prescriptions || [];
@@ -311,80 +576,25 @@ function PatientHistory({ patient, onBack }) {
 
   return (
     <div>
-      {/* Back + patient header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
-        <button
-          className="btn btn-g"
-          style={{
-            padding: "6px 12px",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-          onClick={onBack}
-        >
-          <ChevronLeft size={14} />
-          رجوع
+      <div className="mr-history-header">
+        <button className="btn btn-g mr-back-btn" onClick={onBack}>
+          <ChevronLeft size={14} /> رجوع
         </button>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 11,
-              background: "#0F6B5C",
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 700,
-              fontSize: 15,
-            }}
-          >
+        <div className="mr-patient-header">
+          <div className="mr-patient-avatar-lg">
             {(patient.name || "؟").charAt(0)}
           </div>
           <div>
-            <div style={{ fontWeight: 700, fontSize: 14 }}>
-              {patient.name || "—"}
-            </div>
-            <div style={{ fontSize: 11.5, color: "var(--ink-45)" }}>
-              {patient.phone}
-            </div>
+            <div className="mr-patient-name-lg">{patient.name || "—"}</div>
+            <div className="mr-patient-phone">{patient.phone}</div>
           </div>
         </div>
       </div>
 
       {isLoading ? (
-        <div
-          className="panel"
-          style={{
-            padding: 32,
-            textAlign: "center",
-            color: "var(--ink-45)",
-            fontSize: 13,
-          }}
-        >
-          جارٍ تحميل السجل الطبي...
-        </div>
+        <div className="panel mr-panel-msg">جارٍ تحميل السجل الطبي...</div>
       ) : appointments.length === 0 ? (
-        <div
-          className="panel"
-          style={{
-            padding: 32,
-            textAlign: "center",
-            color: "var(--ink-45)",
-            fontSize: 13,
-          }}
-        >
-          لا توجد سجلات طبية لهذا المريض
-        </div>
+        <div className="panel mr-panel-msg">لا توجد سجلات طبية لهذا المريض</div>
       ) : (
         <div className="mr-list">
           {appointments.map((appt, idx) => {
@@ -487,19 +697,29 @@ function PatientHistory({ patient, onBack }) {
                       )}
                     </button>
                   ))}
+
+                  {/* Inline media thumbnails */}
+                  <AppointmentMedia apptId={appt.id} inline />
                 </div>
 
-                {/* Upload buttons */}
-                <div style={{ display: 'flex', gap: 8, marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--line)', flexWrap: 'wrap' }}>
-                  <button className="btn btn-q" style={{ fontSize: 11.5, gap: 5, justifyContent: 'center' }} onClick={() => setUploadRx(appt)}>
-                    <Upload size={12} /> رفع الروشتة
+                <div className="mr-upload-row">
+                  <button
+                    className="btn mr-upload-btn"
+                    style={{ background: 'rgba(15,107,92,.08)', color: '#0F6B5C', border: '1px solid rgba(15,107,92,.2)' }}
+                    onClick={() => setUploadRx(appt)}
+                  >
+                    <Pill size={12} /> رفع الروشتة
                   </button>
-                  {(appt.test_requests || []).map(tr => (
-                    <button key={tr.id} className="btn btn-q" style={{ fontSize: 11.5, gap: 5, justifyContent: 'center' }} onClick={() => setUploadTest({ appt, testRequest: tr })}>
-                      <Upload size={12} /> {tr.type === 'xray' ? 'أشعة' : 'تحليل'}: {tr.test?.name || `#${tr.id}`}
-                    </button>
-                  ))}
+                  <button
+                    className="btn mr-upload-btn"
+                    style={{ background: 'rgba(44,109,170,.08)', color: '#2C6DAA', border: '1px solid rgba(44,109,170,.2)' }}
+                    onClick={() => setUploadReport(appt.id)}
+                  >
+                    <FlaskConical size={12} /> رفع نتيجة تحليل / أشعة
+                  </button>
                 </div>
+
+                <AppointmentMedia apptId={appt.id} />
               </div>
             );
           })}
@@ -527,6 +747,12 @@ function PatientHistory({ patient, onBack }) {
           onClose={() => setUploadRx(null)}
         />
       )}
+      {uploadReport && (
+        <UploadReportModal
+          apptId={uploadReport}
+          onClose={() => setUploadReport(null)}
+        />
+      )}
     </div>
   );
 }
@@ -540,10 +766,30 @@ export default function MedicalRecords() {
   const { data: stats } = useAppointmentStatistics();
 
   const statCards = [
-    { label: "مواعيد اليوم",     value: stats?.appointments?.total         ?? "—", icon: <CalendarCheck size={16} />, color: "#0F6B5C" },
-    { label: "وصفات طبية",       value: stats?.appointments?.by_status?.completed ?? "—", icon: <Pill size={16} />,          color: "#7C3AED" },
-    { label: "تحاليل مطلوبة",    value: stats?.test_requests?.by_type?.analysis   ?? "—", icon: <FlaskConical size={16} />,  color: "#2C6DAA" },
-    { label: "تقارير طبية",      value: stats?.test_requests?.by_type?.xray        ?? "—", icon: <ScanLine size={16} />,     color: "#DB2777" },
+    {
+      label: "مواعيد اليوم",
+      value: stats?.appointments?.total ?? "—",
+      icon: <CalendarCheck size={16} />,
+      color: "#0F6B5C",
+    },
+    {
+      label: "وصفات طبية",
+      value: stats?.appointments?.by_status?.completed ?? "—",
+      icon: <Pill size={16} />,
+      color: "#7C3AED",
+    },
+    {
+      label: "تحاليل مطلوبة",
+      value: stats?.test_requests?.by_type?.analysis ?? "—",
+      icon: <FlaskConical size={16} />,
+      color: "#2C6DAA",
+    },
+    {
+      label: "تقارير طبية",
+      value: stats?.test_requests?.by_type?.xray ?? "—",
+      icon: <ScanLine size={16} />,
+      color: "#DB2777",
+    },
   ];
 
   const filtered = patients.filter((p) => {
@@ -563,19 +809,21 @@ export default function MedicalRecords() {
 
   return (
     <div>
-      {/* Stats cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 16 }}>
-        {statCards.map(c => (
-          <div key={c.label} className="panel" style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ fontSize: 11, color: "var(--ink-45)", textAlign: "center" }}>{c.label}</div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: c.color, textAlign: "center", fontFamily: "Careem, sans-serif", lineHeight: 1 }}>{c.value}</div>
+      {/* Stats */}
+      <div className="mr-stats-grid">
+        {statCards.map((c) => (
+          <div key={c.label} className="panel mr-stat-card">
+            <div className="mr-stat-label">{c.label}</div>
+            <div className="mr-stat-value" style={{ color: c.color }}>
+              {c.value}
+            </div>
           </div>
         ))}
       </div>
 
       {/* Search */}
       <div className="mr-topbar">
-        <div style={{ position: "relative", flex: "0 0 280px" }}>
+        <div className="mr-search-wrap">
           <svg
             width="13"
             height="13"
@@ -584,25 +832,13 @@ export default function MedicalRecords() {
             fill="none"
             strokeWidth="2"
             strokeLinecap="round"
-            style={{
-              position: "absolute",
-              right: 10,
-              top: "50%",
-              transform: "translateY(-50%)",
-              pointerEvents: "none",
-            }}
+            className="mr-search-icon"
           >
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.35-4.35" />
           </svg>
           <input
-            className="inp"
-            style={{
-              paddingRight: 32,
-              minHeight: 36,
-              fontSize: 12.5,
-              borderRadius: 10,
-            }}
+            className="inp mr-search-inp"
             placeholder="ابحث باسم المريض أو الجوال..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -613,29 +849,9 @@ export default function MedicalRecords() {
       {/* Patients list */}
       <div className="mr-list">
         {isLoading ? (
-          <div
-            className="panel"
-            style={{
-              padding: 32,
-              textAlign: "center",
-              color: "var(--ink-45)",
-              fontSize: 13,
-            }}
-          >
-            جارٍ تحميل المرضى...
-          </div>
+          <div className="panel mr-panel-msg">جارٍ تحميل المرضى...</div>
         ) : filtered.length === 0 ? (
-          <div
-            className="panel"
-            style={{
-              padding: 32,
-              textAlign: "center",
-              color: "var(--ink-45)",
-              fontSize: 13,
-            }}
-          >
-            لا يوجد مرضى
-          </div>
+          <div className="panel mr-panel-msg">لا يوجد مرضى</div>
         ) : (
           filtered.map((p, idx) => (
             <div
@@ -696,7 +912,6 @@ export default function MedicalRecords() {
                 </div>
                 <button
                   className="btn btn-p mr-detail-btn"
-                  style={{ marginRight: "auto" }}
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedPatient(p);

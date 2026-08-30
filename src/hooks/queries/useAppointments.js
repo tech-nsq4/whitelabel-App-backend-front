@@ -37,7 +37,10 @@ export function useUploadTestResult() {
   return useMutation({
     mutationFn: ({ appointmentId, testRequestId, formData }) =>
       uploadTestResultApi(appointmentId, testRequestId, formData),
-    onSuccess: () => qc.invalidateQueries({ queryKey: APPOINTMENTS_KEY }),
+    onSuccess: (_, { appointmentId }) => {
+      qc.invalidateQueries({ queryKey: APPOINTMENTS_KEY })
+      qc.invalidateQueries({ queryKey: [...APPOINTMENTS_KEY, appointmentId] })
+    },
   })
 }
 
@@ -46,6 +49,9 @@ export function useUploadPrescriptionImage() {
   return useMutation({
     mutationFn: ({ appointmentId, formData }) =>
       uploadPrescriptionImageApi(appointmentId, formData),
-    onSuccess: () => qc.invalidateQueries({ queryKey: APPOINTMENTS_KEY }),
+    onSuccess: (_, { appointmentId }) => {
+      qc.invalidateQueries({ queryKey: APPOINTMENTS_KEY })
+      qc.invalidateQueries({ queryKey: [...APPOINTMENTS_KEY, appointmentId] })
+    },
   })
 }

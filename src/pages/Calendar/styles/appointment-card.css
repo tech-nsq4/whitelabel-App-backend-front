@@ -1,0 +1,44 @@
+/* ================================
+   Appointment Card
+================================ */
+
+.appt-slot {
+  padding: 5px 10px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+}
+
+.appt-slot-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.appt-slot-time {
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.appt-slot-label {
+  font-size: 10px;
+  color: var(--ink-45);
+  margin-right: auto;
+}
+
+.appt-card-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.appt-card-doctor {
+  font-size: 9.5px;
+  color: var(--ink-45);
+  margin-top: 1px;
+}

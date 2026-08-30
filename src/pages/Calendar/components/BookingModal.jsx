@@ -4,6 +4,7 @@ import { useDoctors } from "../../../hooks/queries/useDoctors";
 import { useSpecializations } from "../../../hooks/queries/useSpecializations";
 import { useClinics } from "../../../hooks/queries/useClinics";
 import { useTimeTables } from "../../../hooks/queries/useTimeTables";
+import "../styles/booking-modal.css";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -33,7 +34,6 @@ const DAYS_EN = [
   "Saturday",
 ];
 
-// generate time slots within a shift based on session duration
 function generateSlots(start, end, duration) {
   if (!start || !end || !duration) return [];
   const slots = [];
@@ -101,31 +101,10 @@ function SearchSelect({
         <button
           id={id}
           type="button"
+          className={`bk-select-btn${selected ? " has-value" : ""}${open ? " open" : ""}`}
           onClick={() => setOpen((v) => !v)}
-          style={{
-            width: "100%",
-            minHeight: 40,
-            padding: "9px 36px 9px 12px",
-            borderRadius: "var(--radius-md)",
-            border: `1px solid ${open ? "var(--brand)" : "var(--line)"}`,
-            background: "var(--card)",
-            color: selected ? "var(--ink)" : "var(--ink-25)",
-            fontSize: 13,
-            textAlign: "right",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            boxShadow: open ? "0 0 0 3px var(--focus-ring)" : "none",
-          }}
         >
-          <span
-            style={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <span className="bk-select-btn-text">
             {selected ? selected.label : placeholder}
           </span>
           <svg
@@ -136,38 +115,16 @@ function SearchSelect({
             fill="none"
             strokeWidth="2"
             strokeLinecap="round"
-            style={{
-              flexShrink: 0,
-              transition: "transform .2s",
-              transform: open ? "rotate(180deg)" : "none",
-            }}
+            className={`bk-select-chevron${open ? " open" : ""}`}
           >
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>
 
         {open && (
-          <div
-            style={{
-              position: "absolute",
-              top: "calc(100% + 4px)",
-              right: 0,
-              left: 0,
-              zIndex: 999,
-              background: "var(--card)",
-              border: "1px solid var(--line)",
-              borderRadius: "var(--radius-md)",
-              boxShadow: "0 8px 24px rgba(10,31,27,.12)",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                padding: "8px 10px",
-                borderBottom: "1px solid var(--line)",
-              }}
-            >
-              <div style={{ position: "relative" }}>
+          <div className="bk-dropdown">
+            <div className="bk-dropdown-search">
+              <div className="bk-dropdown-search-inner">
                 <svg
                   width="12"
                   height="12"
@@ -176,72 +133,29 @@ function SearchSelect({
                   fill="none"
                   strokeWidth="2"
                   strokeLinecap="round"
-                  style={{
-                    position: "absolute",
-                    right: 9,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    pointerEvents: "none",
-                  }}
+                  className="bk-dropdown-search-icon"
                 >
                   <circle cx="11" cy="11" r="7" />
                   <path d="M21 21l-4.35-4.35" />
                 </svg>
                 <input
                   autoFocus
-                  className="inp"
+                  className={`inp bk-dropdown-inp`}
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="ابحث…"
-                  style={{ paddingRight: 28, minHeight: 34, fontSize: 12.5 }}
                 />
               </div>
             </div>
-            <div
-              style={{ maxHeight: 200, overflowY: "auto" }}
-              className="custom-scroll"
-            >
+            <div className="bk-dropdown-list custom-scroll">
               {filtered.length === 0 ? (
-                <div
-                  style={{
-                    padding: "12px 14px",
-                    fontSize: 12,
-                    color: "var(--ink-45)",
-                    textAlign: "center",
-                  }}
-                >
-                  لا توجد نتائج
-                </div>
+                <div className="bk-dropdown-empty">لا توجد نتائج</div>
               ) : (
                 filtered.map((o) => (
                   <div
                     key={String(o.value)}
+                    className={`bk-dropdown-option${String(o.value) === String(value) ? " selected" : ""}`}
                     onClick={() => pick(o.value)}
-                    style={{
-                      padding: "9px 14px",
-                      fontSize: 13,
-                      cursor: "pointer",
-                      color:
-                        String(o.value) === String(value)
-                          ? "var(--brand)"
-                          : "var(--ink)",
-                      background:
-                        String(o.value) === String(value)
-                          ? "rgba(15,107,92,.06)"
-                          : "transparent",
-                      fontWeight: String(o.value) === String(value) ? 600 : 400,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (String(o.value) !== String(value))
-                        e.currentTarget.style.background = "var(--paper)";
-                    }}
-                    onMouseLeave={(e) => {
-                      if (String(o.value) !== String(value))
-                        e.currentTarget.style.background = "transparent";
-                    }}
                   >
                     {o.label}
                     {String(o.value) === String(value) && (
@@ -268,16 +182,14 @@ function SearchSelect({
   );
 }
 
-/* ── Time slots section ── */
+/* ── Time slots ── */
 function TimeSlots({ timeTables, doctorId, date, value, onChange }) {
-  // parse date as local to avoid UTC offset shifting the day
   const dayName = useMemo(() => {
     if (!date) return null;
     const [y, m, d] = date.split("-").map(Number);
     return DAYS_EN[new Date(y, m - 1, d).getDay()];
   }, [date]);
 
-  // find doctor's active time table for this date
   const table = useMemo(() => {
     if (!doctorId || !date) return null;
     return timeTables.find(
@@ -289,7 +201,6 @@ function TimeSlots({ timeTables, doctorId, date, value, onChange }) {
     );
   }, [timeTables, doctorId, date]);
 
-  // find schedule for this day
   const schedule = useMemo(() => {
     if (!table || !dayName) return null;
     return table.schedules?.find((s) => s.day === dayName);
@@ -323,56 +234,24 @@ function TimeSlots({ timeTables, doctorId, date, value, onChange }) {
 
   if (!table)
     return (
-      <div
-        style={{
-          padding: "10px 14px",
-          borderRadius: 10,
-          background: "rgba(169,118,18,.08)",
-          fontSize: 12,
-          color: "var(--warn)",
-          marginBottom: 4,
-        }}
-      >
+      <div className="bk-notice warn">
         لا يوجد جدول نشط لهذا الطبيب في التاريخ المختار ({date})
       </div>
     );
 
   if (!schedule)
-    return (
-      <div
-        style={{
-          padding: "10px 14px",
-          borderRadius: 10,
-          background: "var(--paper)",
-          fontSize: 12,
-          color: "var(--ink-45)",
-          marginBottom: 4,
-        }}
-      >
-        الطبيب غير متاح يوم {dayName}
-      </div>
-    );
+    return <div className="bk-notice muted">الطبيب غير متاح يوم {dayName}</div>;
 
   return (
     <div className="field">
       <label className="field-label">الوقت المتاح</label>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+      <div className="bk-slots-wrap">
         {slots.map((slot) => (
           <button
             key={slot}
             type="button"
+            className={`bk-slot-btn${value === slot ? " selected" : ""}`}
             onClick={() => onChange(slot)}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: "pointer",
-              fontFamily: "monospace",
-              border: `1.5px solid ${value === slot ? "var(--brand)" : "var(--line)"}`,
-              background: value === slot ? "rgba(15,107,92,.1)" : "var(--card)",
-              color: value === slot ? "var(--brand)" : "var(--ink-70)",
-            }}
           >
             {slot}
           </button>
@@ -510,45 +389,19 @@ export default function BookingModal({ open, onClose, onSubmit }) {
 
       {/* Doctor preview */}
       {selectedDoctor && (
-        <div
-          style={{
-            padding: "10px 14px",
-            borderRadius: 10,
-            background: "var(--sand)",
-            marginBottom: 4,
-            display: "flex",
-            gap: 14,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
+        <div className="bk-doctor-preview">
           {selectedDoctor.description?.ar && (
-            <span style={{ fontSize: 11.5, color: "var(--ink-70)", flex: 1 }}>
+            <span className="bk-doctor-desc">
               {selectedDoctor.description.ar}
             </span>
           )}
           {selectedDoctor.experience && (
-            <span
-              style={{
-                fontSize: 11.5,
-                color: "var(--ink-70)",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <span className="bk-doctor-exp">
               خبرة <b>{selectedDoctor.experience}</b> سنة
             </span>
           )}
           {selectedDoctor.price && (
-            <span
-              style={{
-                fontSize: 12,
-                color: "var(--brand)",
-                fontWeight: 700,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {selectedDoctor.price} ر.س
-            </span>
+            <span className="bk-doctor-price">{selectedDoctor.price} ر.س</span>
           )}
         </div>
       )}
@@ -585,14 +438,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         onChange={(v) => set("time", v)}
       />
 
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          justifyContent: "flex-end",
-          marginTop: 6,
-        }}
-      >
+      <div className="bk-footer">
         <button className="btn btn-q" onClick={handleClose}>
           إلغاء
         </button>

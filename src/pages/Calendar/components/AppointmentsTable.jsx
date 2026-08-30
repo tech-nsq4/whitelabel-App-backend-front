@@ -3,6 +3,7 @@ import { FileText, Calendar, X } from "lucide-react";
 import { useAppointments } from "../../../hooks/queries/useAppointments";
 import AppointmentDetailsModal from "./AppointmentDetailsModal";
 import { SkeletonTable } from "../../../components/ui/Skeleton";
+import "../styles/appointments-table.css";
 
 const STATUSES = {
   pending: { label: "انتظار", bg: "rgba(201,162,39,.1)", color: "#C9A227" },
@@ -94,9 +95,8 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
 
   return (
     <div>
-      {/* ── Toolbar ── */}
+      {/* Toolbar */}
       <div className="appt-toolbar">
-        {/* Right: status pills */}
         <div className="appt-status-pills">
           {[
             { id: "all", label: "كل الحالات" },
@@ -127,9 +127,7 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
           })}
         </div>
 
-        {/* Left: search + date filter + count */}
         <div className="appt-toolbar-right">
-          {/* Search */}
           <div className="appt-search-wrap">
             <svg
               width="13"
@@ -165,7 +163,6 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
             )}
           </div>
 
-          {/* Date filter */}
           {dateRange?.from && (
             <button
               className={`appt-date-btn${applyDate ? " active" : ""}`}
@@ -195,12 +192,12 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
         </div>
       </div>
 
-      {/* ── Table ── */}
+      {/* Table */}
       {isLoading ? (
         <SkeletonTable rows={8} cols={COLS.length} />
       ) : (
-        <div className="panel" style={{ padding: 0, overflowX: "auto" }}>
-          <table className="data" style={{ minWidth: 900 }}>
+        <div className="panel at-table-wrap">
+          <table className="data at-table">
             <thead>
               <tr>
                 {COLS.map((c) => (
@@ -213,15 +210,7 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={COLS.length}
-                    style={{
-                      textAlign: "center",
-                      padding: "48px",
-                      color: "var(--ink-45)",
-                      fontSize: 13,
-                    }}
-                  >
+                  <td colSpan={COLS.length} className="at-empty">
                     لا توجد مواعيد
                   </td>
                 </tr>
@@ -241,38 +230,13 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
 
                   return (
                     <tr key={a.id}>
-                      <td
-                        style={{
-                          fontSize: 11.5,
-                          color: "var(--ink-45)",
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        #{a.id}
-                      </td>
+                      <td className="at-cell-id">#{a.id}</td>
 
                       <td>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 9,
-                          }}
-                        >
+                        <div className="at-patient-cell">
                           <div
-                            style={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: 9,
-                              background: avatarBg,
-                              color: "#fff",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: 12,
-                              fontWeight: 700,
-                              flexShrink: 0,
-                            }}
+                            className="at-avatar"
+                            style={{ background: avatarBg }}
                           >
                             {patientName.charAt(0)}
                           </div>
@@ -284,69 +248,23 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
                       </td>
 
                       <td>
-                        <span
-                          style={{
-                            fontSize: 12.5,
-                            fontWeight: 600,
-                            color: "var(--ink)",
-                          }}
-                        >
-                          {doctorName}
-                        </span>
+                        <span className="at-cell-doctor">{doctorName}</span>
                       </td>
 
                       <td>
-                        <span
-                          style={{
-                            fontSize: 11.5,
-                            fontWeight: 600,
-                            padding: "3px 9px",
-                            borderRadius: 99,
-                            background: "var(--paper)",
-                            color: "var(--ink-70)",
-                          }}
-                        >
-                          {specialty}
-                        </span>
+                        <span className="at-cell-specialty">{specialty}</span>
                       </td>
 
-                      <td style={{ fontSize: 12.5, color: "var(--ink-70)" }}>
-                        {branch}
-                      </td>
+                      <td className="at-cell-branch">{branch}</td>
 
-                      <td
-                        style={{
-                          fontSize: 12,
-                          color: "var(--ink-70)",
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {a.date}
-                      </td>
+                      <td className="at-cell-date">{a.date}</td>
 
-                      <td
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: "var(--ink)",
-                          fontFamily: "monospace",
-                          direction: "ltr",
-                          textAlign: "right",
-                        }}
-                      >
-                        {a.times}
-                      </td>
+                      <td className="at-cell-time">{a.times}</td>
 
                       <td>
                         <span
-                          style={{
-                            fontSize: 11.5,
-                            fontWeight: 600,
-                            padding: "3px 9px",
-                            borderRadius: 99,
-                            background: typeM.bg,
-                            color: typeM.color,
-                          }}
+                          className="at-badge"
+                          style={{ background: typeM.bg, color: typeM.color }}
                         >
                           {typeM.label}
                         </span>
@@ -354,14 +272,8 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
 
                       <td>
                         <span
-                          style={{
-                            fontSize: 11.5,
-                            fontWeight: 600,
-                            padding: "3px 9px",
-                            borderRadius: 99,
-                            background: status.bg,
-                            color: status.color,
-                          }}
+                          className="at-badge"
+                          style={{ background: status.bg, color: status.color }}
                         >
                           {status.label}
                         </span>
@@ -369,9 +281,8 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
 
                       <td>
                         <button
-                          className="icon-btn"
+                          className="icon-btn at-action-btn"
                           title="تفاصيل الحجز"
-                          style={{ width: 30, height: 30 }}
                           onClick={() => setSelectedId(a.id)}
                         >
                           <FileText size={14} strokeWidth={1.7} />
@@ -386,27 +297,17 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
         </div>
       )}
 
-      {/* ── Pagination ── */}
+      {/* Pagination */}
       {!isLoading && totalPages > 1 && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: 14,
-            flexWrap: "wrap",
-            gap: 8,
-          }}
-        >
-          <span style={{ fontSize: 12, color: "var(--ink-45)" }}>
+        <div className="at-pagination">
+          <span className="at-pagination-info">
             {(safePage - 1) * PAGE_SIZE + 1}–
             {Math.min(safePage * PAGE_SIZE, filtered.length)} من{" "}
             {filtered.length}
           </span>
-          <div style={{ display: "flex", gap: 4 }}>
+          <div className="at-pagination-btns">
             <button
-              className="btn btn-q"
-              style={{ padding: "6px 13px", fontSize: 12 }}
+              className="btn btn-q at-pagination-btn"
               disabled={safePage === 1}
               onClick={() => setPage((p) => p - 1)}
             >
@@ -415,21 +316,14 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <button
                 key={p}
-                className={`btn ${p === safePage ? "btn-p" : "btn-q"}`}
-                style={{
-                  minWidth: 34,
-                  padding: "6px 0",
-                  fontSize: 12,
-                  justifyContent: "center",
-                }}
+                className={`btn ${p === safePage ? "btn-p" : "btn-q"} at-pagination-page`}
                 onClick={() => setPage(p)}
               >
                 {p}
               </button>
             ))}
             <button
-              className="btn btn-q"
-              style={{ padding: "6px 13px", fontSize: 12 }}
+              className="btn btn-q at-pagination-btn"
               disabled={safePage === totalPages}
               onClick={() => setPage((p) => p + 1)}
             >

@@ -2,13 +2,20 @@ import { useState } from "react";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "../../components/ui/Toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCities, useCreateCity, useUpdateCity, useDeleteCity, CITIES_KEY } from "../../hooks/queries/useCities";
+import {
+  useCities,
+  useCreateCity,
+  useUpdateCity,
+  useDeleteCity,
+  CITIES_KEY,
+} from "../../hooks/queries/useCities";
 import {
   createAreaApi,
   updateAreaApi,
   deleteAreaApi,
 } from "../../api/areas.api";
 import Modal from "../../components/ui/Modal";
+import "./styles/Cities.css";
 
 const EMPTY = { ar: "", en: "" };
 
@@ -43,6 +50,7 @@ export default function Cities() {
     setCityEditId(city.id);
     setCityModal("edit");
   }
+
   async function handleCitySave() {
     if (!cityForm.ar.trim() || !cityForm.en.trim())
       return showToast("أدخل الاسم بالعربي والإنجليزي", "error");
@@ -52,7 +60,10 @@ export default function Cities() {
         await createCity.mutateAsync({ name: cityForm });
         showToast("تم إضافة المدينة");
       } else {
-        await updateCity.mutateAsync({ id: cityEditId, data: { name: cityForm } });
+        await updateCity.mutateAsync({
+          id: cityEditId,
+          data: { name: cityForm },
+        });
         showToast("تم تحديث المدينة");
       }
       setCityModal(null);
@@ -62,6 +73,7 @@ export default function Cities() {
       setSaving(false);
     }
   }
+
   async function handleCityDelete(id) {
     setDeleting("city-" + id);
     try {
@@ -86,6 +98,7 @@ export default function Cities() {
     setAreaCityId(cityId);
     setAreaModal("edit");
   }
+
   async function handleAreaSave() {
     if (!areaForm.ar.trim() || !areaForm.en.trim())
       return showToast("أدخل الاسم بالعربي والإنجليزي", "error");
@@ -95,7 +108,10 @@ export default function Cities() {
         await createAreaApi({ city_id: areaCityId, name: areaForm });
         showToast("تم إضافة المنطقة");
       } else {
-        await updateAreaApi(areaEditId, { city_id: areaCityId, name: areaForm });
+        await updateAreaApi(areaEditId, {
+          city_id: areaCityId,
+          name: areaForm,
+        });
         showToast("تم تحديث المنطقة");
       }
       setAreaModal(null);
@@ -106,6 +122,7 @@ export default function Cities() {
       setSaving(false);
     }
   }
+
   async function handleAreaDelete(areaId) {
     setDeleting("area-" + areaId);
     try {
@@ -120,7 +137,7 @@ export default function Cities() {
   }
 
   return (
-    <div style={{ animation: "fadeIn .3s ease" }}>
+    <div className="cities-page">
       <div className="page-head">
         <div>
           <h1>المدن</h1>
@@ -131,82 +148,43 @@ export default function Cities() {
         </button>
       </div>
 
-      <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
+      <div className="panel cities-panel">
+        {/* Skeleton */}
         {loading &&
           [1, 2, 3].map((n) => (
-            <div
-              key={n}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "16px 20px",
-                gap: 10,
-                borderBottom: "1px solid var(--line)",
-              }}
-            >
-              <div
-                style={{
-                  width: 120,
-                  height: 14,
-                  borderRadius: 6,
-                  background: "var(--line)",
-                  animation: "pulse 1.2s ease infinite",
-                }}
-              />
-              <div style={{ flex: 1 }} />
-              <div
-                style={{
-                  width: 50,
-                  height: 20,
-                  borderRadius: 20,
-                  background: "var(--line)",
-                  animation: "pulse 1.2s ease infinite",
-                }}
-              />
+            <div key={n} className="cities-skeleton-row">
+              <div className="cities-skeleton-text" />
+              <div className="cities-skeleton-spacer" />
+              <div className="cities-skeleton-chip" />
             </div>
           ))}
+
+        {/* Cities list */}
         {!loading &&
-          cities.map((city, i) => (
-            <div
-              key={city.id}
-              style={{
-                borderBottom:
-                  i < cities.length - 1 ? "1px solid var(--line)" : "none",
-              }}
-            >
+          cities.map((city) => (
+            <div key={city.id} className="city-row">
               <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "14px 20px",
-                  gap: 10,
-                  cursor: "pointer",
-                }}
+                className="city-row-header"
                 onClick={() =>
                   setExpanded(expanded === city.id ? null : city.id)
                 }
               >
-                <div style={{ color: "var(--ink-45)", display: "flex" }}>
+                <div className="city-row-chevron">
                   {expanded === city.id ? (
                     <ChevronUp size={16} />
                   ) : (
                     <ChevronDown size={16} />
                   )}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>
-                    {city.name.ar}
-                  </div>
-                  <div style={{ fontSize: 12, color: "var(--ink-45)" }}>
-                    {city.name.en}
-                  </div>
+                <div className="city-row-names">
+                  <div className="city-row-name-ar">{city.name.ar}</div>
+                  <div className="city-row-name-en">{city.name.en}</div>
                 </div>
-                <span className="chip ok" style={{ fontSize: 11 }}>
+                <span className="chip ok city-areas-count">
                   {city.areas_count} منطقة
                 </span>
                 <button
-                  className="btn btn-q"
-                  style={{ padding: "6px 10px" }}
+                  className="btn btn-q city-action-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     openAreaCreate(city.id);
@@ -216,8 +194,7 @@ export default function Cities() {
                   <Plus size={13} />
                 </button>
                 <button
-                  className="btn btn-q"
-                  style={{ padding: "6px 10px" }}
+                  className="btn btn-q city-action-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     openCityEdit(city);
@@ -226,15 +203,7 @@ export default function Cities() {
                   <Pencil size={13} />
                 </button>
                 <button
-                  className="btn"
-                  style={{
-                    padding: "6px 10px",
-                    color: "var(--danger)",
-                    background: "rgba(179,64,47,.07)",
-                    border: "none",
-                    borderRadius: "var(--radius-md)",
-                    cursor: "pointer",
-                  }}
+                  className="btn city-delete-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleCityDelete(city.id);
@@ -246,68 +215,24 @@ export default function Cities() {
               </div>
 
               {expanded === city.id && (
-                <div
-                  style={{
-                    background: "var(--paper)",
-                    borderTop: "1px solid var(--line)",
-                    padding: "8px 20px 12px",
-                  }}
-                >
+                <div className="city-areas-panel">
                   {(!city.areas || city.areas.length === 0) && (
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: "var(--ink-45)",
-                        padding: "8px 0",
-                      }}
-                    >
-                      لا توجد مناطق
-                    </div>
+                    <div className="city-areas-empty">لا توجد مناطق</div>
                   )}
                   {city.areas &&
                     city.areas.map((area) => (
-                      <div
-                        key={area.id}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          padding: "7px 0",
-                          borderBottom: "1px dashed var(--line)",
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: "50%",
-                            background: "var(--brand)",
-                            flexShrink: 0,
-                          }}
-                        />
-                        <span style={{ flex: 1, fontSize: 13 }}>
-                          {area.name.ar}
-                        </span>
-                        <span style={{ fontSize: 12, color: "var(--ink-45)" }}>
-                          {area.name.en}
-                        </span>
+                      <div key={area.id} className="area-row">
+                        <span className="area-dot" />
+                        <span className="area-name-ar">{area.name.ar}</span>
+                        <span className="area-name-en">{area.name.en}</span>
                         <button
-                          className="btn btn-q"
-                          style={{ padding: "4px 8px" }}
+                          className="btn btn-q area-action-btn"
                           onClick={() => openAreaEdit(area, city.id)}
                         >
                           <Pencil size={12} />
                         </button>
                         <button
-                          className="btn"
-                          style={{
-                            padding: "4px 8px",
-                            color: "var(--danger)",
-                            background: "rgba(179,64,47,.07)",
-                            border: "none",
-                            borderRadius: "var(--radius-md)",
-                            cursor: "pointer",
-                          }}
+                          className="btn area-delete-btn"
                           onClick={() => handleAreaDelete(area.id)}
                           disabled={deleting === "area-" + area.id}
                         >
@@ -321,6 +246,7 @@ export default function Cities() {
           ))}
       </div>
 
+      {/* City Modal */}
       <Modal
         open={cityModal !== null}
         onClose={() => setCityModal(null)}
@@ -345,14 +271,7 @@ export default function Cities() {
             placeholder="e.g. Cairo"
           />
         </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            justifyContent: "flex-end",
-            marginTop: 6,
-          }}
-        >
+        <div className="cities-modal-footer">
           <button className="btn btn-q" onClick={() => setCityModal(null)}>
             إلغاء
           </button>
@@ -366,6 +285,7 @@ export default function Cities() {
         </div>
       </Modal>
 
+      {/* Area Modal */}
       <Modal
         open={areaModal !== null}
         onClose={() => setAreaModal(null)}
@@ -390,14 +310,7 @@ export default function Cities() {
             placeholder="e.g. Maadi"
           />
         </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            justifyContent: "flex-end",
-            marginTop: 6,
-          }}
-        >
+        <div className="cities-modal-footer">
           <button className="btn btn-q" onClick={() => setAreaModal(null)}>
             إلغاء
           </button>

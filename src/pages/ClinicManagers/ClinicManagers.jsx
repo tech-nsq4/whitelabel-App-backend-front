@@ -4,6 +4,7 @@ import { useClinicManagers, useDeleteClinicManager } from '../../hooks/queries/u
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import NewClinicManagerModal from './components/NewClinicManagerModal'
 import EditClinicManagerModal from './components/EditClinicManagerModal'
+import './styles/ClinicManagers.css'
 
 const SCOPE_META = {
   all:      { label: 'كل العيادات', color: '#0F6B5C', soft: '#e8f5f2' },
@@ -19,11 +20,18 @@ const BG_COLORS = [
   'linear-gradient(135deg,#DB2777,#9d174d)',
 ]
 
+const SCOPE_FILTERS = [
+  { id: 'all',      label: 'الكل' },
+  { id: 'all_c',    label: 'كل العيادات', scope: 'all' },
+  { id: 'location', label: 'موقع',        scope: 'location' },
+  { id: 'clinic',   label: 'عيادة',       scope: 'clinic' },
+]
+
 export default function ClinicManagers() {
   const { showToast } = useToast()
-  const [search, setSearch]           = useState('')
-  const [scopeFilter, setScopeFilter] = useState('all')
-  const [modalOpen, setModalOpen]     = useState(false)
+  const [search, setSearch]             = useState('')
+  const [scopeFilter, setScopeFilter]   = useState('all')
+  const [modalOpen, setModalOpen]       = useState(false)
   const [editingManager, setEditingManager] = useState(null)
 
   const { data: managers = [], isLoading } = useClinicManagers()
@@ -47,7 +55,7 @@ export default function ClinicManagers() {
   }
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="clinic-managers-page">
       {/* Header */}
       <div className="page-head">
         <div>
@@ -61,27 +69,26 @@ export default function ClinicManagers() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-        <div style={{ position: 'relative', flex: '1 1 200px', maxWidth: 280 }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" stroke="var(--ink-45)" fill="none" strokeWidth="2" strokeLinecap="round"
-            style={{ position: 'absolute', right: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+      <div className="cm-toolbar">
+        <div className="cm-search-wrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" stroke="var(--ink-45)" fill="none" strokeWidth="2" strokeLinecap="round" className="cm-search-icon">
             <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
           </svg>
-          <input className="inp" style={{ paddingRight: 34, minHeight: 38, fontSize: 12.5 }}
-            placeholder="ابحث بالاسم أو الإيميل…" value={search} onChange={e => setSearch(e.target.value)} />
+          <input
+            className="inp cm-search-inp"
+            placeholder="ابحث بالاسم أو الإيميل…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
         </div>
 
-        <div className="filter-bar" style={{ margin: 0, gap: 6 }}>
-          {[
-            { id: 'all',      label: 'الكل' },
-            { id: 'all',      label: 'كل العيادات', scope: 'all' },
-            { id: 'location', label: 'موقع',        scope: 'location' },
-            { id: 'clinic',   label: 'عيادة',       scope: 'clinic' },
-          ].filter((f, i, arr) => i === 0 || f.scope)
-          .map(f => (
-            <div key={f.id + (f.scope || '')}
-              className={`filter-chip${scopeFilter === (f.scope ?? 'all') && (f.scope !== undefined || scopeFilter === 'all') ? ' active' : ''}`}
-              onClick={() => setScopeFilter(f.scope ?? 'all')}>
+        <div className="filter-bar cm-filter-bar">
+          {SCOPE_FILTERS.map(f => (
+            <div
+              key={f.id}
+              className={`filter-chip${scopeFilter === (f.scope ?? 'all') ? ' active' : ''}`}
+              onClick={() => setScopeFilter(f.scope ?? 'all')}
+            >
               {f.label}
             </div>
           ))}
@@ -90,9 +97,9 @@ export default function ClinicManagers() {
 
       {/* Table */}
       {isLoading ? (
-        <div className="panel" style={{ padding: 24 }}><SkeletonTable rows={5} cols={5} /></div>
+        <div className="panel cm-loading-panel"><SkeletonTable rows={5} cols={5} /></div>
       ) : (
-        <div className="panel" style={{ padding: 0 }}>
+        <div className="panel cm-table-panel">
           <table className="data">
             <thead>
               <tr>
@@ -106,20 +113,20 @@ export default function ClinicManagers() {
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: 'var(--ink-45)', fontSize: 13 }}>لا توجد نتائج</td></tr>
+                <tr><td colSpan={6} className="cm-empty">لا توجد نتائج</td></tr>
               ) : filtered.map((m, idx) => {
-                const scope   = SCOPE_META[m.management_scope] || SCOPE_META.clinic
-                const clinic  = m.clinic?.name?.ar || '—'
-                const location = m.location?.name?.ar || '—'
-                const city    = m.location?.city?.name?.ar || ''
-                const area    = m.location?.area?.name?.ar || ''
+                const scope       = SCOPE_META[m.management_scope] || SCOPE_META.clinic
+                const clinic      = m.clinic?.name?.ar || '—'
+                const location    = m.location?.name?.ar || '—'
+                const city        = m.location?.city?.name?.ar || ''
+                const area        = m.location?.area?.name?.ar || ''
                 const locationStr = [location, city, area].filter(Boolean).join(' · ')
 
                 return (
                   <tr key={m.id}>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: 9, background: BG_COLORS[idx % BG_COLORS.length], color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                      <div className="cm-manager-cell">
+                        <div className="cm-avatar" style={{ background: BG_COLORS[idx % BG_COLORS.length] }}>
                           {m.name.charAt(0)}
                         </div>
                         <div>
@@ -128,32 +135,22 @@ export default function ClinicManagers() {
                         </div>
                       </div>
                     </td>
-                    <td style={{ fontSize: 12.5, color: 'var(--ink-70)' }} dir="ltr">{m.email}</td>
-                    <td style={{ fontSize: 12.5 }} dir="ltr">{m.phone || '—'}</td>
+                    <td className="cm-cell-email" dir="ltr">{m.email}</td>
+                    <td className="cm-cell-phone" dir="ltr">{m.phone || '—'}</td>
                     <td>
-                      <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 99, background: scope.soft, color: scope.color }}>
+                      <span className="cm-scope-badge" style={{ background: scope.soft, color: scope.color }}>
                         {scope.label}
                       </span>
                     </td>
-                    <td style={{ fontSize: 12.5, color: 'var(--ink-70)' }}>
+                    <td className="cm-cell-scope-val">
                       {m.management_scope === 'clinic'   && clinic}
                       {m.management_scope === 'location' && locationStr}
-                      {m.management_scope === 'all'      && <span style={{ color: 'var(--ink-45)', fontStyle: 'italic' }}>جميع العيادات</span>}
+                      {m.management_scope === 'all'      && <span className="cm-cell-scope-all">جميع العيادات</span>}
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                        <button
-                          className="btn btn-q"
-                          style={{ padding: '6px 12px', fontSize: 12 }}
-                          onClick={() => setEditingManager(m)}>
-                          تعديل
-                        </button>
-                        <button
-                          className="btn"
-                          style={{ padding: '6px 12px', fontSize: 12, color: 'var(--danger)', background: 'rgba(179,64,47,.07)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}
-                          onClick={() => handleDelete(m.id)}>
-                          حذف
-                        </button>
+                      <div className="cm-row-actions">
+                        <button className="btn btn-q cm-edit-btn" onClick={() => setEditingManager(m)}>تعديل</button>
+                        <button className="btn cm-delete-btn" onClick={() => handleDelete(m.id)}>حذف</button>
                       </div>
                     </td>
                   </tr>

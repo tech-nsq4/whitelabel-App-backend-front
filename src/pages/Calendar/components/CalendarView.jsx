@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTimeTables } from "../../../hooks/queries/useTimeTables";
 import { SkeletonTable } from "../../../components/ui/Skeleton";
+import "../styles/calendar-view.css";
 
 const DAY_AR = {
   Saturday: "السبت",
@@ -45,30 +46,11 @@ function ShiftPill({ start, end, color, soft }) {
   if (!start || !end) return null;
   return (
     <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        padding: "5px 10px",
-        borderRadius: 7,
-        marginBottom: 5,
-        background: soft,
-        border: `1px solid ${color}25`,
-      }}
+      className="cv-shift-pill"
+      style={{ background: soft, border: `1px solid ${color}25` }}
     >
-      <div
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          background: color,
-          flexShrink: 0,
-        }}
-      />
-      <span
-        style={{ fontSize: 12.5, fontWeight: 700, color, letterSpacing: 0.3 }}
-        dir="ltr"
-      >
+      <div className="cv-shift-dot" style={{ background: color }} />
+      <span className="cv-shift-time" style={{ color }} dir="ltr">
         {start} – {end}
       </span>
     </div>
@@ -77,24 +59,8 @@ function ShiftPill({ start, end, color, soft }) {
 
 function EmptyCell() {
   return (
-    <td
-      style={{
-        padding: "14px 12px",
-        borderLeft: "1px solid var(--line)",
-        verticalAlign: "middle",
-        textAlign: "center",
-        background: "var(--surface-subtle)",
-      }}
-    >
-      <div
-        style={{
-          width: 20,
-          height: 2,
-          background: "var(--line)",
-          borderRadius: 2,
-          margin: "0 auto",
-        }}
-      />
+    <td className="cv-td-empty">
+      <div className="cv-empty-line" />
     </td>
   );
 }
@@ -108,137 +74,51 @@ function DoctorRow({ table, days, isEven }) {
   const bg = isEven ? "#fff" : "var(--surface-subtle)";
 
   return (
-    <tr style={{ borderBottom: "1px solid var(--line)", background: bg }}>
-      <td
-        style={{
-          padding: "14px 16px",
-          minWidth: 280,
-          maxWidth: 280,
-          position: "sticky",
-          right: 0,
-          zIndex: 1,
-          borderLeft: "2px solid var(--line)",
-          background: bg,
-          verticalAlign: "top",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 8,
-          }}
-        >
+    <tr className="cv-doctor-row" style={{ background: bg }}>
+      <td className="cv-td-doctor" style={{ background: bg }}>
+        <div className="cv-doctor-header">
           <div
+            className="cv-doctor-avatar"
             style={{
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              flexShrink: 0,
               background: `linear-gradient(145deg, ${meta.color}, ${meta.color}99)`,
-              color: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 15,
-              fontWeight: 800,
               boxShadow: `0 3px 8px ${meta.color}30`,
             }}
           >
             {initial}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: 13.5,
-                fontWeight: 700,
-                color: "var(--ink)",
-                marginBottom: 4,
-              }}
-            >
-              {nameAr}
-            </div>
-            <div style={{ display: "flex", gap: 4 }}>
+          <div className="cv-doctor-info">
+            <div className="cv-doctor-name">{nameAr}</div>
+            <div className="cv-doctor-badges">
               <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  padding: "2px 8px",
-                  borderRadius: 99,
-                  background: meta.soft,
-                  color: meta.color,
-                  whiteSpace: "nowrap",
-                }}
+                className="cv-badge"
+                style={{ background: meta.soft, color: meta.color }}
               >
                 {meta.label}
               </span>
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  padding: "2px 8px",
-                  borderRadius: 99,
-                  background: "var(--paper)",
-                  color: "var(--ink-45)",
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <span className="cv-badge-muted">
                 {SCHEDULE_TYPE_AR[table.schedule_type]}
               </span>
             </div>
           </div>
         </div>
-        <div
-          style={{
-            fontSize: 11,
-            color: "var(--ink-45)",
-            marginBottom: 7,
-            direction: "ltr",
-            textAlign: "right",
-          }}
-        >
+        <div className="cv-doctor-dates">
           {table.start_date} → {table.end_date}
         </div>
-        <div style={{ display: "flex", gap: 10, flexWrap: "nowrap" }}>
+        <div className="cv-doctor-meta">
           {price && (
-            <span
-              style={{
-                fontSize: 11.5,
-                color: "var(--ink-70)",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <span className="cv-meta-item">
               <b style={{ color: "var(--ink)" }}>{price}</b> ر.س
             </span>
           )}
           {exp && (
-            <span
-              style={{
-                fontSize: 11.5,
-                color: "var(--ink-70)",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <span className="cv-meta-item">
               خبرة <b style={{ color: "var(--ink)" }}>{exp}</b>سنة
             </span>
           )}
-          <span
-            style={{
-              fontSize: 11.5,
-              color: "var(--ink-70)",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <span className="cv-meta-item">
             مدة <b style={{ color: "var(--ink)" }}>{table.session_hours}</b>د
           </span>
-          <span
-            style={{
-              fontSize: 11.5,
-              color: "var(--ink-70)",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <span className="cv-meta-item">
             راحة{" "}
             <b style={{ color: "var(--ink)" }}>
               {table.duration_between_sessions}
@@ -247,19 +127,12 @@ function DoctorRow({ table, days, isEven }) {
           </span>
         </div>
       </td>
+
       {days.map((day) => {
         const s = table.schedules?.find((sc) => sc.day === day);
         if (!s) return <EmptyCell key={day} />;
         return (
-          <td
-            key={day}
-            style={{
-              padding: "10px 12px",
-              verticalAlign: "top",
-              minWidth: 150,
-              borderLeft: "1px solid var(--line)",
-            }}
-          >
+          <td key={day} className="cv-td-day">
             <ShiftPill
               start={s.first_shift_start}
               end={s.first_shift_end}
@@ -285,11 +158,7 @@ function DoctorRow({ table, days, isEven }) {
   );
 }
 
-export default function CalendarView({
-  clinicFilter = "all",
-  dateRange,
-  view,
-}) {
+export default function CalendarView({ clinicFilter = "all", dateRange }) {
   const { data: timeTables = [], isLoading } = useTimeTables();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -306,7 +175,6 @@ export default function CalendarView({
       const matchClinic =
         clinicFilter === "all" ||
         String(t.doctor?.clinic_id) === String(clinicFilter);
-      // table is active within the selected date range
       const matchDate =
         !dateRange ||
         (t.start_date <= dateRange.to && t.end_date >= dateRange.from);
@@ -314,12 +182,9 @@ export default function CalendarView({
     });
   }, [timeTables, search, typeFilter, clinicFilter, dateRange]);
 
-  const safePage = Math.min(
-    page,
-    Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)),
-  );
-  const days = useMemo(() => collectDays(filtered), [filtered]);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const days = useMemo(() => collectDays(filtered), [filtered]);
   const paginated = filtered.slice(
     (safePage - 1) * PAGE_SIZE,
     safePage * PAGE_SIZE,
@@ -327,7 +192,7 @@ export default function CalendarView({
 
   if (isLoading)
     return (
-      <div className="panel" style={{ padding: 28 }}>
+      <div className="panel cv-loading">
         <SkeletonTable rows={8} cols={6} />
       </div>
     );
@@ -335,17 +200,8 @@ export default function CalendarView({
   return (
     <>
       {/* Toolbar */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          marginBottom: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        {/* Search */}
-        <div style={{ position: "relative", flex: "1 1 200px", maxWidth: 260 }}>
+      <div className="cv-toolbar">
+        <div className="cv-search-wrap">
           <svg
             width="13"
             height="13"
@@ -354,34 +210,19 @@ export default function CalendarView({
             fill="none"
             strokeWidth="2"
             strokeLinecap="round"
-            style={{
-              position: "absolute",
-              right: 11,
-              top: "50%",
-              transform: "translateY(-50%)",
-              pointerEvents: "none",
-            }}
+            className="cv-search-icon"
           >
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.35-4.35" />
           </svg>
           <input
-            className="inp"
-            style={{
-              paddingRight: 34,
-              minHeight: 38,
-              fontSize: 12.5,
-              borderRadius: 10,
-            }}
+            className="inp cv-search-inp"
             placeholder="ابحث بالدكتور…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        {/* Clinic filter — removed, now in CalendarHeader */}
-
-        {/* Type filter */}
         <div
           className="cal-tabs-inline"
           style={{ position: "static", transform: "none" }}
@@ -402,31 +243,13 @@ export default function CalendarView({
           ))}
         </div>
 
-        <span
-          style={{ marginRight: "auto", fontSize: 12, color: "var(--ink-45)" }}
-        >
-          {filtered.length} جدول
-        </span>
+        <span className="cv-count">{filtered.length} جدول</span>
       </div>
 
       {/* Empty state */}
       {filtered.length === 0 ? (
-        <div
-          className="panel"
-          style={{ padding: "64px 24px", textAlign: "center" }}
-        >
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              margin: "0 auto 16px",
-              background: "var(--sand)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+        <div className="panel cv-empty-state">
+          <div className="cv-empty-icon">
             <svg
               width="24"
               height="24"
@@ -441,59 +264,20 @@ export default function CalendarView({
               <path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01" />
             </svg>
           </div>
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: 700,
-              color: "var(--ink)",
-              marginBottom: 6,
-            }}
-          >
-            لا توجد جداول في هذا التاريخ
-          </div>
-          <div style={{ fontSize: 12.5, color: "var(--ink-45)" }}>
+          <div className="cv-empty-title">لا توجد جداول في هذا التاريخ</div>
+          <div className="cv-empty-sub">
             جرب تغيير التاريخ أو البحث أو الفلتر
           </div>
         </div>
       ) : (
         <>
-          <div className="panel" style={{ padding: 0, overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="panel cv-table-wrap">
+            <table className="cv-table">
               <thead>
-                <tr style={{ borderBottom: "2px solid var(--line)" }}>
-                  <th
-                    style={{
-                      padding: "13px 16px",
-                      textAlign: "right",
-                      minWidth: 280,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: "var(--ink-45)",
-                      textTransform: "uppercase",
-                      letterSpacing: 0.5,
-                      position: "sticky",
-                      right: 0,
-                      zIndex: 2,
-                      background: "var(--surface-subtle)",
-                      borderLeft: "2px solid var(--line)",
-                    }}
-                  >
-                    الطبيب
-                  </th>
+                <tr className="cv-thead-row">
+                  <th className="cv-th-doctor">الطبيب</th>
                   {days.map((day) => (
-                    <th
-                      key={day}
-                      style={{
-                        padding: "13px 12px",
-                        textAlign: "center",
-                        minWidth: 150,
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: "var(--ink)",
-                        background: "var(--surface-subtle)",
-                        borderLeft: "1px solid var(--line)",
-                      }}
-                    >
+                    <th key={day} className="cv-th-day">
                       {DAY_AR[day]}
                     </th>
                   ))}
@@ -513,25 +297,15 @@ export default function CalendarView({
           </div>
 
           {totalPages > 1 && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginTop: 16,
-                flexWrap: "wrap",
-                gap: 8,
-              }}
-            >
-              <span style={{ fontSize: 12, color: "var(--ink-45)" }}>
+            <div className="cv-pagination">
+              <span className="cv-pagination-info">
                 {(safePage - 1) * PAGE_SIZE + 1}–
                 {Math.min(safePage * PAGE_SIZE, filtered.length)} من{" "}
                 {filtered.length} جدول
               </span>
-              <div style={{ display: "flex", gap: 4 }}>
+              <div className="cv-pagination-btns">
                 <button
-                  className="btn btn-q"
-                  style={{ padding: "6px 13px", fontSize: 12 }}
+                  className="btn btn-q cv-pagination-btn"
                   disabled={safePage === 1}
                   onClick={() => setPage((p) => p - 1)}
                 >
@@ -551,22 +325,13 @@ export default function CalendarView({
                   }, [])
                   .map((p, i) =>
                     p === "…" ? (
-                      <span
-                        key={`d${i}`}
-                        style={{ padding: "0 4px", color: "var(--ink-45)" }}
-                      >
+                      <span key={`d${i}`} className="cv-pagination-ellipsis">
                         …
                       </span>
                     ) : (
                       <button
                         key={p}
-                        className={`btn ${p === safePage ? "btn-p" : "btn-q"}`}
-                        style={{
-                          minWidth: 36,
-                          padding: "6px 0",
-                          fontSize: 12,
-                          justifyContent: "center",
-                        }}
+                        className={`btn ${p === safePage ? "btn-p" : "btn-q"} cv-pagination-page`}
                         onClick={() => setPage(p)}
                       >
                         {p}
@@ -574,8 +339,7 @@ export default function CalendarView({
                     ),
                   )}
                 <button
-                  className="btn btn-q"
-                  style={{ padding: "6px 13px", fontSize: 12 }}
+                  className="btn btn-q cv-pagination-btn"
                   disabled={safePage === totalPages}
                   onClick={() => setPage((p) => p + 1)}
                 >

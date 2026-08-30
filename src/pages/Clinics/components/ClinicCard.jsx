@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useToast } from "../../../components/ui/Toast";
 import ClinicDetailsModal from "./ClinicDetailsModal";
 import ClinicEditModal from "./ClinicEditModal";
+import "../styles/ClinicCard.css";
 
 const SPECIALTY_CONFIG = {
   الباطنة: {
@@ -188,16 +189,20 @@ const MORE_ICON = (
   </svg>
 );
 
-export default function ClinicCard({ specialty: initialSpecialty, onDelete, onUpdate }) {
-  const { showToast } = useToast();
+export default function ClinicCard({
+  specialty: initialSpecialty,
+  onDelete,
+  onUpdate,
+}) {
+  useToast();
   const [specialty, setSpecialty] = useState(initialSpecialty);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  const nameAr = specialty.title?.ar || specialty.nameAr || ''
-  const nameEn = specialty.title?.en || specialty.nameEn || ''
+  const nameAr = specialty.title?.ar || specialty.nameAr || "";
+  const nameEn = specialty.title?.en || specialty.nameEn || "";
   const config = SPECIALTY_CONFIG[nameAr] || DEFAULT_CONFIG;
 
   useEffect(() => {
@@ -210,154 +215,59 @@ export default function ClinicCard({ specialty: initialSpecialty, onDelete, onUp
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpen]);
 
-  function handleSave(updated) {
-    setSpecialty((prev) => ({ ...prev, ...updated }));
-    showToast("تم حفظ التغييرات");
-  }
+  const MENU_ITEMS = [
+    {
+      label: "عرض التفاصيل",
+      action: () => {
+        setDetailsOpen(true);
+        setMenuOpen(false);
+      },
+    },
+    {
+      label: "تعديل التخصص",
+      action: () => {
+        setEditOpen(true);
+        setMenuOpen(false);
+      },
+    },
+    {
+      label: "حذف التخصص",
+      action: () => {
+        onDelete?.(specialty.id);
+        setMenuOpen(false);
+      },
+      danger: true,
+    },
+  ];
 
   return (
     <>
-      <div
-        className="tile"
-        style={{
-          padding: 0,
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* Colored header */}
-        <div
-          style={{
-            background: config.bg,
-            padding: "16px 18px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 11,
-                background: "rgba(255,255,255,0.18)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
-                flexShrink: 0,
-              }}
-            >
-              {config.icon}
-            </div>
+      <div className="tile cc-card">
+        {/* Header */}
+        <div className="cc-header" style={{ background: config.bg }}>
+          <div className="cc-header-left">
+            <div className="cc-icon-wrap">{config.icon}</div>
             <div>
-              <div
-                style={{
-                  fontFamily: "'Readex Pro'",
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: "#fff",
-                  lineHeight: 1.2,
-                }}
-              >
-                {nameAr}
-              </div>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "rgba(255,255,255,0.65)",
-                  marginTop: 3,
-                }}
-              >
-                {nameEn}
-              </div>
+              <div className="cc-name-ar">{nameAr}</div>
+              <div className="cc-name-en">{nameEn}</div>
             </div>
           </div>
 
-          {/* Three-dots dropdown */}
-          <div ref={menuRef} style={{ position: "relative" }}>
+          <div ref={menuRef} className="cc-more-wrap">
             <button
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: 8,
-                border: "none",
-                cursor: "pointer",
-                background: "rgba(255,255,255,0.15)",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              className="cc-more-btn"
               aria-label="المزيد"
               onClick={() => setMenuOpen((v) => !v)}
             >
               {MORE_ICON}
             </button>
             {menuOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: 36,
-                  left: 0,
-                  zIndex: 50,
-                  background: "var(--card)",
-                  border: "1px solid var(--line)",
-                  borderRadius: 10,
-                  boxShadow: "0 8px 24px rgba(10,31,27,0.12)",
-                  minWidth: 155,
-                  overflow: "hidden",
-                }}
-              >
-                {[
-                  {
-                    label: "عرض التفاصيل",
-                    action: () => {
-                      setDetailsOpen(true);
-                      setMenuOpen(false);
-                    },
-                  },
-                  {
-                    label: "تعديل التخصص",
-                    action: () => {
-                      setEditOpen(true);
-                      setMenuOpen(false);
-                    },
-                  },
-                  {
-                    label: "حذف التخصص",
-                    action: () => {
-                      onDelete && onDelete(specialty.id);
-                      setMenuOpen(false);
-                    },
-                    danger: true,
-                  },
-                ].map((item) => (
+              <div className="cc-dropdown">
+                {MENU_ITEMS.map((item) => (
                   <button
                     key={item.label}
+                    className={`cc-dropdown-btn${item.danger ? " danger" : ""}`}
                     onClick={item.action}
-                    style={{
-                      width: "100%",
-                      textAlign: "right",
-                      padding: "10px 14px",
-                      fontSize: 12.5,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: item.danger ? "var(--danger)" : "var(--ink)",
-                      display: "block",
-                      transition: "background 0.1s",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = item.danger
-                        ? "rgba(179,64,47,0.06)"
-                        : "var(--paper)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = "none")
-                    }
                   >
                     {item.label}
                   </button>
@@ -368,26 +278,9 @@ export default function ClinicCard({ specialty: initialSpecialty, onDelete, onUp
         </div>
 
         {/* Body */}
-        <div
-          style={{
-            padding: "14px 18px 16px",
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 12,
-          }}
-        >
+        <div className="cc-body">
           {/* Stats strip */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3,1fr)",
-              background: "var(--paper)",
-              borderRadius: 10,
-              padding: "10px 8px",
-              border: "1px solid var(--line)",
-            }}
-          >
+          <div className="cc-stats">
             {[
               { value: specialty.doctors, label: "أطباء" },
               { value: specialty.visitsPerDay, label: "زيارة/يوم" },
@@ -397,62 +290,38 @@ export default function ClinicCard({ specialty: initialSpecialty, onDelete, onUp
                 highlight: true,
               },
             ].map((item, i) => (
-              <div key={i} style={{ textAlign: "center", padding: "0 4px" }}>
+              <div key={i} className="cc-stat-item">
                 <div
-                  className="num"
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 700,
-                    lineHeight: 1.2,
-                    color: item.highlight ? "var(--brand)" : "var(--ink)",
-                  }}
+                  className={`num cc-stat-value${item.highlight ? " highlight" : ""}`}
                 >
                   {item.value}
                 </div>
-                <div
-                  style={{ fontSize: 10, color: "var(--ink-45)", marginTop: 3 }}
-                >
-                  {item.label}
-                </div>
+                <div className="cc-stat-label">{item.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Sub Specializations count */}
+          {/* Sub specializations */}
           {specialty.sub_specializations?.length > 0 && (
-          <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-            {specialty.sub_specializations.map((s) => (
-              <span key={s.id} className="chip mut" style={{ fontSize: 10.5 }}>
-                {s.title?.ar || s.title}
-              </span>
-            ))}
-          </div>
+            <div className="cc-sub-specs">
+              {specialty.sub_specializations.map((s) => (
+                <span key={s.id} className="chip mut cc-sub-spec-chip">
+                  {s.title?.ar || s.title}
+                </span>
+              ))}
+            </div>
           )}
 
           {/* Actions */}
-          <div style={{ display: "flex", gap: 6, marginTop: "auto" }}>
+          <div className="cc-actions">
             <button
-              className="btn btn-q"
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                padding: "7px 12px",
-                fontSize: 12.5,
-              }}
+              className="btn btn-q cc-details-btn"
               onClick={() => setDetailsOpen(true)}
             >
               التفاصيل
             </button>
             <button
-              className="btn btn-g"
-              style={{
-                width: 36,
-                height: 36,
-                padding: 0,
-                justifyContent: "center",
-                display: "flex",
-                alignItems: "center",
-              }}
+              className="btn btn-g cc-edit-btn"
               onClick={() => setEditOpen(true)}
               aria-label="تعديل"
             >
@@ -471,7 +340,10 @@ export default function ClinicCard({ specialty: initialSpecialty, onDelete, onUp
         open={editOpen}
         onClose={() => setEditOpen(false)}
         specialty={specialty}
-        onSave={onUpdate}
+        onSave={(updated) => {
+          setSpecialty((prev) => ({ ...prev, ...updated }));
+          onUpdate?.();
+        }}
       />
     </>
   );

@@ -1,0 +1,143 @@
+/* ================================
+   Clinic Modals
+================================ */
+
+/* Tabs */
+.cm-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  background: var(--paper);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+
+.cm-tab {
+  padding: 7px 16px;
+  font-size: 13px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink-45);
+  font-weight: 400;
+}
+
+.cm-tab.active {
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+}
+
+.cm-tab-badge {
+  margin-right: 6px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+
+/* Modal footer */
+.cm-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.cm-footer-end {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* Subs tab header */
+.cm-subs-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.cm-add-sub-btn {
+  padding: 7px 14px;
+}
+
+/* Sub list */
+.cm-sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cm-sub-empty {
+  font-size: 13px;
+  color: var(--ink-45);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.cm-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.cm-sub-names {
+  flex: 1;
+}
+
+.cm-sub-name-ar {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cm-sub-name-en {
+  font-size: 11px;
+  color: var(--ink-45);
+}
+
+.cm-sub-edit-btn {
+  padding: 5px 9px;
+}
+
+.cm-sub-delete-btn {
+  padding: 5px 9px;
+  color: var(--danger);
+  background: rgba(179, 64, 47, 0.07);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* Details modal */
+.cdm-description {
+  font-size: 13px;
+  color: var(--ink-45);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.cdm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.cdm-row-label {
+  font-size: 12.5px;
+  color: var(--ink-45);
+}
+
+.cdm-row-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cdm-row-value.highlight {
+  color: var(--brand);
+}

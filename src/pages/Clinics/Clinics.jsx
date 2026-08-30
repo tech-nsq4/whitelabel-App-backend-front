@@ -4,9 +4,14 @@ import NewClinicModal from "./components/NewClinicModal";
 import { useToast } from "../../components/ui/Toast";
 import KpiCard from "../../components/ui/KpiCard";
 import { SkeletonCards } from "../../components/ui/Skeleton";
-import { useSpecializations, useCreateSpecialization, useDeleteSpecialization } from "../../hooks/queries/useSpecializations";
+import {
+  useSpecializations,
+  useCreateSpecialization,
+  useDeleteSpecialization,
+} from "../../hooks/queries/useSpecializations";
 import { useClinics } from "../../hooks/queries/useClinics";
 import { useDoctors } from "../../hooks/queries/useDoctors";
+import "./styles/Clinics.css";
 
 const S = {
   stroke: "currentColor",
@@ -75,30 +80,61 @@ export default function Clinics() {
   const { showToast } = useToast();
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { data: specialties = [], isLoading: loading } = useSpecializations()
-  const { data: clinics = [] }    = useClinics()
-  const { data: doctors = [] }    = useDoctors()
-  const createSpecialization = useCreateSpecialization()
-  const deleteSpecialization = useDeleteSpecialization()
+  const { data: specialties = [], isLoading: loading } = useSpecializations();
+  const { data: clinics = [] } = useClinics();
+  const { data: doctors = [] } = useDoctors();
+  const createSpecialization = useCreateSpecialization();
+  const deleteSpecialization = useDeleteSpecialization();
 
-  // top specialty by doctors_count
   const topSpecialty = useMemo(() => {
-    if (!specialties.length) return '—'
-    return [...specialties].sort((a, b) => (b.doctors_count ?? 0) - (a.doctors_count ?? 0))[0]?.title?.ar || '—'
-  }, [specialties])
+    if (!specialties.length) return "—";
+    return (
+      [...specialties].sort(
+        (a, b) => (b.doctors_count ?? 0) - (a.doctors_count ?? 0),
+      )[0]?.title?.ar || "—"
+    );
+  }, [specialties]);
 
   const clinicStats = [
-    { id: 'specialties', label: 'التخصصات',      value: specialties.length, note: 'تخصص طبي متاح',   icon: 'clinic' },
-    { id: 'total',       label: 'إجمالي العيادات', value: clinics.length,    note: `في ${new Set(clinics.map(c => c.location_id)).size} مواقع`, icon: 'service' },
-    { id: 'doctors',     label: 'أطباء نشطون',    value: doctors.length,    note: 'إجمالي الأطباء',   icon: 'doctor' },
-    { id: 'top',         label: 'أعلى تخصص',      value: topSpecialty,      note: 'حسب عدد الأطباء',  icon: 'chart', isText: true },
-  ]
+    {
+      id: "specialties",
+      label: "التخصصات",
+      value: specialties.length,
+      note: "تخصص طبي متاح",
+      icon: "clinic",
+    },
+    {
+      id: "total",
+      label: "إجمالي العيادات",
+      value: clinics.length,
+      note: `في ${new Set(clinics.map((c) => c.location_id)).size} مواقع`,
+      icon: "service",
+    },
+    {
+      id: "doctors",
+      label: "أطباء نشطون",
+      value: doctors.length,
+      note: "إجمالي الأطباء",
+      icon: "doctor",
+    },
+    {
+      id: "top",
+      label: "أعلى تخصص",
+      value: topSpecialty,
+      note: "حسب عدد الأطباء",
+      icon: "chart",
+      isText: true,
+    },
+  ];
 
   async function handleCreate(form) {
     try {
       await createSpecialization.mutateAsync({
         title: { ar: form.nameAr, en: form.nameEn },
-        description: { ar: form.descAr || form.nameAr, en: form.descEn || form.nameEn },
+        description: {
+          ar: form.descAr || form.nameAr,
+          en: form.descEn || form.nameEn,
+        },
       });
       showToast("تم إضافة التخصص بنجاح");
       setModalOpen(false);
@@ -117,7 +153,7 @@ export default function Clinics() {
   }
 
   return (
-    <div style={{ animation: "fadeIn .3s ease" }}>
+    <div className="clinics-page">
       <div className="page-head">
         <div>
           <h1>العيادات والتخصصات</h1>
@@ -139,7 +175,7 @@ export default function Clinics() {
           <KpiCard
             key={stat.id}
             label={stat.label}
-            value={stat.isText ? stat.value : stat.value}
+            value={stat.value}
             note={stat.note}
             icon={ICONS[stat.icon]}
             tint={TINTS[stat.icon] || TINTS.clinic}
@@ -147,27 +183,9 @@ export default function Clinics() {
         ))}
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 14,
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "'Readex Pro'",
-            fontSize: 14,
-            fontWeight: 600,
-            color: "var(--ink)",
-          }}
-        >
-          التخصصات الطبية
-        </div>
-        <span style={{ fontSize: 11.5, color: "var(--ink-45)" }}>
-          {specialties.length} تخصص
-        </span>
+      <div className="clinics-section-header">
+        <div className="clinics-section-title">التخصصات الطبية</div>
+        <span className="clinics-section-count">{specialties.length} تخصص</span>
       </div>
 
       {loading ? (

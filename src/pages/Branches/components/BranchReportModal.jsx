@@ -1,5 +1,5 @@
 import Modal from '../../../components/ui/Modal'
-import './BranchReportModal.css'
+import '../styles/BranchReportModal.css'
 
 function fmt(n) {
   if (n >= 1000) return Math.round(n / 1000) + 'k'

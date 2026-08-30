@@ -1,0 +1,128 @@
+/* ================================
+   Clinic Managers Page
+================================ */
+
+.clinic-managers-page {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Filters toolbar */
+.cm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.cm-search-wrap {
+  position: relative;
+  flex: 1 1 200px;
+  max-width: 280px;
+}
+
+.cm-search-icon {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.cm-search-inp {
+  padding-right: 34px;
+  min-height: 38px;
+  font-size: 12.5px;
+}
+
+.cm-filter-bar {
+  margin: 0;
+  gap: 6px;
+}
+
+/* Table panel */
+.cm-table-panel {
+  padding: 0;
+}
+
+.cm-loading-panel {
+  padding: 24px;
+}
+
+/* Empty row */
+.cm-empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--ink-45);
+  font-size: 13px;
+}
+
+/* Manager cell */
+.cm-manager-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cm-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Scope badge */
+.cm-scope-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+}
+
+/* Cell variants */
+.cm-cell-email {
+  font-size: 12.5px;
+  color: var(--ink-70);
+}
+
+.cm-cell-phone {
+  font-size: 12.5px;
+}
+
+.cm-cell-scope-val {
+  font-size: 12.5px;
+  color: var(--ink-70);
+}
+
+.cm-cell-scope-all {
+  color: var(--ink-45);
+  font-style: italic;
+}
+
+/* Row actions */
+.cm-row-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.cm-edit-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.cm-delete-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--danger);
+  background: rgba(179, 64, 47, 0.07);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}

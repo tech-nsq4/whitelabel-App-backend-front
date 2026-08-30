@@ -9,6 +9,7 @@ import {
   deleteSubSpecializationApi,
 } from "../../../api/sub-specializations.api";
 import { useToast } from "../../../components/ui/Toast";
+import "../styles/ClinicModals.css";
 
 const EMPTY_SUB = { ar: "", en: "", descAr: "", descEn: "" };
 
@@ -17,7 +18,6 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
   const [tab, setTab] = useState("info");
   const [form, setForm] = useState({ nameAr: "", nameEn: "" });
   const [saving, setSaving] = useState(false);
-
   const [subs, setSubs] = useState([]);
   const [subModal, setSubModal] = useState(null);
   const [subForm, setSubForm] = useState(EMPTY_SUB);
@@ -51,7 +51,7 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
         title: { ar: form.nameAr, en: form.nameEn },
       });
       showToast("تم حفظ التغييرات");
-      onSave && onSave();
+      onSave?.();
       onClose();
     } catch {
       showToast("تعذر حفظ التغييرات", "error");
@@ -75,59 +75,50 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
     setSubEditId(sub.id);
     setSubModal("edit");
   }
+
   async function handleSubSave() {
     if (!subForm.ar.trim() || !subForm.en.trim())
       return showToast("أدخل الاسم بالعربي والإنجليزي", "error");
     setSubSaving(true);
     try {
+      const payload = {
+        specialization_id: specialty.id,
+        title: { ar: subForm.ar, en: subForm.en },
+        description: {
+          ar: subForm.descAr || subForm.ar,
+          en: subForm.descEn || subForm.en,
+        },
+      };
       if (subModal === "create") {
-        await createSubSpecializationApi({
-          specialization_id: specialty.id,
-          title: { ar: subForm.ar, en: subForm.en },
-          description: { ar: subForm.descAr || subForm.ar, en: subForm.descEn || subForm.en },
-        });
+        await createSubSpecializationApi(payload);
         showToast("تم إضافة التخصص الفرعي");
       } else {
-        await updateSubSpecializationApi(subEditId, {
-          specialization_id: specialty.id,
-          title: { ar: subForm.ar, en: subForm.en },
-          description: { ar: subForm.descAr || subForm.ar, en: subForm.descEn || subForm.en },
-        });
+        await updateSubSpecializationApi(subEditId, payload);
         showToast("تم تحديث التخصص الفرعي");
       }
       setSubModal(null);
       loadSubs();
-      onSave && onSave();
+      onSave?.();
     } catch {
       showToast("حدث خطأ", "error");
     } finally {
       setSubSaving(false);
     }
   }
+
   async function handleSubDelete(id) {
     setSubDeleting(id);
     try {
       await deleteSubSpecializationApi(id);
       showToast("تم حذف التخصص الفرعي");
       setSubs((prev) => prev.filter((s) => s.id !== id));
-      onSave && onSave();
+      onSave?.();
     } catch (err) {
       showToast(err.response?.data?.message || "تعذر الحذف", "error");
     } finally {
       setSubDeleting(null);
     }
   }
-
-  const TAB_STYLE = (active) => ({
-    padding: "7px 16px",
-    fontSize: 13,
-    fontWeight: active ? 600 : 400,
-    borderRadius: "var(--radius-md)",
-    border: "none",
-    cursor: "pointer",
-    background: active ? "var(--brand)" : "transparent",
-    color: active ? "#fff" : "var(--ink-45)",
-  });
 
   return (
     <>
@@ -138,39 +129,20 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
         subtitle={`${form.nameAr} — ${form.nameEn}`}
       >
         {/* Tabs */}
-        <div
-          style={{
-            display: "flex",
-            gap: 4,
-            marginBottom: 20,
-            background: "var(--paper)",
-            borderRadius: "var(--radius-md)",
-            padding: 4,
-          }}
-        >
+        <div className="cm-tabs">
           <button
-            style={TAB_STYLE(tab === "info")}
+            className={`cm-tab${tab === "info" ? " active" : ""}`}
             onClick={() => setTab("info")}
           >
             المعلومات
           </button>
           <button
-            style={TAB_STYLE(tab === "subs")}
+            className={`cm-tab${tab === "subs" ? " active" : ""}`}
             onClick={() => setTab("subs")}
           >
             التخصصات الفرعية
             {subs.length > 0 && (
-              <span
-                style={{
-                  marginRight: 6,
-                  background: "rgba(255,255,255,.25)",
-                  borderRadius: 10,
-                  padding: "1px 7px",
-                  fontSize: 11,
-                }}
-              >
-                {subs.length}
-              </span>
+              <span className="cm-tab-badge">{subs.length}</span>
             )}
           </button>
         </div>
@@ -200,14 +172,7 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
                 />
               </div>
             </div>
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-                justifyContent: "flex-end",
-                marginTop: 6,
-              }}
-            >
+            <div className="cm-footer">
               <button className="btn btn-q" onClick={onClose}>
                 إلغاء
               </button>
@@ -224,70 +189,32 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
 
         {tab === "subs" && (
           <>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginBottom: 12,
-              }}
-            >
+            <div className="cm-subs-header">
               <button
-                className="btn btn-p"
-                style={{ padding: "7px 14px" }}
+                className="btn btn-p cm-add-sub-btn"
                 onClick={openSubCreate}
               >
                 <Plus size={14} /> إضافة تخصص فرعي
               </button>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            <div className="cm-sub-list">
               {subs.length === 0 && (
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: "var(--ink-45)",
-                    textAlign: "center",
-                    padding: "20px 0",
-                  }}
-                >
-                  لا توجد تخصصات فرعية
-                </div>
+                <div className="cm-sub-empty">لا توجد تخصصات فرعية</div>
               )}
               {subs.map((sub) => (
-                <div
-                  key={sub.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "10px 0",
-                    borderBottom: "1px dashed var(--line)",
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>
-                      {sub.title?.ar}
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--ink-45)" }}>
-                      {sub.title?.en}
-                    </div>
+                <div key={sub.id} className="cm-sub-row">
+                  <div className="cm-sub-names">
+                    <div className="cm-sub-name-ar">{sub.title?.ar}</div>
+                    <div className="cm-sub-name-en">{sub.title?.en}</div>
                   </div>
                   <button
-                    className="btn btn-q"
-                    style={{ padding: "5px 9px" }}
+                    className="btn btn-q cm-sub-edit-btn"
                     onClick={() => openSubEdit(sub)}
                   >
                     <Pencil size={12} />
                   </button>
                   <button
-                    className="btn"
-                    style={{
-                      padding: "5px 9px",
-                      color: "var(--danger)",
-                      background: "rgba(179,64,47,.07)",
-                      border: "none",
-                      borderRadius: "var(--radius-md)",
-                      cursor: "pointer",
-                    }}
+                    className="btn cm-sub-delete-btn"
                     onClick={() => handleSubDelete(sub.id)}
                     disabled={subDeleting === sub.id}
                   >
@@ -296,13 +223,7 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
                 </div>
               ))}
             </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginTop: 16,
-              }}
-            >
+            <div className="cm-footer-end">
               <button className="btn btn-q" onClick={onClose}>
                 إغلاق
               </button>
@@ -311,7 +232,7 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
         )}
       </Modal>
 
-      {/* Sub Specialization Modal */}
+      {/* Sub Modal */}
       <Modal
         open={!!subModal}
         onClose={() => setSubModal(null)}
@@ -341,7 +262,9 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
           <input
             className="inp"
             value={subForm.descAr}
-            onChange={(e) => setSubForm((p) => ({ ...p, descAr: e.target.value }))}
+            onChange={(e) =>
+              setSubForm((p) => ({ ...p, descAr: e.target.value }))
+            }
             placeholder="وصف مختصر للتخصص"
           />
         </div>
@@ -351,18 +274,13 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
             className="inp"
             dir="ltr"
             value={subForm.descEn}
-            onChange={(e) => setSubForm((p) => ({ ...p, descEn: e.target.value }))}
+            onChange={(e) =>
+              setSubForm((p) => ({ ...p, descEn: e.target.value }))
+            }
             placeholder="Brief description"
           />
         </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            justifyContent: "flex-end",
-            marginTop: 6,
-          }}
-        >
+        <div className="cm-footer">
           <button className="btn btn-q" onClick={() => setSubModal(null)}>
             إلغاء
           </button>

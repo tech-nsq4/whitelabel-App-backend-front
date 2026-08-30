@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getClinicsApi, createClinicApi, updateClinicApi, deleteClinicApi } from '../../api/clinics.api'
+import { getClinicsApi, createClinicApi, updateClinicApi, deleteClinicApi, getClinicDashboardApi } from '../../api/clinics.api'
 
 export const CLINICS_KEY = ['clinics']
 
@@ -7,6 +7,14 @@ export function useClinics() {
   return useQuery({
     queryKey: CLINICS_KEY,
     queryFn: () => getClinicsApi().then(r => r.data.data || []),
+  })
+}
+
+export function useClinicDashboard(id) {
+  return useQuery({
+    queryKey: [...CLINICS_KEY, id, 'dashboard'],
+    queryFn: () => getClinicDashboardApi(id).then(r => r.data.data),
+    enabled: !!id,
   })
 }
 

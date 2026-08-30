@@ -154,7 +154,7 @@ export default function Notifications() {
           <div style={{ display: 'flex', gap: 4, padding: '0 20px 12px' }}>
             {['ar', 'en'].map(l => (
               <button key={l} onClick={() => setLangTab(l)} style={{
-                padding: '5px 14px', borderRadius: 8, fontSize: 12.5, fontWeight: 500,
+                padding: '5px 14px', borderRadius: 8, fontSize: 12.5,
                 border: 'none', cursor: 'pointer', transition: 'all .15s',
                 background: langTab === l ? 'rgba(15,107,92,.08)' : 'none',
                 color: langTab === l ? 'var(--brand-d)' : 'var(--ink-45)',

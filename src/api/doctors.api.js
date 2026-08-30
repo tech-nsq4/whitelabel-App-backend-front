@@ -6,3 +6,4 @@ export const createDoctorApi = (data)    => client.post('/api/admin/doctors', da
 export const updateDoctorApi = (id, data) => client.put(`/api/admin/doctors/${id}`, data)
 export const deleteDoctorApi = (id)      => client.delete(`/api/admin/doctors/${id}`)
 export const getDoctorTimeTablesApi = (doctorId) => client.get('/api/admin/time-tables', { params: { doctor_id: doctorId } })
+export const getTopRatedDoctorsApi  = (count = 10) => client.get('/api/admin/doctors/top-rated', { params: { count } })
