@@ -1,24 +1,30 @@
-import { Bell, CheckCheck, ArrowLeft, Trash2, Send } from 'lucide-react'
-import { usePushNotifications, useDeletePushNotification } from '../../hooks/queries/usePushNotifications'
-import './NotificationDropdown.css'
+import { Bell, CheckCheck, ArrowLeft, Trash2, Send } from "lucide-react";
+import {
+  usePushNotifications,
+  useDeletePushNotification,
+} from "../../hooks/queries/usePushNotifications";
+import "./NotificationDropdown.css";
 
 function timeAgo(dateStr) {
-  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000)
-  if (diff < 60)   return 'الآن'
-  if (diff < 3600) return `قبل ${Math.floor(diff / 60)} د`
-  if (diff < 86400) return `قبل ${Math.floor(diff / 3600)} س`
-  return `قبل ${Math.floor(diff / 86400)} يوم`
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (diff < 60) return "الآن";
+  if (diff < 3600) return `قبل ${Math.floor(diff / 60)} د`;
+  if (diff < 86400) return `قبل ${Math.floor(diff / 3600)} س`;
+  return `قبل ${Math.floor(diff / 86400)} يوم`;
 }
 
-export default function NotificationDropdown({ open, onMarkAllRead, onCompose }) {
-  const { data: notifications = [], isLoading } = usePushNotifications()
-  const deleteNotif = useDeletePushNotification()
+export default function NotificationDropdown({
+  open,
+  onMarkAllRead,
+  onCompose,
+}) {
+  const { data: notifications = [], isLoading } = usePushNotifications();
+  const deleteNotif = useDeletePushNotification();
 
-  if (!open) return null
+  if (!open) return null;
 
   return (
     <div className="notif-dd" role="dialog" aria-label="الإشعارات">
-
       {/* Header */}
       <div className="notif-header">
         <div className="notif-header-left">
@@ -42,14 +48,24 @@ export default function NotificationDropdown({ open, onMarkAllRead, onCompose })
         ) : (
           notifications.map((n) => (
             <div key={n.id} className="notif-item">
-              <div className="notif-icon" style={{ background: 'rgba(15,107,92,.1)', color: 'var(--brand)' }}>
+              <div
+                className="notif-icon"
+                style={{
+                  background: "rgba(15,107,92,.1)",
+                  color: "var(--brand)",
+                }}
+              >
                 <Bell size={15} strokeWidth={1.8} />
               </div>
               <div className="notif-body">
                 <div className="notif-item-title">{n.title?.ar || n.title}</div>
-                <div className="notif-item-desc">{n.description?.ar || n.description}</div>
+                <div className="notif-item-desc">
+                  {n.description?.ar || n.description}
+                </div>
                 <div className="notif-item-meta">
-                  <span className="notif-recipients">{n.recipients_count} مستلم</span>
+                  <span className="notif-recipients">
+                    {n.recipients_count} مستلم
+                  </span>
                   <span className="notif-time">{timeAgo(n.created_at)}</span>
                 </div>
               </div>
@@ -73,7 +89,6 @@ export default function NotificationDropdown({ open, onMarkAllRead, onCompose })
           <ArrowLeft size={13} strokeWidth={2} />
         </button>
       </div>
-
     </div>
-  )
+  );
 }

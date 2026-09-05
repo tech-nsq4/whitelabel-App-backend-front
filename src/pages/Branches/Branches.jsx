@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import BranchCard from "./components/BranchCard";
@@ -83,9 +83,11 @@ export default function Branches() {
     const map = {};
 
     allDoctors.forEach((doctor) => {
-      if (!doctor.clinic_id) return;
-
-      map[doctor.clinic_id] = (map[doctor.clinic_id] || 0) + 1;
+      // الـ API بيرجع clinics[] — نحسب لكل عيادة
+      const clinicIds = doctor.clinics?.map(c => c.id) || (doctor.clinic_id ? [doctor.clinic_id] : [])
+      clinicIds.forEach(id => {
+        map[id] = (map[id] || 0) + 1
+      })
     });
 
     return map;
@@ -99,7 +101,7 @@ export default function Branches() {
     const map = {};
 
     branchList.forEach((clinic) => {
-      const cityAr = clinic.location?.city?.name?.ar || "غير محدد";
+      const cityAr = clinic.location?.city?.name?.ar || "مدينة غير محددة";
 
       const cityId = clinic.location?.city?.id || 0;
 
@@ -126,7 +128,7 @@ export default function Branches() {
 
   async function handleAddBranch(data) {
     if (!data.name?.trim()) {
-      showToast("من فضلك اكتب اسم العيادة أولاً");
+      showToast("يرجى إدخال اسم الفرع أولاً");
       return;
     }
 
@@ -148,11 +150,11 @@ export default function Branches() {
         lng: 0,
       });
 
-      showToast("تم إضافة العيادة بنجاح");
+      showToast("تم إضافة الفرع بنجاح");
 
       setModalOpen(false);
     } catch {
-      showToast("تعذر إضافة العيادة", "error");
+      showToast("فشل إضافة الفرع", "error");
     }
   }
 
@@ -184,9 +186,9 @@ export default function Branches() {
 
       setEditingBranch(null);
 
-      showToast("تم تحديث بيانات العيادة");
+      showToast("تم تعديل بيانات الفرع بنجاح");
     } catch {
-      showToast("تعذر تحديث العيادة", "error");
+      showToast("فشل حفظ التعديلات", "error");
     }
   }
 
@@ -198,9 +200,9 @@ export default function Branches() {
     try {
       await deleteClinic.mutateAsync(id);
 
-      showToast("تم حذف العيادة");
+      showToast("تم حذف الفرع بنجاح");
     } catch (err) {
-      showToast(err.response?.data?.message || "تعذر الحذف", "error");
+      showToast(err.response?.data?.message || "فشل الحذف", "error");
     }
   }
 
@@ -209,7 +211,7 @@ export default function Branches() {
   // ================================
 
   return (
-    <div className="branches-page" style={{ animation: "fadeIn .3s ease" }}>
+    <div className="branches-page page-fade">
       {selectedClinic ? (
         <ClinicDetailsPage clinic={selectedClinic} onBack={closeClinic} />
       ) : (
@@ -221,7 +223,7 @@ export default function Branches() {
               <h1>الفروع</h1>
 
               <div className="sub">
-                {grouped.length} فرع · {branchList.length} عيادة
+                {grouped.length} مدينة - {branchList.length} فرع
               </div>
             </div>
 
@@ -245,7 +247,7 @@ export default function Branches() {
                   <path d="M12 5.5v13" />
                   <path d="M5.5 12h13" />
                 </svg>
-                فرع جديد
+                إضافة فرع
               </button>
             </div>
           </div>

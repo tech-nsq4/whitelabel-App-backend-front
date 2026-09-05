@@ -171,7 +171,7 @@ export default function Queue() {
   }
 
   return (
-    <div className="queue-page" style={{ animation: "fadeIn .3s ease" }}>
+    <div className="queue-page page-fade">
       <div className="page-head">
         <div>
           <h1>حجوزات اليوم</h1>

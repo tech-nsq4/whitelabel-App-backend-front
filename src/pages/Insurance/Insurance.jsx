@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import InsuranceStats from './components/InsuranceStats'
 import InsuranceTable from './components/InsuranceTable'
 import NewInsuranceModal from './components/NewInsuranceModal'
@@ -15,11 +15,11 @@ export default function Insurance() {
   }
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="page-fade">
       <div className="page-head">
         <div>
           <h1>التأمين</h1>
-          <div className="sub">إدارة شركات التأمين والمطالبات</div>
+          <div className="sub">قائمة شركات التأمين المعتمدة</div>
         </div>
         <div className="page-actions">
           <button className="btn btn-p" onClick={() => setModalOpen(true)}>

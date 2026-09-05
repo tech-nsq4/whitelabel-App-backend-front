@@ -14,6 +14,8 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
   const [clinics, setClinics] = useState([]);
   const [specializations, setSpecializations] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [pwForm, setPwForm] = useState({ password: '', password_confirmation: '' });
+  const [savingPw, setSavingPw] = useState(false);
 
   useEffect(() => {
     getClinicsApi()
@@ -91,6 +93,24 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
       showToast(err?.response?.data?.message || "تعذر حفظ التغييرات", "error");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleChangePassword() {
+    if (!pwForm.password) return showToast("أدخل كلمة المرور الجديدة", "error");
+    if (pwForm.password !== pwForm.password_confirmation) return showToast("كلمة المرور غير متطابقة", "error");
+    setSavingPw(true);
+    try {
+      await updateDoctorApi(doctor.id, {
+        password: pwForm.password,
+        password_confirmation: pwForm.password_confirmation,
+      });
+      showToast("تم تغيير كلمة المرور بنجاح", "success");
+      setPwForm({ password: '', password_confirmation: '' });
+    } catch (err) {
+      showToast(err?.response?.data?.message || "تعذر تغيير كلمة المرور", "error");
+    } finally {
+      setSavingPw(false);
     }
   }
 
@@ -317,6 +337,30 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
           value={form.descAr || ""}
           onChange={(e) => set("descAr", e.target.value)}
         />
+      </div>
+
+      {/* تغيير كلمة المرور */}
+      <div className="field" style={{ marginTop: 8, padding: '14px 16px', background: 'var(--paper)', borderRadius: 10, border: '1px solid var(--line)' }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', marginBottom: 10 }}>تغيير كلمة المرور</div>
+        <div className="field-row" style={{ marginBottom: 0 }}>
+          <div className="field">
+            <label className="field-label">كلمة المرور الجديدة</label>
+            <input className="inp" dir="ltr" type="password" placeholder="••••••••"
+              value={pwForm.password}
+              onChange={e => setPwForm(p => ({ ...p, password: e.target.value }))} />
+          </div>
+          <div className="field">
+            <label className="field-label">تأكيد كلمة المرور</label>
+            <input className="inp" dir="ltr" type="password" placeholder="••••••••"
+              value={pwForm.password_confirmation}
+              onChange={e => setPwForm(p => ({ ...p, password_confirmation: e.target.value }))} />
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+          <button className="btn btn-q" onClick={handleChangePassword} disabled={savingPw}>
+            {savingPw ? 'جاري الحفظ...' : 'تغيير كلمة المرور'}
+          </button>
+        </div>
       </div>
 
       <div

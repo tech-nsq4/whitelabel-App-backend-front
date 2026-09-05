@@ -100,7 +100,7 @@ export default function Roles() {
   const isPending = createRole.isPending || updateRole.isPending
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="page-fade">
       <div className="page-head">
         <div>
           <h1>الأدوار والصلاحيات</h1>

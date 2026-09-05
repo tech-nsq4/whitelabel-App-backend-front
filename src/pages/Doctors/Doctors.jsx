@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import DoctorStats from './components/DoctorStats'
 import DoctorFilters from './components/DoctorFilters'
 import DoctorTable from './components/DoctorTable'
@@ -27,9 +27,9 @@ export default function Doctors() {
   async function handleDelete(id) {
     try {
       await deleteDoctor.mutateAsync(id)
-      showToast('تم حذف الطبيب')
+      showToast('تم حذف الطبيب بنجاح')
     } catch (err) {
-      showToast(err.response?.data?.message || 'تعذر الحذف', 'error')
+      showToast(err.response?.data?.message || 'فشل الحذف', 'error')
     }
   }
 
@@ -46,14 +46,14 @@ export default function Doctors() {
   }, [search, activeFilter, doctors])
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="page-fade">
       <div className="page-head">
         <div>
           <h1>الأطباء</h1>
           <div className="sub">{doctors.length} طبيب</div>
         </div>
         <div className="page-actions">
-          <button className="btn btn-q" onClick={() => showToast('جارٍ تصدير البيانات...')}>
+          <button className="btn btn-q" onClick={() => showToast('جاري تصدير البيانات...')}>
             <svg width="14" height="14" viewBox="0 0 24 24">
               <path d="M12 15V4M12 15l-4-4M12 15l4-4"/>
               <path d="M4 17v2.5A1.5 1.5 0 005.5 21h13a1.5 1.5 0 001.5-1.5V17"/>

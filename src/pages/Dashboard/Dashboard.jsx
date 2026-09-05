@@ -20,7 +20,7 @@ export default function Dashboard() {
   }).format(new Date())
 
   return (
-    <div className="dashboard-page" style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="dashboard-page page-fade">
       <div className="page-head">
         <div>
           <h1>مرحباً، {firstName} 👋</h1>

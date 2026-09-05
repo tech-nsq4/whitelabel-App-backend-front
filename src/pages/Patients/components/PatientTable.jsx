@@ -51,7 +51,6 @@ export default function PatientTable({ patients, currentPage, onPageChange, isLo
     deletePatient.mutate(confirmDelete.id, {
       onSuccess: () => { showToast('تم حذف المريض'); setConfirmDelete(null) },
       onError:   (err) => {
-        console.error('Delete error:', err?.response?.status, err?.response?.data)
         showToast(`خطأ: ${err?.response?.data?.message ?? err?.message ?? 'حدث خطأ أثناء الحذف'}`)
         setConfirmDelete(null)
       },

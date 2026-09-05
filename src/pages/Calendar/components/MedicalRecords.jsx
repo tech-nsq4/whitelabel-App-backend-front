@@ -219,7 +219,6 @@ function UploadReportModal({ apptId, onClose }) {
         ? "تم رفع نتيجة لهذا الطلب مسبقاً"
         : msg;
       showToast(arabicMsg, "error");
-      console.error("422 details:", err?.response?.data);
     }
   }
 
@@ -349,7 +348,9 @@ function UploadTestResultModal({ appt, testRequest, onClose }) {  const [resultR
       });
       onClose();
     } catch (err) {
-      console.error("upload error", err?.response?.data || err);
+      const msg = err?.response?.data?.message || "تعذر رفع النتيجة";
+      showToast(msg, "error");
+      onClose();
     }
   }
 

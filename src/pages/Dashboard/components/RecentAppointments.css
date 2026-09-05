@@ -1,0 +1,14 @@
+.ra-empty-cell {
+  text-align: center;
+  color: var(--ink-45);
+  padding: 24px;
+}
+
+.ra-branch-cell {
+  color: var(--ink-70);
+  font-size: 12px;
+}
+
+.ra-time-cell {
+  font-size: 11.5px;
+}

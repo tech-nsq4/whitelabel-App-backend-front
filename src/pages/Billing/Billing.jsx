@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import BillingStats from './components/BillingStats'
 import InvoiceTable from './components/InvoiceTable'
 import NewInvoiceModal from './components/NewInvoiceModal'
@@ -15,14 +15,14 @@ export default function Billing() {
   }
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="page-fade">
       <div className="page-head">
         <div>
           <h1>الفواتير والمدفوعات</h1>
-          <div className="sub">إدارة ومتابعة المعاملات المالية</div>
+          <div className="sub">قائمة تفصيلية بالفواتير الحالية</div>
         </div>
         <div className="page-actions">
-          <button className="btn btn-q" onClick={() => showToast('جارٍ تصدير البيانات...')}>
+          <button className="btn btn-q" onClick={() => showToast('جاري تصدير الفواتير...')}>
             <svg width="14" height="14" viewBox="0 0 24 24">
               <path d="M12 15V4M12 15l-4-4M12 15l4-4"/>
               <path d="M4 17v2.5A1.5 1.5 0 005.5 21h13a1.5 1.5 0 001.5-1.5V17"/>

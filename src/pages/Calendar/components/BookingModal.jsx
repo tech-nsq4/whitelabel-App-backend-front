@@ -4,6 +4,8 @@ import { useDoctors } from "../../../hooks/queries/useDoctors";
 import { useSpecializations } from "../../../hooks/queries/useSpecializations";
 import { useClinics } from "../../../hooks/queries/useClinics";
 import { useTimeTables } from "../../../hooks/queries/useTimeTables";
+import { useCreateAppointment } from "../../../hooks/queries/useAppointments";
+import { useToast } from "../../../components/ui/Toast";
 import "../styles/booking-modal.css";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -269,12 +271,15 @@ export default function BookingModal({ open, onClose, onSubmit }) {
   const { data: specializations = [] } = useSpecializations();
   const { data: clinics = [] } = useClinics();
   const { data: timeTables = [] } = useTimeTables();
+  const createAppointment = useCreateAppointment();
+  const { showToast } = useToast();
 
   const filteredDoctors = useMemo(
     () =>
       doctors.filter((d) => {
         const matchClinic =
-          !form.clinic_id || String(d.clinic_id) === String(form.clinic_id);
+          !form.clinic_id ||
+          d.clinics?.some((c) => String(c.id) === String(form.clinic_id));
         const matchSpec =
           !form.specialization_id ||
           d.specializations?.some(
@@ -302,10 +307,23 @@ export default function BookingModal({ open, onClose, onSubmit }) {
     });
   }
 
-  function handleSubmit() {
-    if (!form.patient.trim() || !form.doctor_id || !form.date) return;
-    onSubmit(form);
-    setForm(INITIAL);
+  async function handleSubmit() {
+    if (!form.patient.trim() || !form.doctor_id || !form.date || !form.clinic_id) return;
+    try {
+      await createAppointment.mutateAsync({
+        patient_name: form.patient,
+        clinic_id: form.clinic_id,
+        doctor_id: form.doctor_id,
+        date: form.date,
+        time: form.time,
+        type: form.visitType,
+        specialization_id: form.specialization_id || undefined,
+      });
+      onSubmit(form);
+      setForm(INITIAL);
+    } catch (err) {
+      showToast(err?.response?.data?.message || 'تعذر حجز الموعد', 'error');
+    }
   }
 
   function handleClose() {
@@ -445,9 +463,9 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         <button
           className="btn btn-p"
           onClick={handleSubmit}
-          disabled={!form.patient.trim() || !form.doctor_id || !form.date}
+          disabled={!form.patient.trim() || !form.doctor_id || !form.date || !form.clinic_id || createAppointment.isPending}
         >
-          تأكيد الحجز
+          {createAppointment.isPending ? 'جاري الحجز...' : 'تأكيد الحجز'}
         </button>
       </div>
     </Modal>

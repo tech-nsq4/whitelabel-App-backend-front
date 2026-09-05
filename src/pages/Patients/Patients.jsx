@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import PatientStats from './components/PatientStats'
 import PatientFilters from './components/PatientFilters'
 import PatientTable from './components/PatientTable'
@@ -36,28 +36,27 @@ export default function Patients() {
 
   function handleNewPatient(data) {
     createPatient.mutate(data, {
-      onSuccess: () => { showToast('تم تسجيل المريض بنجاح'); setModalOpen(false) },
+      onSuccess: () => { showToast('تم إضافة المريض بنجاح'); setModalOpen(false) },
       onError:   (err) => {
         const msg = err?.response?.data?.message
           ?? Object.values(err?.response?.data?.errors ?? {})?.[0]?.[0]
-          ?? 'حدث خطأ أثناء التسجيل'
+          ?? 'حدث خطأ أثناء إضافة المريض'
         showToast(msg)
-        console.error('Create patient error:', err?.response?.status, err?.response?.data)
       },
     })
   }
 
   return (
-    <div className="patients-page" style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="patients-page page-fade">
       <div className="page-head">
         <div>
           <h1>المرضى</h1>
           <div className="sub">
-            {isLoading ? 'جارٍ التحميل...' : `إجمالي ${patientList.length.toLocaleString('ar-SA')} مريض مسجل`}
+            {isLoading ? 'جاري التحميل...' : `إجمالي ${patientList.length.toLocaleString('ar-SA')} مريض مسجل`}
           </div>
         </div>
         <div className="page-actions">
-          <button className="btn btn-q" onClick={() => showToast('جارٍ تصدير البيانات...')}>
+          <button className="btn btn-q" onClick={() => showToast('جاري تصدير البيانات...')}>
             <svg width="14" height="14" viewBox="0 0 24 24">
               <path d="M12 15V4M12 15l-4-4M12 15l4-4"/>
               <path d="M4 17v2.5A1.5 1.5 0 005.5 21h13a1.5 1.5 0 001.5-1.5V17"/>
@@ -68,7 +67,7 @@ export default function Patients() {
             <svg width="14" height="14" viewBox="0 0 24 24">
               <path d="M12 5.5v13M5.5 12h13"/>
             </svg>
-            تسجيل مريض جديد
+            إضافة مريض جديد
           </button>
         </div>
       </div>

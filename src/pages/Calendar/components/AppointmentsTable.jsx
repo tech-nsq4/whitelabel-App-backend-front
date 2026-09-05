@@ -61,7 +61,7 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
       if (statusFilter !== "all" && a.status !== statusFilter) return false;
       if (
         clinicFilter !== "all" &&
-        String(a.doctor?.clinic?.id) !== String(clinicFilter)
+        String(a.clinic_id) !== String(clinicFilter)
       )
         return false;
       if (applyDate && dateRange?.from) {
@@ -224,7 +224,10 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
                   const doctorName = a.doctor?.name?.ar || "—";
                   const specialty =
                     a.doctor?.specializations?.[0]?.title?.ar || "—";
-                  const branch = a.doctor?.clinic?.name?.ar || "—";
+                  const branch =
+                    a.doctor?.clinics?.find(c => c.id === a.clinic_id)?.name?.ar
+                    || a.doctor?.clinics?.[0]?.name?.ar
+                    || "—";
                   const avatarBg =
                     AVATAR_COLORS[(a.id - 1) % AVATAR_COLORS.length];
 

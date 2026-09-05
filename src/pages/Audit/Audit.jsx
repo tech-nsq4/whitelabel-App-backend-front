@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { auditLogs, actionFilters } from './audit.data'
 import { useToast } from '../../components/ui/Toast'
 
@@ -24,14 +24,14 @@ export default function Audit() {
   }, [search, activeFilter])
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="page-fade">
       <div className="page-head">
         <div>
           <h1>سجل النشاط</h1>
-          <div className="sub">كل العمليات المسجلة في النظام</div>
+          <div className="sub">كل العمليات الحساسة في النظام</div>
         </div>
         <div className="page-actions">
-          <button className="btn btn-q" onClick={() => showToast('جارٍ تصدير السجل...')}>
+          <button className="btn btn-q" onClick={() => showToast('جاري تصدير السجل...')}>
             <svg width="14" height="14" viewBox="0 0 24 24">
               <path d="M12 15V4M12 15l-4-4M12 15l4-4"/>
               <path d="M4 17v2.5A1.5 1.5 0 005.5 21h13a1.5 1.5 0 001.5-1.5V17"/>
@@ -50,7 +50,7 @@ export default function Audit() {
               <path d="M20 20l-4-4"/>
             </svg>
             <input
-              placeholder="ابحث بالعملية أو المستخدم..."
+              placeholder="ابحث بالإجراء أو المستخدم أو السياق..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -76,7 +76,7 @@ export default function Audit() {
             <tr>
               <th>الوقت</th>
               <th>المستخدم</th>
-              <th>العملية</th>
+              <th>الإجراء</th>
               <th>السياق</th>
             </tr>
           </thead>

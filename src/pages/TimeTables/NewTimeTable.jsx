@@ -95,6 +95,7 @@ const SHIFT_FIELDS = [
 
 const INITIAL_FORM = {
   doctor_id: "",
+  clinic_id: "",
   name: "",
   notes: "",
   type: "clinic",
@@ -181,6 +182,17 @@ export default function NewTimeTable() {
 
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
+  // لما يتغير الدكتور، لو عنده عيادة واحدة بس حددها أوتوماتيك
+  function handleDoctorChange(doctorId) {
+    const doc = doctors.find(d => String(d.id) === String(doctorId));
+    const clinics = doc?.clinics || [];
+    setForm(prev => ({
+      ...prev,
+      doctor_id: doctorId,
+      clinic_id: clinics.length === 1 ? String(clinics[0].id) : '',
+    }));
+  }
+
   const setShiftField = (day, key, value) =>
     setRows((prev) =>
       prev.map((r) => (r.day === day ? { ...r, [key]: value } : r)),
@@ -219,6 +231,7 @@ export default function NewTimeTable() {
           form={form}
           setField={setField}
           doctors={doctors}
+          onDoctorChange={handleDoctorChange}
         />
 
         <ScheduleCard
@@ -295,7 +308,10 @@ function CardHeader({ icon, title, badge }) {
   );
 }
 
-function BasicInfoCard({ form, setField, doctors }) {
+function BasicInfoCard({ form, setField, doctors, onDoctorChange }) {
+  const selectedDoctor = doctors.find(d => String(d.id) === String(form.doctor_id));
+  const clinicOptions = selectedDoctor?.clinics || [];
+
   return (
     <div className="nt-card">
       <CardHeader
@@ -312,9 +328,26 @@ function BasicInfoCard({ form, setField, doctors }) {
             <DoctorSelect
               doctors={doctors}
               value={form.doctor_id}
-              onChange={(v) => setField("doctor_id", v)}
+              onChange={onDoctorChange}
             />
           </Field>
+          <Field label="العيادة">
+            <select
+              className="nt-inp"
+              required
+              value={form.clinic_id}
+              onChange={e => setField('clinic_id', e.target.value)}
+              disabled={clinicOptions.length === 0}
+            >
+              <option value="">اختر العيادة</option>
+              {clinicOptions.map(c => (
+                <option key={c.id} value={c.id}>{c.name?.ar || c.name}</option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
+        <div className="nt-row">
           <Field label="اسم الجدول">
             <input
               className="nt-inp"

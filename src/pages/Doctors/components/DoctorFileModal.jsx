@@ -49,7 +49,9 @@ export default function DoctorFileModal({ open, onClose, doctor, index = 0 }) {
   const avatarBg = AVATAR_COLORS[index % AVATAR_COLORS.length];
   const nameAr = doctor.name?.ar || doctor.name || "";
   const specialty = doctor.specializations?.[0]?.title?.ar || "—";
-  const clinicName = doctor.clinic?.name?.ar || "—";
+  const clinicNames = doctor.clinics?.length
+    ? doctor.clinics.map(c => c.name?.ar || c.name).join('، ')
+    : (doctor.clinic?.name?.ar || "—");
 
   return (
     <Modal
@@ -100,14 +102,15 @@ export default function DoctorFileModal({ open, onClose, doctor, index = 0 }) {
             {nameAr}
           </div>
           <div style={{ fontSize: 12, color: "var(--ink-45)", marginTop: 3 }}>
-            {specialty} · {clinicName}
+            {specialty} · {clinicNames}
           </div>
         </div>
         <span className="chip ok">نشط</span>
       </div>
 
-      <Row label="العيادة" value={clinicName} />
+      <Row label="العيادة" value={clinicNames} />
       <Row label="التخصص" value={specialty} />
+      <Row label="رقم الجوال" value={doctor.phone || "—"} mono />
       <Row label="سعر الكشف" value={`${doctor.price} ر.س`} mono />
       <Row label="سنوات الخبرة" value={`${doctor.experience} سنة`} mono />
       <Row label="الوصف" value={doctor.description?.ar || "—"} />

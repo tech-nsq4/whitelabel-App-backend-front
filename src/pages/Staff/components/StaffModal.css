@@ -1,0 +1,49 @@
+.toggle-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.toggle-btn {
+  padding: 5px 14px;
+  font-size: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.toggle-btn.active {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+.scope-btn {
+  padding: 7px 16px;
+  font-size: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.scope-btn.active {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}

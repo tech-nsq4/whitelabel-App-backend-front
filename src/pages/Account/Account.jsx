@@ -3,10 +3,7 @@ import { Loader2 } from "lucide-react";
 
 import { useToast } from "../../components/ui/Toast";
 import { SkeletonBox } from "../../components/ui/Skeleton";
-import {
-  useProfile,
-  useUpdateProfile,
-} from "../../hooks/queries/useProfile";
+import { useProfile, useUpdateProfile } from "../../hooks/queries/useProfile";
 
 import "./UserPages.css";
 
@@ -55,18 +52,13 @@ export default function Account() {
   }
 
   return (
-    <div
-      className="user-page"
-      style={{ animation: "fadeIn .3s ease" }}
-    >
+    <div className="user-page" className="page-fade">
       {/* Header */}
       <div className="page-head">
         <div>
           <h1>إدارة الحساب</h1>
 
-          <div className="sub">
-            تحديث معلومات حسابك وإعداداته الشخصية
-          </div>
+          <div className="sub">تحديث معلومات حسابك وإعداداته الشخصية</div>
         </div>
 
         <button
@@ -74,13 +66,7 @@ export default function Account() {
           onClick={handleSave}
           disabled={saving || loading}
         >
-          {saving && (
-            <Loader2
-              size={15}
-              className="login-spinner-icon"
-            />
-          )}
-
+          {saving && <Loader2 size={15} className="login-spinner-icon" />}
           حفظ التغييرات
         </button>
       </div>
@@ -125,9 +111,7 @@ export default function Account() {
 
               <h2>{displayForm.name}</h2>
 
-              <span className="chip ok">
-                الحساب نشط
-              </span>
+              <span className="chip ok">الحساب نشط</span>
 
               <div className="account-summary-note">
                 يمكنك تعديل بيانات التواصل من القسم المقابل.
@@ -140,9 +124,7 @@ export default function Account() {
         <section className="panel">
           <div className="panel-head">
             <div>
-              <div className="panel-title">
-                المعلومات الشخصية
-              </div>
+              <div className="panel-title">المعلومات الشخصية</div>
 
               <div className="panel-sub">
                 البيانات الظاهرة داخل لوحة الإدارة
@@ -154,25 +136,16 @@ export default function Account() {
             {loading ? (
               <>
                 <div className="field">
-                  <SkeletonBox
-                    height={36}
-                    style={{ borderRadius: 8 }}
-                  />
+                  <SkeletonBox height={36} style={{ borderRadius: 8 }} />
                 </div>
 
                 <div className="field-row">
                   <div className="field">
-                    <SkeletonBox
-                      height={36}
-                      style={{ borderRadius: 8 }}
-                    />
+                    <SkeletonBox height={36} style={{ borderRadius: 8 }} />
                   </div>
 
                   <div className="field">
-                    <SkeletonBox
-                      height={36}
-                      style={{ borderRadius: 8 }}
-                    />
+                    <SkeletonBox height={36} style={{ borderRadius: 8 }} />
                   </div>
                 </div>
               </>
@@ -180,10 +153,7 @@ export default function Account() {
               <>
                 {/* Name */}
                 <div className="field">
-                  <label
-                    className="field-label"
-                    htmlFor="account-name"
-                  >
+                  <label className="field-label" htmlFor="account-name">
                     الاسم الكامل
                   </label>
 
@@ -191,19 +161,14 @@ export default function Account() {
                     id="account-name"
                     className="inp"
                     value={displayForm.name}
-                    onChange={(e) =>
-                      update("name", e.target.value)
-                    }
+                    onChange={(e) => update("name", e.target.value)}
                   />
                 </div>
 
                 {/* Email & Phone */}
                 <div className="field-row">
                   <div className="field">
-                    <label
-                      className="field-label"
-                      htmlFor="account-email"
-                    >
+                    <label className="field-label" htmlFor="account-email">
                       البريد الإلكتروني
                     </label>
 
@@ -213,17 +178,12 @@ export default function Account() {
                       dir="ltr"
                       type="email"
                       value={displayForm.email}
-                      onChange={(e) =>
-                        update("email", e.target.value)
-                      }
+                      onChange={(e) => update("email", e.target.value)}
                     />
                   </div>
 
                   <div className="field">
-                    <label
-                      className="field-label"
-                      htmlFor="account-phone"
-                    >
+                    <label className="field-label" htmlFor="account-phone">
                       رقم الجوال
                     </label>
 
@@ -233,9 +193,7 @@ export default function Account() {
                       dir="ltr"
                       type="tel"
                       value={displayForm.phone}
-                      onChange={(e) =>
-                        update("phone", e.target.value)
-                      }
+                      onChange={(e) => update("phone", e.target.value)}
                     />
                   </div>
                 </div>
@@ -247,4 +205,3 @@ export default function Account() {
     </div>
   );
 }
-

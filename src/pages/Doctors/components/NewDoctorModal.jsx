@@ -12,11 +12,13 @@ const INITIAL = {
   last_name:         '',
   phone:             '',
   email:             '',
+  password:          '',
+  password_confirmation: '',
   specialization_id: '',
   clinic_ids:        [],
   license_number:    '',
   license_expiry:    '',
-  pricing_type:      'unified', // 'unified' | 'per_branch'
+  pricing_type:      'unified',
   price:             '150',
   experience:        '',
   descAr:            '',
@@ -49,6 +51,8 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
   async function handleSubmit() {
     if (!form.first_name.trim()) return showToast('أدخل الاسم الأول', 'error')
     if (!form.specialization_id) return showToast('اختر التخصص', 'error')
+    if (!form.password) return showToast('أدخل كلمة المرور', 'error')
+    if (form.password !== form.password_confirmation) return showToast('كلمة المرور غير متطابقة', 'error')
     setSaving(true)
     try {
       await createDoctorApi({
@@ -59,6 +63,8 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
         description: { ar: form.descAr || '', en: form.descAr || '' },
         phone:             form.phone,
         email:             form.email,
+        password:          form.password,
+        password_confirmation: form.password_confirmation,
         experience:        Number(form.experience) || 0,
         price:             form.price,
         clinic_id:         form.clinic_ids[0] || clinics[0]?.id,
@@ -114,6 +120,18 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
       <div className="field">
         <label className="field-label">البريد الإلكتروني</label>
         <input className="inp" dir="ltr" placeholder="doctor@shifa.sa" value={form.email} onChange={e => set('email', e.target.value)} />
+      </div>
+
+      {/* كلمة المرور */}
+      <div className="field-row">
+        <div className="field">
+          <label className="field-label">كلمة المرور</label>
+          <input className="inp" dir="ltr" type="password" placeholder="••••••••" value={form.password} onChange={e => set('password', e.target.value)} />
+        </div>
+        <div className="field">
+          <label className="field-label">تأكيد كلمة المرور</label>
+          <input className="inp" dir="ltr" type="password" placeholder="••••••••" value={form.password_confirmation} onChange={e => set('password_confirmation', e.target.value)} />
+        </div>
       </div>
 
       {/* الفروع */}

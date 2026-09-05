@@ -23,6 +23,8 @@ export const ROUTES = {
   ROLES:      '/roles',
   CITIES:     '/cities',
   LOCATIONS:  '/locations',
+  OFFERS:          '/offers',
+  PROMO_CODES:     '/promo-codes',
   NOTIFICATIONS:   '/notifications',
   CLINIC_MANAGERS: '/clinic-managers',
   TIME_TABLES:     '/time-tables',

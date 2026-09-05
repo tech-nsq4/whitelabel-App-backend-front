@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useAppointments } from '../../../hooks/queries/useAppointments'
+import './RecentAppointments.css'
 
 const STATUS_MAP = {
   confirmed:   { cls: 'ok',     label: 'مؤكد' },
@@ -11,8 +12,16 @@ const STATUS_MAP = {
   in_progress: { cls: 'info',   label: 'في الكشف' },
 }
 
-function formatDateTime(dateStr) {
+function formatDateTime(dateStr, timeStr) {
   if (!dateStr) return '—'
+  // لو عندنا وقت منفصل (مثلاً "09:00 AM") نعرضه مع التاريخ
+  if (timeStr) {
+    const d = new Date(dateStr)
+    const dateFormatted = new Intl.DateTimeFormat('ar-SA-u-ca-gregory', {
+      day: 'numeric', month: 'short',
+    }).format(d)
+    return `${dateFormatted}، ${timeStr}`
+  }
   const d = new Date(dateStr)
   return new Intl.DateTimeFormat('ar-SA-u-ca-gregory', {
     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
@@ -50,15 +59,17 @@ export default function RecentAppointments() {
           </thead>
           <tbody>
             {isLoading && (
-              <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--ink-45)', padding: '24px' }}>جاري التحميل...</td></tr>
+              <tr><td colSpan={5} className="ra-empty-cell">جاري التحميل...</td></tr>
             )}
             {!isLoading && appointments.map((appt) => {
               const patientName = appt.family_member?.name || appt.user?.name || '—'
               const initial     = patientName !== '—' ? patientName.charAt(0) : '؟'
               const doctorName  = appt.doctor?.name?.ar || '—'
               const specialty   = appt.doctor?.specializations?.[0]?.title?.ar || '—'
-              const branch      = appt.doctor?.clinic?.name?.ar || '—'
-              const time        = formatDateTime(appt.date || appt.appointment_date || appt.created_at)
+              const branch      = appt.doctor?.clinics?.find(c => c.id === appt.clinic_id)?.name?.ar
+                               || appt.doctor?.clinics?.[0]?.name?.ar
+                               || '—'
+              const time        = formatDateTime(appt.date, appt.times)
               const st          = STATUS_MAP[appt.status] || { cls: 'info', label: appt.status || '—' }
 
               return (
@@ -76,14 +87,14 @@ export default function RecentAppointments() {
                     <div className="td-name">{doctorName}</div>
                     <div className="td-sub">{specialty}</div>
                   </td>
-                  <td style={{ color: 'var(--ink-70)', fontSize: '12px' }}>{branch}</td>
-                  <td className="num" style={{ fontSize: '11.5px' }}>{time}</td>
+                  <td className="ra-branch-cell">{branch}</td>
+                  <td className="num ra-time-cell">{time}</td>
                   <td><span className={`chip ${st.cls}`}>{st.label}</span></td>
                 </tr>
               )
             })}
             {!isLoading && appointments.length === 0 && (
-              <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--ink-45)', padding: '24px' }}>لا توجد مواعيد</td></tr>
+              <tr><td colSpan={5} className="ra-empty-cell">لا توجد مواعيد</td></tr>
             )}
           </tbody>
         </table>

@@ -1,14 +1,14 @@
 .gs-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10,31,27,.5);
+  background: rgba(10, 31, 27, 0.5);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 100px;
   z-index: 150;
-  animation: fadeIn .15s ease;
+  animation: fadeIn 0.15s ease;
 }
 
 .gs-modal {
@@ -17,9 +17,11 @@
   background: var(--card);
   border-radius: 20px;
   border: 1px solid var(--line);
-  box-shadow: 0 30px 80px rgba(10,31,27,.2), 0 6px 18px rgba(10,31,27,.08);
+  box-shadow:
+    0 30px 80px rgba(10, 31, 27, 0.2),
+    0 6px 18px rgba(10, 31, 27, 0.08);
   overflow: hidden;
-  animation: modalIn .2s cubic-bezier(.2,.9,.25,1);
+  animation: modalIn 0.2s cubic-bezier(0.2, 0.9, 0.25, 1);
 }
 
 /* ── Input ───────────────────────────────────── */
@@ -51,7 +53,10 @@
   text-align: right;
   min-width: 0;
 }
-.gs-input::placeholder { color: var(--ink-25); font-size: 14px; }
+.gs-input::placeholder {
+  color: var(--ink-25);
+  font-size: 14px;
+}
 
 .gs-icon-btn {
   width: 26px;
@@ -65,9 +70,12 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background .15s;
+  transition: background 0.15s;
 }
-.gs-icon-btn:hover { background: var(--sand); color: var(--ink); }
+.gs-icon-btn:hover {
+  background: var(--sand);
+  color: var(--ink);
+}
 
 .gs-esc {
   flex-shrink: 0;
@@ -90,8 +98,13 @@
   padding: 8px;
   direction: rtl;
 }
-.gs-list::-webkit-scrollbar { width: 4px; }
-.gs-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.gs-list::-webkit-scrollbar {
+  width: 4px;
+}
+.gs-list::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
 
 /* ── Item ────────────────────────────────────── */
 .gs-item {
@@ -105,11 +118,15 @@
   background: transparent;
   cursor: pointer;
   text-align: right;
-  transition: background .1s;
+  transition: background 0.1s;
   font-family: inherit;
 }
-.gs-item:hover { background: var(--paper); }
-.gs-item.gs-active { background: var(--sand); }
+.gs-item:hover {
+  background: var(--paper);
+}
+.gs-item.gs-active {
+  background: var(--sand);
+}
 
 .gs-item-icon {
   width: 36px;
@@ -122,11 +139,13 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background .1s, border-color .1s;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
 }
 .gs-item.gs-active .gs-item-icon {
-  background: rgba(15,107,92,.1);
-  border-color: rgba(15,107,92,.2);
+  background: rgba(15, 107, 92, 0.1);
+  border-color: rgba(15, 107, 92, 0.2);
   color: var(--brand);
 }
 
@@ -136,7 +155,9 @@
   font-weight: 500;
   color: var(--ink);
 }
-.gs-item.gs-active .gs-item-name { font-weight: 600; }
+.gs-item.gs-active .gs-item-name {
+  font-weight: 600;
+}
 
 .gs-item-tag {
   font-size: 10.5px;
@@ -148,8 +169,8 @@
   flex-shrink: 0;
 }
 .gs-item.gs-active .gs-item-tag {
-  background: rgba(15,107,92,.08);
-  border-color: rgba(15,107,92,.18);
+  background: rgba(15, 107, 92, 0.08);
+  border-color: rgba(15, 107, 92, 0.18);
   color: var(--brand);
 }
 
@@ -164,7 +185,9 @@
   font-size: 13px;
   text-align: center;
 }
-.gs-empty strong { color: var(--ink-45); }
+.gs-empty strong {
+  color: var(--ink-45);
+}
 
 /* ── Footer ──────────────────────────────────── */
 .gs-footer {
@@ -194,6 +217,11 @@
 }
 
 @media (max-width: 560px) {
-  .gs-overlay { padding-top: 20px; align-items: flex-end; }
-  .gs-modal   { border-radius: 20px 20px 0 0; }
+  .gs-overlay {
+    padding-top: 20px;
+    align-items: flex-end;
+  }
+  .gs-modal {
+    border-radius: 20px 20px 0 0;
+  }
 }

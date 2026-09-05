@@ -1,0 +1,89 @@
+.discount-type-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.discount-type-btn {
+  padding: 7px 14px;
+  font-size: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.discount-type-btn.active {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+.multiselect-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.multiselect-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.multiselect-btn.active {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+.toggle-switch-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.toggle-switch {
+  width: 38px;
+  height: 22px;
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.toggle-switch.on  { background: var(--brand); }
+.toggle-switch.off { background: var(--line);  }
+
+.toggle-switch-knob {
+  position: absolute;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: right 0.2s;
+}
+
+.toggle-switch.on  .toggle-switch-knob { right: 3px;  }
+.toggle-switch.off .toggle-switch-knob { right: 17px; }
+
+.offer-modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

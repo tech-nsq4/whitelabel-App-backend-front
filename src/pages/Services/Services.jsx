@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import ServiceStats from './components/ServiceStats'
 import ServiceFilters from './components/ServiceFilters'
 import ServiceTable from './components/ServiceTable'
@@ -63,19 +63,19 @@ export default function Services() {
   }
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="page-fade">
       <div className="page-head">
         <div>
-          <h1>الخدمات والأسعار</h1>
-          <div className="sub">إدارة كتالوج الخدمات الطبية وأسعارها</div>
+          <h1>الخدمات الطبية</h1>
+          <div className="sub">قائمة الخدمات المتوفرة حسب التخصص</div>
         </div>
         <div className="page-actions">
-          <button className="btn btn-q" onClick={() => showToast('جارٍ تصدير الكتالوج...')}>
+          <button className="btn btn-q" onClick={() => showToast('جاري تصدير البيانات...')}>
             <svg width="14" height="14" viewBox="0 0 24 24">
               <path d="M12 15V4M12 15l-4-4M12 15l4-4"/>
               <path d="M4 17v2.5A1.5 1.5 0 005.5 21h13a1.5 1.5 0 001.5-1.5V17"/>
             </svg>
-            تصدير الكتالوج
+            تصدير البيانات
           </button>
           <button className="btn btn-p" onClick={() => setModalOpen(true)}>
             <svg width="14" height="14" viewBox="0 0 24 24">

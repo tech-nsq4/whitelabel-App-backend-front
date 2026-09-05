@@ -24,6 +24,7 @@ import {
   Bell,
   CalendarClock,
   FileText,
+  Tag,
 } from "lucide-react";
 import "./Sidebar.css";
 import { useBranding } from "../../hooks/useBranding";
@@ -152,6 +153,20 @@ const NAV = [
         icon: <CreditCard size={18} strokeWidth={1.7} />,
       },
       {
+        id: "offers",
+        label: "العروض والخصومات",
+        path: "/offers",
+        icon: <Tag size={18} strokeWidth={1.7} />,
+        permission: "offers.view",
+      },
+      {
+        id: "promo-codes",
+        label: "أكواد الخصم",
+        path: "/promo-codes",
+        icon: <Tag size={18} strokeWidth={1.7} />,
+        permission: "promo-codes.view",
+      },
+      {
         id: "insurance",
         label: "التأمين",
         path: "/insurance",
@@ -249,38 +264,42 @@ export default function Sidebar({ collapsed, onToggle }) {
       {/* Nav */}
       <div className="side-scroll">
         {NAV.map((group) => {
-          const visibleItems = group.items.filter(item =>
-            !item.permission || hasPermission(item.permission)
-          )
-          if (visibleItems.length === 0) return null
+          const visibleItems = group.items.filter(
+            (item) => !item.permission || hasPermission(item.permission),
+          );
+          if (visibleItems.length === 0) return null;
           return (
-          <div key={group.section} className="side-group">
-            {!collapsed && <div className="side-section">{group.section}</div>}
-            {visibleItems.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.path}
-                className={({ isActive }) =>
-                  `side-item${isActive ? " active" : ""}`
-                }
-                title={collapsed ? item.label : undefined}
-              >
-                <span className="side-icon">{item.icon}</span>
-                {!collapsed && <span className="side-label">{item.label}</span>}
-                {!collapsed && item.badge && (
-                  <span className="side-badge">{item.badge}</span>
-                )}
-                {!collapsed && (
-                  <ChevronRight
-                    size={13}
-                    strokeWidth={2}
-                    className="side-arrow"
-                  />
-                )}
-              </NavLink>
-            ))}
-          </div>
-          )
+            <div key={group.section} className="side-group">
+              {!collapsed && (
+                <div className="side-section">{group.section}</div>
+              )}
+              {visibleItems.map((item) => (
+                <NavLink
+                  key={item.id}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `side-item${isActive ? " active" : ""}`
+                  }
+                  title={collapsed ? item.label : undefined}
+                >
+                  <span className="side-icon">{item.icon}</span>
+                  {!collapsed && (
+                    <span className="side-label">{item.label}</span>
+                  )}
+                  {!collapsed && item.badge && (
+                    <span className="side-badge">{item.badge}</span>
+                  )}
+                  {!collapsed && (
+                    <ChevronRight
+                      size={13}
+                      strokeWidth={2}
+                      className="side-arrow"
+                    />
+                  )}
+                </NavLink>
+              ))}
+            </div>
+          );
         })}
       </div>
 

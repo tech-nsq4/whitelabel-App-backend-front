@@ -30,11 +30,7 @@
 
   border-radius: 22px;
 
-  background: linear-gradient(
-    135deg,
-    var(--brand-l),
-    var(--brand-d)
-  );
+  background: linear-gradient(135deg, var(--brand-l), var(--brand-d));
 
   color: #fff;
 

@@ -40,6 +40,7 @@ export default function NewClinicManagerModal({ open, onClose }) {
         email: form.email,
         phone: form.phone,
         password: form.password,
+        password_confirmation: form.password,
         management_scope: form.management_scope,
         clinic_id:
           form.management_scope === "clinic" ? form.clinic_id || null : null,

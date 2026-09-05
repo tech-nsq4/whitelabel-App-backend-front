@@ -106,7 +106,9 @@ export default function DoctorTable({ doctors, onDelete, onRefresh }) {
             {doctors.map((doc, idx) => {
               const nameAr    = doc.name?.ar || doc.name || ''
               const specialty = doc.specializations?.[0]?.title?.ar || '—'
-              const clinicName = doc.clinic?.name?.ar || '—'
+              const clinicNames = doc.clinics?.length
+                ? doc.clinics.map(c => c.name?.ar || c.name).join('، ')
+                : (doc.clinic?.name?.ar || '—')
               const bg = BG_COLORS[idx % BG_COLORS.length]
               return (
                 <tr key={doc.id}>
@@ -121,7 +123,7 @@ export default function DoctorTable({ doctors, onDelete, onRefresh }) {
                       </div>
                     </div>
                   </td>
-                  <td style={{ fontSize: 12.5, color: 'var(--ink-70)' }}>{clinicName}</td>
+                  <td style={{ fontSize: 12.5, color: 'var(--ink-70)' }}>{clinicNames}</td>
                   <td><span className="chip mut" style={{ fontSize: 11 }}>{specialty}</span></td>
                   <td><span className="num" style={{ fontWeight: 700 }}>{doc.price}</span> <span style={{ fontSize: 11, color: 'var(--ink-45)' }}>ر.س</span></td>
                   <td><span className="num">{doc.experience}</span> <span style={{ fontSize: 11, color: 'var(--ink-45)' }}>سنة</span></td>

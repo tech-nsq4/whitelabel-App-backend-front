@@ -22,7 +22,7 @@ export default function RevenueChart() {
       <div className="panel-head">
         <div>
           <div className="panel-title">الإيرادات</div>
-          <div className="panel-sub">آخر 7 أيام · الرياض فقط</div>
+          <div className="panel-sub">بيانات تقريبية · تتطلب ربط API الإيرادات</div>
         </div>
         <div className="panel-tabs">
           {TABS.map((t) => (

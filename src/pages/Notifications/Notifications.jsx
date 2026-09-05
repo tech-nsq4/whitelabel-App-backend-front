@@ -49,7 +49,7 @@ export default function Notifications() {
   }
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="page-fade">
       {/* Header */}
       <div className="page-head">
         <div>

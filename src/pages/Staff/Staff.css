@@ -1,0 +1,69 @@
+.staff-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.staff-cell-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.staff-cell-clinics {
+  font-size: 12px;
+  color: var(--ink-70);
+  max-width: 200px;
+}
+
+.staff-scope-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.staff-scope-chip.all {
+  background: rgba(15, 107, 92, 0.1);
+  color: #0F6B5C;
+}
+
+.staff-scope-chip.limited {
+  background: rgba(44, 109, 170, 0.1);
+  color: #2C6DAA;
+}
+
+.staff-row-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.staff-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--ink-45);
+  font-size: 13px;
+}
+
+.staff-del-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.staff-del-btn:hover {
+  background: rgba(179, 64, 47, 0.07);
+}

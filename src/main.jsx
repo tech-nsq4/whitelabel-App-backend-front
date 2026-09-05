@@ -27,20 +27,12 @@ if (savedId) {
 
 const rootEl = document.getElementById("root");
 
-try {
-  ReactDOM.createRoot(rootEl).render(
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <App />
-        </BrowserRouter>
-      </QueryClientProvider>
-    </React.StrictMode>,
-  );
-} catch (e) {
-  console.error("RENDER ERROR:", e);
-  rootEl.innerHTML =
-    '<div style="color:red;padding:20px;font-size:16px">Error: ' +
-    e.message +
-    "</div>";
-}
+ReactDOM.createRoot(rootEl).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <App />
+      </BrowserRouter>
+    </QueryClientProvider>
+  </React.StrictMode>,
+);

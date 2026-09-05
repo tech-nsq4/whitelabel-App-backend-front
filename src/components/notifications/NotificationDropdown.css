@@ -6,10 +6,12 @@
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(10, 31, 27, .13), 0 4px 12px rgba(10, 31, 27, .06);
+  box-shadow:
+    0 20px 50px rgba(10, 31, 27, 0.13),
+    0 4px 12px rgba(10, 31, 27, 0.06);
   z-index: 90;
   overflow: hidden;
-  animation: fadeIn .18s ease;
+  animation: fadeIn 0.18s ease;
 }
 
 /* ── Header ──────────────────────────────── */
@@ -57,9 +59,11 @@
   cursor: pointer;
   padding: 5px 9px;
   border-radius: 8px;
-  transition: background .15s;
+  transition: background 0.15s;
 }
-.notif-mark-all:hover { background: rgba(15,107,92,.08); }
+.notif-mark-all:hover {
+  background: rgba(15, 107, 92, 0.08);
+}
 
 /* ── List ────────────────────────────────── */
 .notif-list {
@@ -67,8 +71,13 @@
   max-height: 320px;
   overflow-y: auto;
 }
-.notif-list::-webkit-scrollbar { width: 4px; }
-.notif-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.notif-list::-webkit-scrollbar {
+  width: 4px;
+}
+.notif-list::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
 
 /* ── Item ────────────────────────────────── */
 .notif-item {
@@ -78,11 +87,15 @@
   padding: 11px 10px;
   border-radius: 12px;
   cursor: pointer;
-  transition: background .15s;
+  transition: background 0.15s;
   position: relative;
 }
-.notif-item:hover { background: var(--paper); }
-.notif-item.read { opacity: .72; }
+.notif-item:hover {
+  background: var(--paper);
+}
+.notif-item.read {
+  opacity: 0.72;
+}
 
 .notif-icon {
   width: 36px;
@@ -94,7 +107,10 @@
   flex-shrink: 0;
 }
 
-.notif-body { flex: 1; min-width: 0; }
+.notif-body {
+  flex: 1;
+  min-width: 0;
+}
 
 .notif-item-title {
   font-size: 12.5px;
@@ -102,7 +118,10 @@
   color: var(--ink);
   line-height: 1.4;
 }
-.notif-item.read .notif-item-title { font-weight: 500; color: var(--ink-70); }
+.notif-item.read .notif-item-title {
+  font-weight: 500;
+  color: var(--ink-70);
+}
 
 .notif-item-desc {
   font-size: 11px;
@@ -130,7 +149,7 @@
   height: 7px;
   border-radius: 50%;
   background: var(--brand);
-  box-shadow: 0 0 0 3px rgba(15,107,92,.15);
+  box-shadow: 0 0 0 3px rgba(15, 107, 92, 0.15);
 }
 
 /* ── Footer ──────────────────────────────── */
@@ -154,10 +173,10 @@
   background: none;
   border: none;
   cursor: pointer;
-  transition: background .15s;
+  transition: background 0.15s;
 }
 .notif-footer-btn:hover {
-  background: rgba(15,107,92,.07);
+  background: rgba(15, 107, 92, 0.07);
 }
 
 /* ── Empty ───────────────────────────────── */
@@ -180,7 +199,7 @@
   font-size: 10px;
   font-weight: 600;
   color: var(--brand);
-  background: rgba(15,107,92,.08);
+  background: rgba(15, 107, 92, 0.08);
   padding: 1px 7px;
   border-radius: 99px;
 }
@@ -198,9 +217,11 @@
   border: none;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background .15s, color .15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 .notif-delete:hover {
-  background: rgba(179,64,47,.08);
+  background: rgba(179, 64, 47, 0.08);
   color: var(--danger);
 }

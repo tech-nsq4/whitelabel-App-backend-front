@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 
 import { useToast } from "../../components/ui/Toast";
 
@@ -11,25 +11,25 @@ import { periodOptions } from "./analytics.data";
 export default function Analytics() {
   const { showToast } = useToast();
 
-  const [activePeriod, setActivePeriod] = useState("الشهر");
+  const [activePeriod, setActivePeriod] = useState("اسبوع");
 
   function handlePeriodChange(period) {
     setActivePeriod(period);
   }
 
   function handleExportPdf() {
-    showToast("جارٍ تصدير PDF...");
+    showToast("جاري تصدير PDF...");
   }
 
   return (
-    <div style={{ animation: "fadeIn .3s ease" }}>
+    <div className="page-fade">
       {/* Page Header */}
       <div className="page-head">
         <div>
-          <h1>التحليلات والذكاء</h1>
+          <h1>التحليلات الشاملة</h1>
 
           <div className="sub">
-            رؤية متكاملة لأداء المجمع بالأرقام والرسوم
+            نظرة تفصيلية لأداء الفروع والأطباء والتشغيل
           </div>
         </div>
 

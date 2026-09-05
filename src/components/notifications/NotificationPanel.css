@@ -5,7 +5,7 @@
   background: rgba(10, 31, 27, 0.2);
   backdrop-filter: blur(1px);
   z-index: 199;
-  animation: fadeIn .2s ease;
+  animation: fadeIn 0.2s ease;
 }
 
 /* ── Panel ── */
@@ -83,10 +83,12 @@
   background: rgba(15, 107, 92, 0.08);
   border: none;
   cursor: pointer;
-  transition: background .15s;
+  transition: background 0.15s;
   white-space: nowrap;
 }
-.np-compose-btn:hover { background: rgba(15, 107, 92, 0.14); }
+.np-compose-btn:hover {
+  background: rgba(15, 107, 92, 0.14);
+}
 
 .np-close {
   width: 32px;
@@ -99,9 +101,14 @@
   background: none;
   border: none;
   cursor: pointer;
-  transition: background .15s, color .15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
-.np-close:hover { background: var(--paper); color: var(--ink); }
+.np-close:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
 
 /* ── List ── */
 .np-list {
@@ -109,8 +116,13 @@
   overflow-y: auto;
   padding: 10px;
 }
-.np-list::-webkit-scrollbar { width: 4px; }
-.np-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+.np-list::-webkit-scrollbar {
+  width: 4px;
+}
+.np-list::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
 
 /* ── Empty state ── */
 .np-empty {
@@ -153,10 +165,12 @@
   padding: 13px 12px;
   border-radius: 14px;
   margin-bottom: 4px;
-  transition: background .15s;
+  transition: background 0.15s;
   position: relative;
 }
-.np-item:hover { background: var(--paper); }
+.np-item:hover {
+  background: var(--paper);
+}
 
 .np-item-icon {
   width: 38px;
@@ -170,7 +184,10 @@
   flex-shrink: 0;
 }
 
-.np-item-body { flex: 1; min-width: 0; }
+.np-item-body {
+  flex: 1;
+  min-width: 0;
+}
 
 .np-item-title {
   font-size: 13px;
@@ -218,10 +235,14 @@
   border: none;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background .15s, color .15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   opacity: 0;
 }
-.np-item:hover .np-item-delete { opacity: 1; }
+.np-item:hover .np-item-delete {
+  opacity: 1;
+}
 .np-item-delete:hover {
   background: rgba(179, 64, 47, 0.08);
   color: var(--danger);
@@ -245,5 +266,8 @@
 
 /* ── Responsive ── */
 @media (max-width: 480px) {
-  .np-panel { width: 100%; border-radius: 0; }
+  .np-panel {
+    width: 100%;
+    border-radius: 0;
+  }
 }

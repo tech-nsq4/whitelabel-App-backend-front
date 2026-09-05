@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import NewReportModal from './components/NewReportModal'
 import { reportCards } from './reports.data'
 import { useToast } from '../../components/ui/Toast'
@@ -80,10 +80,10 @@ export default function Reports() {
           <button
             className="btn btn-q"
             style={{ width: '100%', justifyContent: 'center', marginTop: 'auto' }}
-            onClick={(e) => { e.stopPropagation(); showToast(`جارٍ إنشاء ${card.title}…`) }}
+            onClick={(e) => { e.stopPropagation(); showToast(`جاري تصدير ${card.title}...`) }}
           >
             {EXPORT_ICON}
-            إنشاء التقرير
+            تصدير التقرير
           </button>
         </div>
       </div>
@@ -94,18 +94,18 @@ export default function Reports() {
   const row2Cards = reportCards.filter((c) => ROW2.includes(c.id))
 
   return (
-    <div style={{ animation: 'fadeIn .3s ease' }}>
+    <div className="page-fade">
       <div className="page-head">
         <div>
-          <h1>التقارير المالية</h1>
-          <div className="sub">تقارير مفصلة ومخصصة عن الأداء المالي</div>
+          <h1>التقارير الشاملة</h1>
+          <div className="sub">بيانات شاملة ودقيقة عن أداء العيادات</div>
         </div>
         <div className="page-actions">
           <button className="btn btn-p" onClick={() => setModalOpen(true)}>
             <svg width="14" height="14" viewBox="0 0 24 24" {...S}>
               <path d="M12 5.5v13M5.5 12h13"/>
             </svg>
-            تقرير مخصص
+            تقرير جديد
           </button>
         </div>
       </div>
@@ -116,7 +116,7 @@ export default function Reports() {
       <NewReportModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSubmit={(data) => { showToast('جاري إنشاء التقرير…'); setModalOpen(false) }}
+        onSubmit={(data) => { showToast('جاري تصدير التقرير...'); setModalOpen(false) }}
       />
     </div>
   )

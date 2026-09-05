@@ -7,15 +7,24 @@
   padding: 12px 18px;
   border-radius: 14px;
   font-size: 12.5px;
-  box-shadow: 0 14px 34px rgba(0,0,0,.22);
-  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   opacity: 0;
   transform: translateY(10px);
-  transition: opacity .25s, transform .25s;
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
   pointer-events: none;
   z-index: 200;
 }
-@media (max-width: 520px) { .toast { bottom: 16px; left: 16px; right: 16px; text-align: center; } }
+@media (max-width: 520px) {
+  .toast {
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    text-align: center;
+  }
+}
 .toast.on {
   opacity: 1;
   transform: none;

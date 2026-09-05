@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import CalendarHeader from "./components/CalendarHeader";
 import CalendarView from "./components/CalendarView";
 import AppointmentsTable from "./components/AppointmentsTable";
@@ -15,7 +15,7 @@ function formatDate(date, view) {
       year: "numeric",
     }).format(date);
   }
-  if (view === "أسبوع") {
+  if (view === "اسبوع") {
     const start = getWeekStart(date);
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
@@ -24,7 +24,7 @@ function formatDate(date, view) {
         day: "numeric",
         month: "short",
       }).format(d);
-    return `${fmt(start)} – ${fmt(end)}`;
+    return `${fmt(start)} - ${fmt(end)}`;
   }
   return new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn", {
     weekday: "long",
@@ -46,10 +46,10 @@ function getWeekStart(date) {
 }
 
 function getDateRange(date, view) {
-  if (view === "يوم") {
+  if (view === "شهر") {
     return { from: toStr(date), to: toStr(date) };
   }
-  if (view === "أسبوع") {
+  if (view === "اسبوع") {
     const start = getWeekStart(date);
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
@@ -61,8 +61,8 @@ function getDateRange(date, view) {
 }
 
 const TABS = [
-  { id: "schedule", label: "جدول الأطباء" },
-  { id: "appointments", label: "الحجوزات" },
+  { id: "schedule", label: "جدول المواعيد" },
+  { id: "appointments", label: "المواعيد" },
   { id: "medical", label: "السجل الطبي" },
 ];
 
@@ -71,7 +71,7 @@ export default function Calendar() {
   const { data: clinics = [] } = useClinics();
   const dateInputRef = useRef(null);
 
-  const [view, setView] = useState("يوم");
+  const [view, setView] = useState("شهر");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [clinicFilter, setClinicFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("schedule");
@@ -86,7 +86,7 @@ export default function Calendar() {
     setCurrentDate((date) => {
       const d = new Date(date);
       if (view === "شهر") d.setMonth(d.getMonth() + direction);
-      else if (view === "أسبوع") d.setDate(d.getDate() + 7 * direction);
+      else if (view === "اسبوع") d.setDate(d.getDate() + 7 * direction);
       else d.setDate(d.getDate() + direction);
       return d;
     });
@@ -107,7 +107,7 @@ export default function Calendar() {
   }
 
   return (
-    <div className="calendar-page" style={{ animation: "fadeIn .3s ease" }}>
+    <div className="calendar-page page-fade">
       <CalendarHeader
         currentDate={formatDate(currentDate, view)}
         currentDateValue={toStr(currentDate)}
@@ -123,13 +123,13 @@ export default function Calendar() {
         onViewChange={setView}
         onClinicChange={setClinicFilter}
         onNewBooking={() => setBookingOpen(true)}
-        onExport={() => showToast("جارٍ تصدير الجدول...")}
+        onExport={() => showToast("جاري تصدير الملف...")}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         tabs={TABS}
       />
 
-      {/* ── Tab content ── */}
+      {/* -- Tab content -- */}
       {activeTab === "appointments" ? (
         <AppointmentsTable clinicFilter={clinicFilter} dateRange={dateRange} />
       ) : activeTab === "medical" ? (
