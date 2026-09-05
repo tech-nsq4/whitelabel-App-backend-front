@@ -52,7 +52,7 @@ export default function Account() {
   }
 
   return (
-    <div className="user-page" className="page-fade">
+    <div className="user-page page-fade">
       {/* Header */}
       <div className="page-head">
         <div>

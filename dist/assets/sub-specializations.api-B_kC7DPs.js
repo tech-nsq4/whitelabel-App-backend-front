@@ -1,1 +1,0 @@
-import{h as a}from"./index-Hm--FBeU.js";const p=i=>a.get("/api/admin/sub-specializations",i?{params:{specialization_id:i}}:{}),e=i=>a.post("/api/admin/sub-specializations",i),n=(i,s)=>a.put(`/api/admin/sub-specializations/${i}`,s),o=i=>a.delete(`/api/admin/sub-specializations/${i}`);export{e as c,o as d,p as g,n as u};
