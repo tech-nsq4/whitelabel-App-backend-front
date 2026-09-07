@@ -37,7 +37,11 @@ export default function AppointmentDetailsModal({ appointmentId, onClose }) {
 
   const patientName = appt?.family_member?.name || appt?.user?.name || "—";
   const doctorName = appt?.doctor?.name?.ar || "—";
-  const clinicName = appt?.doctor?.clinic?.name?.ar || "—";
+  const clinicName =
+    appt?.doctor?.clinics?.find(c => String(c.id) === String(appt?.clinic_id))?.name?.ar
+    || appt?.doctor?.clinic?.name?.ar
+    || appt?.clinic?.name?.ar
+    || "—";
   const specialty = appt?.doctor?.specializations?.[0]?.title?.ar || "—";
   const status = STATUSES[appt?.status] || STATUSES.pending;
   const prescriptions = appt?.prescriptions || [];

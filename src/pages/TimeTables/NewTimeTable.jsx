@@ -13,6 +13,7 @@ import {
 import { useCreateTimeTable } from "../../hooks/queries/useTimeTables";
 import { useDoctors } from "../../hooks/queries/useDoctors";
 import { useToast } from "../../components/ui/Toast";
+import { useValidation } from "../../hooks/useValidation";
 import "./TimeTables.css";
 
 // ================= Constants =================
@@ -179,8 +180,9 @@ export default function NewTimeTable() {
   const [rows, setRows] = useState(
     DAYS.map((day) => ({ day, ...DEFAULT_SHIFTS, on: true })),
   );
+  const { errors, validate, clearError } = useValidation();
 
-  const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+  const setField = (key, value) => { setForm((prev) => ({ ...prev, [key]: value })); clearError(key); };
 
   // لما يتغير الدكتور، لو عنده عيادة واحدة بس حددها أوتوماتيك
   function handleDoctorChange(doctorId) {
@@ -205,6 +207,13 @@ export default function NewTimeTable() {
 
   function handleSubmit(e) {
     e?.preventDefault();
+    const ok = validate(form, {
+      doctor_id: 'اختر الطبيب',
+      name: 'اسم الجدول مطلوب',
+      start_date: 'تاريخ البداية مطلوب',
+      end_date: 'تاريخ النهاية مطلوب',
+    });
+    if (!ok) return;
     const payload = buildPayload(form, rows);
 
     create(payload, {
@@ -232,6 +241,7 @@ export default function NewTimeTable() {
           setField={setField}
           doctors={doctors}
           onDoctorChange={handleDoctorChange}
+          errors={errors}
         />
 
         <ScheduleCard
@@ -308,7 +318,7 @@ function CardHeader({ icon, title, badge }) {
   );
 }
 
-function BasicInfoCard({ form, setField, doctors, onDoctorChange }) {
+function BasicInfoCard({ form, setField, doctors, onDoctorChange, errors = {} }) {
   const selectedDoctor = doctors.find(d => String(d.id) === String(form.doctor_id));
   const clinicOptions = selectedDoctor?.clinics || [];
 
@@ -329,12 +339,13 @@ function BasicInfoCard({ form, setField, doctors, onDoctorChange }) {
               doctors={doctors}
               value={form.doctor_id}
               onChange={onDoctorChange}
+              hasError={!!errors.doctor_id}
             />
+            {errors.doctor_id && <span className="field-error">{errors.doctor_id}</span>}
           </Field>
           <Field label="العيادة">
             <select
               className="nt-inp"
-              required
               value={form.clinic_id}
               onChange={e => setField('clinic_id', e.target.value)}
               disabled={clinicOptions.length === 0}
@@ -350,12 +361,12 @@ function BasicInfoCard({ form, setField, doctors, onDoctorChange }) {
         <div className="nt-row">
           <Field label="اسم الجدول">
             <input
-              className="nt-inp"
-              required
+              className={`nt-inp${errors.name ? ' nt-inp--error' : ''}`}
               value={form.name}
               onChange={(e) => setField("name", e.target.value)}
               placeholder="مثال: جدول العيادة الأسبوعي"
             />
+            {errors.name && <span className="field-error">{errors.name}</span>}
           </Field>
         </div>
 
@@ -388,21 +399,21 @@ function BasicInfoCard({ form, setField, doctors, onDoctorChange }) {
         <div className="nt-row nt-col-4">
           <Field label="تاريخ البداية">
             <input
-              className="nt-inp"
+              className={`nt-inp${errors.start_date ? ' nt-inp--error' : ''}`}
               type="date"
-              required
               value={form.start_date}
               onChange={(e) => setField("start_date", e.target.value)}
             />
+            {errors.start_date && <span className="field-error">{errors.start_date}</span>}
           </Field>
           <Field label="تاريخ النهاية">
             <input
-              className="nt-inp"
+              className={`nt-inp${errors.end_date ? ' nt-inp--error' : ''}`}
               type="date"
-              required
               value={form.end_date}
               onChange={(e) => setField("end_date", e.target.value)}
             />
+            {errors.end_date && <span className="field-error">{errors.end_date}</span>}
           </Field>
           <Field label="مدة الجلسة (دقيقة)">
             <input

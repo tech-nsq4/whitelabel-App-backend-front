@@ -4,6 +4,8 @@ import { useToast } from '../../../components/ui/Toast'
 import { useCreateAdmin } from '../../../hooks/queries/useAdmins'
 import { useClinics } from '../../../hooks/queries/useClinics'
 import { useRoles } from '../../../hooks/queries/useRoles'
+import { useValidation } from '../../../hooks/useValidation'
+import PhoneInput from '../../../components/ui/PhoneInput'
 import './StaffModal.css'
 
 const INITIAL = {
@@ -15,12 +17,13 @@ export default function NewStaffModal({ open, onClose }) {
   const { showToast } = useToast()
   const [form, setForm] = useState(INITIAL)
   const [saving, setSaving] = useState(false)
+  const { errors, validate, clearError, resetErrors } = useValidation()
 
   const createAdmin            = useCreateAdmin()
   const { data: clinics = [] } = useClinics()
   const { data: roles = [] }   = useRoles()
 
-  function set(k, v) { setForm(p => ({ ...p, [k]: v })) }
+  function set(k, v) { setForm(p => ({ ...p, [k]: v })); clearError(k) }
 
   function toggleClinic(id) {
     setForm(p => ({
@@ -41,9 +44,12 @@ export default function NewStaffModal({ open, onClose }) {
   }
 
   async function handleSubmit() {
-    if (!form.name.trim())  return showToast('أدخل الاسم', 'error')
-    if (!form.email.trim()) return showToast('أدخل البريد الإلكتروني', 'error')
-    if (!form.password)     return showToast('أدخل كلمة المرور', 'error')
+    const ok = validate(form, {
+      name: 'الاسم مطلوب',
+      email: 'البريد الإلكتروني مطلوب',
+      password: 'كلمة المرور مطلوبة',
+    })
+    if (!ok) return
     if (form.password !== form.password_confirmation) return showToast('كلمة المرور غير متطابقة', 'error')
     setSaving(true)
     try {
@@ -59,6 +65,7 @@ export default function NewStaffModal({ open, onClose }) {
       })
       showToast('تم إضافة المستخدم بنجاح', 'success')
       setForm(INITIAL)
+      resetErrors()
       onClose()
     } catch (err) {
       showToast(err.response?.data?.message || 'تعذر إضافة المستخدم', 'error')
@@ -68,27 +75,30 @@ export default function NewStaffModal({ open, onClose }) {
   }
 
   return (
-    <Modal open={open} onClose={() => { setForm(INITIAL); onClose() }} title="مستخدم جديد" subtitle="إضافة حساب جديد للنظام">
+    <Modal open={open} onClose={() => { setForm(INITIAL); resetErrors(); onClose() }} title="مستخدم جديد" subtitle="إضافة حساب جديد للنظام">
       <div className="field-row">
         <div className="field">
           <label className="field-label">الاسم</label>
-          <input className="inp" placeholder="الاسم الكامل" value={form.name} onChange={e => set('name', e.target.value)} />
+          <input className={`inp${errors.name ? ' inp--error' : ''}`} placeholder="الاسم الكامل" value={form.name} onChange={e => set('name', e.target.value)} />
+          {errors.name && <span className="field-error">{errors.name}</span>}
         </div>
         <div className="field">
           <label className="field-label">الجوال</label>
-          <input className="inp num" dir="ltr" value={form.phone} onChange={e => set('phone', e.target.value)} />
+          <PhoneInput value={form.phone} onChange={v => set('phone', v)} />
         </div>
       </div>
 
       <div className="field">
         <label className="field-label">البريد الإلكتروني</label>
-        <input className="inp" dir="ltr" value={form.email} onChange={e => set('email', e.target.value)} />
+        <input className={`inp${errors.email ? ' inp--error' : ''}`} dir="ltr" value={form.email} onChange={e => set('email', e.target.value)} />
+        {errors.email && <span className="field-error">{errors.email}</span>}
       </div>
 
       <div className="field-row">
         <div className="field">
           <label className="field-label">كلمة المرور</label>
-          <input className="inp" type="password" dir="ltr" value={form.password} onChange={e => set('password', e.target.value)} />
+          <input className={`inp${errors.password ? ' inp--error' : ''}`} type="password" dir="ltr" value={form.password} onChange={e => set('password', e.target.value)} />
+          {errors.password && <span className="field-error">{errors.password}</span>}
         </div>
         <div className="field">
           <label className="field-label">تأكيد كلمة المرور</label>

@@ -6,6 +6,7 @@ import { useClinics } from "../../../hooks/queries/useClinics";
 import { useTimeTables } from "../../../hooks/queries/useTimeTables";
 import { useCreateAppointment } from "../../../hooks/queries/useAppointments";
 import { useToast } from "../../../components/ui/Toast";
+import { useValidation } from "../../../hooks/useValidation";
 import "../styles/booking-modal.css";
 
 const today = new Date().toISOString().slice(0, 10);
@@ -273,6 +274,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
   const { data: timeTables = [] } = useTimeTables();
   const createAppointment = useCreateAppointment();
   const { showToast } = useToast();
+  const { errors, validate, clearError, resetErrors } = useValidation();
 
   const filteredDoctors = useMemo(
     () =>
@@ -305,10 +307,16 @@ export default function BookingModal({ open, onClose, onSubmit }) {
       if (field === "doctor_id" || field === "date") next.time = "";
       return next;
     });
+    clearError(field);
   }
 
   async function handleSubmit() {
-    if (!form.patient.trim() || !form.doctor_id || !form.date || !form.clinic_id) return;
+    const ok = validate(form, {
+      patient: 'اسم المريض مطلوب',
+      doctor_id: 'اختر الطبيب',
+      clinic_id: 'اختر العيادة',
+    });
+    if (!ok) return;
     try {
       await createAppointment.mutateAsync({
         patient_name: form.patient,
@@ -321,6 +329,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
       });
       onSubmit(form);
       setForm(INITIAL);
+      resetErrors();
     } catch (err) {
       showToast(err?.response?.data?.message || 'تعذر حجز الموعد', 'error');
     }
@@ -328,6 +337,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
 
   function handleClose() {
     setForm(INITIAL);
+    resetErrors();
     onClose();
   }
 
@@ -368,11 +378,12 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         </label>
         <input
           id="bk-patient"
-          className="inp"
+          className={`inp${errors.patient ? ' inp--error' : ''}`}
           placeholder="ابحث بالاسم أو رقم الملف…"
           value={form.patient}
           onChange={(e) => set("patient", e.target.value)}
         />
+        {errors.patient && <span className="field-error">{errors.patient}</span>}
       </div>
 
       {/* Clinic + Specialty */}
@@ -463,7 +474,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         <button
           className="btn btn-p"
           onClick={handleSubmit}
-          disabled={!form.patient.trim() || !form.doctor_id || !form.date || !form.clinic_id || createAppointment.isPending}
+          disabled={createAppointment.isPending}
         >
           {createAppointment.isPending ? 'جاري الحجز...' : 'تأكيد الحجز'}
         </button>

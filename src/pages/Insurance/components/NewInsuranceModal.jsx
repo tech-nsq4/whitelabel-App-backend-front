@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import Modal from '../../../components/ui/Modal'
+import PhoneInput from '../../../components/ui/PhoneInput'
+import SpecSelect from '../../../components/ui/SpecSelect'
 
 const INITIAL = {
   name:       '',
@@ -50,12 +52,16 @@ export default function NewInsuranceModal({ open, onClose, onSubmit }) {
 
       <div className="field">
         <label className="field-label">نسبة التغطية الافتراضية</label>
-        <select className="inp" value={form.coverage} onChange={(e) => handleChange('coverage', e.target.value)}>
-          <option>80%</option>
-          <option>90%</option>
-          <option>100%</option>
-          <option>70%</option>
-        </select>
+        <SpecSelect
+          value={form.coverage}
+          onChange={v => handleChange('coverage', v)}
+          options={[
+            { id: '70%',  label: '70%'  },
+            { id: '80%',  label: '80%'  },
+            { id: '90%',  label: '90%'  },
+            { id: '100%', label: '100%' },
+          ]}
+        />
       </div>
 
       <div className="field">
@@ -66,8 +72,7 @@ export default function NewInsuranceModal({ open, onClose, onSubmit }) {
 
       <div className="field">
         <label className="field-label">هاتف التواصل</label>
-        <input className="inp num" placeholder="+966 XX XXX XXXX" dir="ltr"
-          value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} />
+        <PhoneInput value={form.phone} onChange={v => handleChange('phone', v)} />
       </div>
 
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 6 }}>

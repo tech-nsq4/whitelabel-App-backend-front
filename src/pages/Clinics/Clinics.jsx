@@ -148,7 +148,13 @@ export default function Clinics() {
       await deleteSpecialization.mutateAsync(id);
       showToast("تم حذف التخصص");
     } catch (err) {
-      showToast(err.response?.data?.message || "تعذر الحذف", "error");
+      const msg = err.response?.data?.message || ''
+      const arabicMsg = msg.toLowerCase().includes('doctors are assigned')
+        ? 'لا يمكن حذف هذا التخصص لأن هناك أطباء مرتبطون به'
+        : msg.toLowerCase().includes('appointments')
+        ? 'لا يمكن حذف هذا التخصص لأن هناك مواعيد مرتبطة به'
+        : 'تعذر حذف التخصص'
+      showToast(arabicMsg, "error");
     }
   }
 

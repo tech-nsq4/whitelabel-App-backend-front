@@ -4,6 +4,9 @@ import { useToast } from "../../../components/ui/Toast";
 import { useClinics } from "../../../hooks/queries/useClinics";
 import { useLocations } from "../../../hooks/queries/useLocations";
 import { useCreateClinicManager } from "../../../hooks/queries/useClinicManagers";
+import { useValidation } from "../../../hooks/useValidation";
+import PhoneInput from "../../../components/ui/PhoneInput";
+import SpecSelect from "../../../components/ui/SpecSelect";
 
 const INITIAL = {
   name: "",
@@ -20,6 +23,7 @@ export default function NewClinicManagerModal({ open, onClose }) {
   const { showToast } = useToast();
   const [form, setForm] = useState(INITIAL);
   const [saving, setSaving] = useState(false);
+  const { errors, validate, clearError, resetErrors } = useValidation();
 
   const { data: clinics = [] } = useClinics();
   const { data: locations = [] } = useLocations();
@@ -27,12 +31,16 @@ export default function NewClinicManagerModal({ open, onClose }) {
 
   function set(field, value) {
     setForm((p) => ({ ...p, [field]: value }));
+    clearError(field);
   }
 
   async function handleSubmit() {
-    if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
-      return showToast("اكمل الحقول المطلوبة", "error");
-    }
+    const ok = validate(form, {
+      name: 'الاسم مطلوب',
+      email: 'البريد الإلكتروني مطلوب',
+      password: 'كلمة المرور مطلوبة',
+    });
+    if (!ok) return;
     setSaving(true);
     try {
       await createManager.mutateAsync({
@@ -52,6 +60,7 @@ export default function NewClinicManagerModal({ open, onClose }) {
       });
       showToast("تم إضافة المدير بنجاح");
       setForm(INITIAL);
+      resetErrors();
       onClose();
     } catch (err) {
       showToast(err.response?.data?.message || "تعذر الإضافة", "error");
@@ -62,6 +71,7 @@ export default function NewClinicManagerModal({ open, onClose }) {
 
   function handleClose() {
     setForm(INITIAL);
+    resetErrors();
     onClose();
   }
 
@@ -76,106 +86,91 @@ export default function NewClinicManagerModal({ open, onClose }) {
         <div className="field">
           <label className="field-label">الاسم</label>
           <input
-            className="inp"
+            className={`inp${errors.name ? ' inp--error' : ''}`}
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
             placeholder="الاسم الكامل"
           />
+          {errors.name && <span className="field-error">{errors.name}</span>}
         </div>
         <div className="field">
           <label className="field-label">رقم الهاتف</label>
-          <input
-            className="inp"
-            dir="ltr"
-            value={form.phone}
-            onChange={(e) => set("phone", e.target.value)}
-            placeholder="01XXXXXXXXX"
-          />
+          <PhoneInput value={form.phone} onChange={v => set("phone", v)} />
         </div>
       </div>
 
       <div className="field">
         <label className="field-label">البريد الإلكتروني</label>
         <input
-          className="inp"
+          className={`inp${errors.email ? ' inp--error' : ''}`}
           dir="ltr"
           value={form.email}
           onChange={(e) => set("email", e.target.value)}
           placeholder="email@example.com"
         />
+        {errors.email && <span className="field-error">{errors.email}</span>}
       </div>
 
       <div className="field">
         <label className="field-label">كلمة المرور</label>
         <input
-          className="inp"
+          className={`inp${errors.password ? ' inp--error' : ''}`}
           type="password"
           dir="ltr"
           value={form.password}
           onChange={(e) => set("password", e.target.value)}
           placeholder="••••••••"
         />
+        {errors.password && <span className="field-error">{errors.password}</span>}
       </div>
 
       <div className="field-row">
         <div className="field">
           <label className="field-label">نطاق الصلاحية</label>
-          <select
-            className="inp"
+          <SpecSelect
             value={form.management_scope}
-            onChange={(e) => set("management_scope", e.target.value)}
-          >
-            <option value="all">كل العيادات</option>
-            <option value="location">موقع محدد</option>
-            <option value="clinic">عيادة محددة</option>
-          </select>
+            onChange={v => set("management_scope", v)}
+            options={[
+              { id: "all",      label: "كل العيادات" },
+              { id: "location", label: "موقع محدد"  },
+              { id: "clinic",   label: "عيادة محددة" },
+            ]}
+          />
         </div>
         <div className="field">
           <label className="field-label">لغة التطبيق</label>
-          <select
-            className="inp"
+          <SpecSelect
             value={form.app_lang}
-            onChange={(e) => set("app_lang", e.target.value)}
-          >
-            <option value="ar">العربية</option>
-            <option value="en">English</option>
-          </select>
+            onChange={v => set("app_lang", v)}
+            options={[
+              { id: "ar", label: "العربية" },
+              { id: "en", label: "English"  },
+            ]}
+          />
         </div>
       </div>
 
       {form.management_scope === "clinic" && (
         <div className="field">
           <label className="field-label">العيادة</label>
-          <select
-            className="inp"
+          <SpecSelect
             value={form.clinic_id}
-            onChange={(e) => set("clinic_id", e.target.value)}
-          >
-            <option value="">اختر العيادة</option>
-            {clinics.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name?.ar || c.name}
-              </option>
-            ))}
-          </select>
+            onChange={v => set("clinic_id", v)}
+            options={clinics.map(c => ({ id: c.id, label: c.name?.ar || c.name }))}
+            placeholder="اختر العيادة"
+          />
         </div>
       )}
 
       {form.management_scope === "location" && (
         <div className="field">
           <label className="field-label">الموقع</label>
-          <select
-            className="inp"
+          <SpecSelect
             value={form.location_id}
-            onChange={(e) => set("location_id", e.target.value)}
-          >
-            <option value="">اختر الموقع</option>
-            {locations.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.name?.ar || l.name}
-              </option>
-            ))}
-          </select>
+            onChange={v => set("location_id", v)}
+            options={locations.map(l => ({ id: l.id, label: l.name?.ar || l.name }))}
+            placeholder="اختر الموقع"
+          />
         </div>
       )}
 

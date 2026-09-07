@@ -3,6 +3,38 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { ROUTES } from "../constants";
 import ProtectedRoute from "./ProtectedRoute";
 
+// Simple full-page loader shown while lazy chunks download
+function PageLoader() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "60vh",
+        flexDirection: "column",
+        gap: 16,
+        color: "var(--ink-45)",
+      }}
+    >
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="var(--brand)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        style={{ animation: "spin 0.8s linear infinite" }}
+      >
+        <path d="M21 12a9 9 0 11-6.219-8.56" />
+      </svg>
+      <span style={{ fontSize: 13 }}>جاري التحميل...</span>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
 const Login = lazy(() => import("../pages/Login/Login"));
 const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
 const Queue = lazy(() => import("../pages/Queue/Queue"));
@@ -90,7 +122,7 @@ const protectedRoutes = [
 
 export default function AppRoutes() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Public */}
         <Route path="/login" element={<Login />} />

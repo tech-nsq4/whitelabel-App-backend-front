@@ -16,6 +16,7 @@ import {
 } from "../../hooks/queries/useTimeTables";
 import { useDoctors } from "../../hooks/queries/useDoctors";
 import { useToast } from "../../components/ui/Toast";
+import { useValidation } from "../../hooks/useValidation";
 import "./TimeTables.css";
 
 const DAYS = [
@@ -99,8 +100,8 @@ export default function EditTimeTable() {
 
   const [form, setForm] = useState(null);
   const [rows, setRows] = useState(null);
-
   const initialized = useRef(null);
+  const { errors, validate, clearError } = useValidation();
 
   // Populate form once data loads
   useEffect(() => {
@@ -137,7 +138,7 @@ export default function EditTimeTable() {
     );
   }, [tt]);
 
-  const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k, v) => { setForm((p) => ({ ...p, [k]: v })); clearError(k); };
   const setT = (day, k, v) =>
     setRows((p) => p.map((r) => (r.day === day ? { ...r, [k]: v } : r)));
   const toggle = (day) =>
@@ -145,6 +146,12 @@ export default function EditTimeTable() {
 
   function submit(e) {
     e.preventDefault();
+    const ok = validate(form, {
+      name: 'اسم الجدول مطلوب',
+      start_date: 'تاريخ البداية مطلوب',
+      end_date: 'تاريخ النهاية مطلوب',
+    });
+    if (!ok) return;
     const activeRows = rows
       .filter((r) => r.on)
       .map(({ on, ...rest }) => {
@@ -288,11 +295,11 @@ export default function EditTimeTable() {
               <div className="nt-field">
                 <label className="nt-label">اسم الجدول</label>
                 <input
-                  className="nt-inp"
-                  required
+                  className={`nt-inp${errors.name ? ' nt-inp--error' : ''}`}
                   value={form.name}
                   onChange={(e) => set("name", e.target.value)}
                 />
+                {errors.name && <span className="field-error">{errors.name}</span>}
               </div>
             </div>
 
@@ -329,22 +336,22 @@ export default function EditTimeTable() {
               <div className="nt-field">
                 <label className="nt-label">تاريخ البداية</label>
                 <input
-                  className="nt-inp"
+                  className={`nt-inp${errors.start_date ? ' nt-inp--error' : ''}`}
                   type="date"
-                  required
                   value={form.start_date}
                   onChange={(e) => set("start_date", e.target.value)}
                 />
+                {errors.start_date && <span className="field-error">{errors.start_date}</span>}
               </div>
               <div className="nt-field">
                 <label className="nt-label">تاريخ النهاية</label>
                 <input
-                  className="nt-inp"
+                  className={`nt-inp${errors.end_date ? ' nt-inp--error' : ''}`}
                   type="date"
-                  required
                   value={form.end_date}
                   onChange={(e) => set("end_date", e.target.value)}
                 />
+                {errors.end_date && <span className="field-error">{errors.end_date}</span>}
               </div>
               <div className="nt-field">
                 <label className="nt-label">مدة الجلسة (دقيقة)</label>

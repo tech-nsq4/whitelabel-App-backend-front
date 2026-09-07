@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import Modal from "../../../components/ui/Modal";
+import { useValidation } from "../../../hooks/useValidation";
+import PhoneInput, { normalizeSaudiPhone } from "../../../components/ui/PhoneInput";
 
 export default function BranchEditModal({ branch, onClose, onSave }) {
   const [form, setForm] = useState(branch);
-  useEffect(() => setForm(branch), [branch]);
+  const { errors, validate, clearError, resetErrors } = useValidation();
+  useEffect(() => setForm(branch ? { ...branch, phone: normalizeSaudiPhone(branch.phone || '') } : branch), [branch]);
   if (!branch || !form) return null;
-  const update = (field, value) =>
+  const update = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
+    clearError(field);
+  };
   return (
     <Modal
       open={Boolean(branch)}
@@ -20,10 +25,11 @@ export default function BranchEditModal({ branch, onClose, onSave }) {
         </label>
         <input
           id="branch-name"
-          className="inp"
+          className={`inp${errors.name ? ' inp--error' : ''}`}
           value={form.name}
           onChange={(event) => update("name", event.target.value)}
         />
+        {errors.name && <span className="field-error">{errors.name}</span>}
       </div>
       <div className="field">
         <label className="field-label" htmlFor="branch-address">
@@ -40,19 +46,18 @@ export default function BranchEditModal({ branch, onClose, onSave }) {
         <label className="field-label" htmlFor="branch-phone">
           الهاتف
         </label>
-        <input
-          id="branch-phone"
-          className="inp num"
-          dir="ltr"
-          value={form.phone}
-          onChange={(event) => update("phone", event.target.value)}
-        />
+        <PhoneInput id="branch-phone" value={form.phone || ''} onChange={v => update("phone", v)} />
       </div>
       <div className="branch-modal-actions">
         <button className="btn btn-q" onClick={onClose}>
           إلغاء
         </button>
-        <button className="btn btn-p" onClick={() => onSave(form)}>
+        <button className="btn btn-p" onClick={() => {
+          const ok = validate(form, { name: 'اسم الفرع مطلوب' });
+          if (!ok) return;
+          resetErrors();
+          onSave(form);
+        }}>
           حفظ التغييرات
         </button>
       </div>

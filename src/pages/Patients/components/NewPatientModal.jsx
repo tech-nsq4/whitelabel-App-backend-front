@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import Modal from '../../../components/ui/Modal'
+import { useValidation } from '../../../hooks/useValidation'
+import PhoneInput from '../../../components/ui/PhoneInput'
 
 const INITIAL = {
   name:          '',
@@ -12,12 +14,17 @@ const INITIAL = {
 
 export default function NewPatientModal({ open, onClose, onSubmit, isLoading }) {
   const [form, setForm] = useState(INITIAL)
+  const { errors, validate, clearError, resetErrors } = useValidation()
 
-  function update(field, value) { setForm((f) => ({ ...f, [field]: value })) }
+  function update(field, value) { setForm((f) => ({ ...f, [field]: value })); clearError(field) }
 
-  function handleSubmit() { onSubmit(form) }
+  function handleSubmit() {
+    const ok = validate(form, { phone: 'رقم الجوال مطلوب' })
+    if (!ok) return
+    onSubmit(form)
+  }
 
-  function handleClose() { setForm(INITIAL); onClose() }
+  function handleClose() { setForm(INITIAL); resetErrors(); onClose() }
 
   return (
     <Modal open={open} onClose={handleClose} title="تسجيل مريض جديد">
@@ -28,7 +35,13 @@ export default function NewPatientModal({ open, onClose, onSubmit, isLoading }) 
       <div className="field-row">
         <div className="field">
           <label className="field-label" htmlFor="new-phone">الجوال *</label>
-          <input id="new-phone" className="inp num" dir="ltr" placeholder="+966 5X XXX XXXX" value={form.phone} onChange={(e) => update('phone', e.target.value)} required />
+          <PhoneInput
+            id="new-phone"
+            value={form.phone}
+            onChange={v => update('phone', v)}
+            hasError={!!errors.phone}
+          />
+          {errors.phone && <span className="field-error">{errors.phone}</span>}
         </div>
         <div className="field">
           <label className="field-label" htmlFor="new-email">البريد الإلكتروني</label>
@@ -51,7 +64,7 @@ export default function NewPatientModal({ open, onClose, onSubmit, isLoading }) 
       </div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 6 }}>
         <button className="btn btn-q" onClick={handleClose} disabled={isLoading}>إلغاء</button>
-        <button className="btn btn-p" onClick={handleSubmit} disabled={isLoading || !form.phone}>
+        <button className="btn btn-p" onClick={handleSubmit} disabled={isLoading}>
           {isLoading ? 'جارٍ التسجيل...' : 'تسجيل المريض'}
         </button>
       </div>

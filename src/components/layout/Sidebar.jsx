@@ -60,6 +60,7 @@ const NAV = [
         label: "المرضى",
         path: "/patients",
         icon: <Users size={18} strokeWidth={1.7} />,
+        permission: "users.view",
       },
     ],
   },
@@ -113,12 +114,14 @@ const NAV = [
         label: "جداول الأطباء",
         path: "/time-tables",
         icon: <CalendarClock size={18} strokeWidth={1.7} />,
+        permission: "time-tables.view",
       },
       {
         id: "services",
         label: "الخدمات والأسعار",
         path: "/services",
         icon: <Wrench size={18} strokeWidth={1.7} />,
+        permission: "sub-specializations.view",
       },
       {
         id: "staff",
@@ -151,6 +154,7 @@ const NAV = [
         label: "الفواتير والمدفوعات",
         path: "/billing",
         icon: <CreditCard size={18} strokeWidth={1.7} />,
+        permission: "appointments.view",
       },
       {
         id: "offers",
@@ -171,12 +175,14 @@ const NAV = [
         label: "التأمين",
         path: "/insurance",
         icon: <ShieldCheck size={18} strokeWidth={1.7} />,
+        permission: "appointments.view",
       },
       {
         id: "reports",
         label: "التقارير المالية",
         path: "/reports",
         icon: <FileBarChart2 size={18} strokeWidth={1.7} />,
+        permission: "appointments.view",
       },
     ],
   },
@@ -188,12 +194,14 @@ const NAV = [
         label: "التحليلات والذكاء",
         path: "/analytics",
         icon: <BarChart3 size={18} strokeWidth={1.7} />,
+        permission: "appointments.view",
       },
       {
         id: "audit",
         label: "سجل النشاط",
         path: "/audit",
         icon: <ClipboardList size={18} strokeWidth={1.7} />,
+        permission: "admins.view",
       },
     ],
   },
@@ -205,18 +213,21 @@ const NAV = [
         label: "الهوية البصرية",
         path: "/branding",
         icon: <Palette size={18} strokeWidth={1.7} />,
+        superAdminOnly: true,
       },
       {
         id: "pages",
         label: "الصفحات",
         path: "/pages",
         icon: <FileText size={18} strokeWidth={1.7} />,
+        superAdminOnly: true,
       },
       {
         id: "settings",
         label: "الإعدادات العامة",
         path: "/settings",
         icon: <Settings size={18} strokeWidth={1.7} />,
+        superAdminOnly: true,
       },
     ],
   },
@@ -224,7 +235,7 @@ const NAV = [
 
 export default function Sidebar({ collapsed, onToggle }) {
   const { nameAr, nameEn, logo } = useBranding();
-  const { hasPermission } = useAuth();
+  const { hasPermission, isSuperAdmin } = useAuth();
   const [clinicsCount, setClinicsCount] = useState(null);
 
   useEffect(() => {
@@ -265,7 +276,9 @@ export default function Sidebar({ collapsed, onToggle }) {
       <div className="side-scroll">
         {NAV.map((group) => {
           const visibleItems = group.items.filter(
-            (item) => !item.permission || hasPermission(item.permission),
+            (item) =>
+              (!item.permission || hasPermission(item.permission)) &&
+              (!item.superAdminOnly || isSuperAdmin),
           );
           if (visibleItems.length === 0) return null;
           return (

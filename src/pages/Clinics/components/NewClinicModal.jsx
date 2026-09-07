@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Modal from "../../../components/ui/Modal";
+import { useValidation } from "../../../hooks/useValidation";
 
 const INITIAL = {
   nameAr: "",
@@ -10,9 +11,11 @@ const INITIAL = {
 
 export default function NewClinicModal({ open, onClose, onSubmit }) {
   const [form, setForm] = useState(INITIAL);
+  const { errors, validate, clearError, resetErrors } = useValidation();
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    clearError(field);
   }
 
   function handleBranchToggle(key) {
@@ -23,12 +26,16 @@ export default function NewClinicModal({ open, onClose, onSubmit }) {
   }
 
   function handleSubmit() {
+    const ok = validate(form, { nameAr: 'اسم التخصص (عربي) مطلوب' });
+    if (!ok) return;
     onSubmit(form);
     setForm(INITIAL);
+    resetErrors();
   }
 
   function handleClose() {
     setForm(INITIAL);
+    resetErrors();
     onClose();
   }
 
@@ -45,11 +52,12 @@ export default function NewClinicModal({ open, onClose, onSubmit }) {
         </label>
         <input
           id="clinic-name-ar"
-          className="inp"
+          className={`inp${errors.nameAr ? ' inp--error' : ''}`}
           placeholder="مثال: جراحة عامة"
           value={form.nameAr}
           onChange={(e) => handleChange("nameAr", e.target.value)}
         />
+        {errors.nameAr && <span className="field-error">{errors.nameAr}</span>}
       </div>
 
       <div className="field">

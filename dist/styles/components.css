@@ -496,6 +496,22 @@ table.data tbody tr:hover {
 .inp::placeholder {
   color: var(--ink-25);
 }
+.inp--error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(179, 64, 47, 0.12) !important;
+}
+.inp--error:focus {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px rgba(179, 64, 47, 0.18) !important;
+}
+.field-error {
+  font-size: 11px;
+  color: var(--danger);
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

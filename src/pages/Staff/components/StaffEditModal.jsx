@@ -4,12 +4,16 @@ import { useToast } from '../../../components/ui/Toast'
 import { useUpdateAdmin } from '../../../hooks/queries/useAdmins'
 import { useClinics } from '../../../hooks/queries/useClinics'
 import { useRoles } from '../../../hooks/queries/useRoles'
+import { useValidation } from '../../../hooks/useValidation'
+import PhoneInput, { normalizeSaudiPhone } from '../../../components/ui/PhoneInput'
+import SpecSelect from '../../../components/ui/SpecSelect'
 import './StaffModal.css'
 
 export default function StaffEditModal({ open, admin, onClose }) {
   const { showToast } = useToast()
   const [form, setForm] = useState({})
   const [saving, setSaving] = useState(false)
+  const { errors, validate, clearError, resetErrors } = useValidation()
 
   const updateAdmin            = useUpdateAdmin()
   const { data: clinics = [] } = useClinics()
@@ -19,7 +23,7 @@ export default function StaffEditModal({ open, admin, onClose }) {
     if (admin) setForm({
       name:               admin.name || '',
       email:              admin.email || '',
-      phone:              admin.phone || '',
+      phone:              normalizeSaudiPhone(admin.phone || ''),
       manages_all_clinics: admin.manages_all_clinics ?? true,
       clinic_ids:         admin.clinics?.map(c => c.id) || [],
       role_ids:           admin.roles?.map(r => r.id) || [],
@@ -27,7 +31,7 @@ export default function StaffEditModal({ open, admin, onClose }) {
     })
   }, [admin])
 
-  function set(k, v) { setForm(p => ({ ...p, [k]: v })) }
+  function set(k, v) { setForm(p => ({ ...p, [k]: v })); clearError(k) }
 
   function toggleClinic(id) {
     setForm(p => ({
@@ -48,6 +52,11 @@ export default function StaffEditModal({ open, admin, onClose }) {
   }
 
   async function handleSave() {
+    const ok = validate(form, {
+      name: 'الاسم مطلوب',
+      email: 'البريد الإلكتروني مطلوب',
+    })
+    if (!ok) return
     setSaving(true)
     try {
       await updateAdmin.mutateAsync({
@@ -63,6 +72,7 @@ export default function StaffEditModal({ open, admin, onClose }) {
         }
       })
       showToast('تم حفظ التغييرات', 'success')
+      resetErrors()
       onClose()
     } catch (err) {
       showToast(err.response?.data?.message || 'تعذر الحفظ', 'error')
@@ -78,17 +88,19 @@ export default function StaffEditModal({ open, admin, onClose }) {
       <div className="field-row">
         <div className="field">
           <label className="field-label">الاسم</label>
-          <input className="inp" value={form.name || ''} onChange={e => set('name', e.target.value)} />
+          <input className={`inp${errors.name ? ' inp--error' : ''}`} value={form.name || ''} onChange={e => set('name', e.target.value)} />
+          {errors.name && <span className="field-error">{errors.name}</span>}
         </div>
         <div className="field">
           <label className="field-label">الجوال</label>
-          <input className="inp num" dir="ltr" value={form.phone || ''} onChange={e => set('phone', e.target.value)} />
+          <PhoneInput value={form.phone || ''} onChange={v => set('phone', v)} />
         </div>
       </div>
 
       <div className="field">
         <label className="field-label">البريد الإلكتروني</label>
-        <input className="inp" dir="ltr" value={form.email || ''} onChange={e => set('email', e.target.value)} />
+        <input className={`inp${errors.email ? ' inp--error' : ''}`} dir="ltr" value={form.email || ''} onChange={e => set('email', e.target.value)} />
+        {errors.email && <span className="field-error">{errors.email}</span>}
       </div>
 
       {roles.length > 0 && (
@@ -130,10 +142,14 @@ export default function StaffEditModal({ open, admin, onClose }) {
 
       <div className="field">
         <label className="field-label">الحالة</label>
-        <select className="inp" value={form.is_active ? 'active' : 'inactive'} onChange={e => set('is_active', e.target.value === 'active')}>
-          <option value="active">نشط</option>
-          <option value="inactive">معطّل</option>
-        </select>
+        <SpecSelect
+          value={form.is_active ? 'active' : 'inactive'}
+          onChange={v => set('is_active', v === 'active')}
+          options={[
+            { id: 'active',   label: 'نشط'    },
+            { id: 'inactive', label: 'معطّل'  },
+          ]}
+        />
       </div>
 
       <div className="modal-footer">

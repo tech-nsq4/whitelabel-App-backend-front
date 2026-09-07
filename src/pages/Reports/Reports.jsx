@@ -2,6 +2,7 @@ import { useState } from 'react'
 import NewReportModal from './components/NewReportModal'
 import { reportCards } from './reports.data'
 import { useToast } from '../../components/ui/Toast'
+import DemoBanner from '../../components/ui/DemoBanner'
 
 const S = { stroke: 'currentColor', fill: 'none', strokeWidth: '1.8', strokeLinecap: 'round', strokeLinejoin: 'round' }
 
@@ -110,6 +111,7 @@ export default function Reports() {
         </div>
       </div>
 
+      <DemoBanner page="التقارير الشاملة" />
       <div className="row c3">{row1Cards.map(renderCard)}</div>
       <div className="row c22" style={{ marginTop: 0 }}>{row2Cards.map(renderCard)}</div>
 

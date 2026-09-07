@@ -4,13 +4,14 @@ import InvoiceTable from './components/InvoiceTable'
 import NewInvoiceModal from './components/NewInvoiceModal'
 import { invoices } from './billing.data'
 import { useToast } from '../../components/ui/Toast'
+import DemoBanner from '../../components/ui/DemoBanner'
 
 export default function Billing() {
   const { showToast } = useToast()
   const [modalOpen, setModalOpen] = useState(false)
 
   function handleNewInvoice(data) {
-    showToast('تم إنشاء الفاتورة بنجاح')
+    showToast('تم إنشاء الفاتورة بنجاح', 'success')
     setModalOpen(false)
   }
 
@@ -37,6 +38,8 @@ export default function Billing() {
           </button>
         </div>
       </div>
+
+      <DemoBanner page="الفواتير والمدفوعات" />
 
       <BillingStats />
 

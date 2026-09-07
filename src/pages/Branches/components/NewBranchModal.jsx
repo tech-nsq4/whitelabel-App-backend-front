@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
 import { getLocationsApi } from "../../../api/locations.api";
+import { useValidation } from "../../../hooks/useValidation";
+import SpecSelect from "../../../components/ui/SpecSelect";
 
 const INITIAL = { name: "", location_id: "", address: "" };
 
 export default function NewBranchModal({ open, onClose, onSubmit }) {
   const [form, setForm] = useState(INITIAL);
   const [locations, setLocations] = useState([]);
+  const { errors, validate, clearError, resetErrors } = useValidation();
 
   useEffect(() => {
     getLocationsApi()
@@ -21,15 +24,20 @@ export default function NewBranchModal({ open, onClose, onSubmit }) {
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    clearError(field);
   }
 
   function handleSubmit() {
+    const ok = validate(form, { name: 'اسم العيادة مطلوب' });
+    if (!ok) return;
     onSubmit(form);
     setForm(INITIAL);
+    resetErrors();
   }
 
   function handleClose() {
     setForm(INITIAL);
+    resetErrors();
     onClose();
   }
 
@@ -46,28 +54,23 @@ export default function NewBranchModal({ open, onClose, onSubmit }) {
         </label>
         <input
           id="branch-name"
-          className="inp"
+          className={`inp${errors.name ? ' inp--error' : ''}`}
           placeholder="مثال: عيادة الشفاء"
           value={form.name}
           onChange={(e) => handleChange("name", e.target.value)}
         />
+        {errors.name && <span className="field-error">{errors.name}</span>}
       </div>
       <div className="field">
         <label className="field-label" htmlFor="branch-location">
           الموقع
         </label>
-        <select
-          id="branch-location"
-          className="inp"
-          value={form.location_id}
-          onChange={(e) => handleChange("location_id", Number(e.target.value))}
-        >
-          {locations.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.name?.ar || l.name}
-            </option>
-          ))}
-        </select>
+        <SpecSelect
+          value={String(form.location_id)}
+          onChange={(v) => handleChange("location_id", Number(v))}
+          options={locations.map(l => ({ id: l.id, label: l.name?.ar || l.name }))}
+          placeholder="اختر الموقع"
+        />
       </div>
       <div className="field">
         <label className="field-label" htmlFor="branch-address">

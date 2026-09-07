@@ -4,13 +4,14 @@ import InsuranceTable from './components/InsuranceTable'
 import NewInsuranceModal from './components/NewInsuranceModal'
 import { insuranceCompanies } from './insurance.data'
 import { useToast } from '../../components/ui/Toast'
+import DemoBanner from '../../components/ui/DemoBanner'
 
 export default function Insurance() {
   const { showToast } = useToast()
   const [modalOpen, setModalOpen] = useState(false)
 
   function handleNewInsurance(data) {
-    showToast('تم إضافة شركة التأمين')
+    showToast('تم إضافة شركة التأمين', 'success')
     setModalOpen(false)
   }
 
@@ -30,6 +31,8 @@ export default function Insurance() {
           </button>
         </div>
       </div>
+
+      <DemoBanner page="التأمين" />
 
       <InsuranceStats />
 

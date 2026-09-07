@@ -1,6 +1,7 @@
 import { useClinics } from '../../../hooks/queries/useClinics'
 import { useDoctors } from '../../../hooks/queries/useDoctors'
 import { useSpecializations } from '../../../hooks/queries/useSpecializations'
+import SpecSelect from '../../../components/ui/SpecSelect'
 import './OfferModal.css'
 
 const today = new Date().toISOString().slice(0, 10)
@@ -97,7 +98,7 @@ function MultiSelect({ label, options, selected, onChange }) {
   )
 }
 
-export default function OfferForm({ form, set }) {
+export default function OfferForm({ form, set, errors = {} }) {
   const { data: clinics = [] }         = useClinics()
   const { data: doctors = [] }         = useDoctors()
   const { data: specializations = [] } = useSpecializations()
@@ -107,7 +108,8 @@ export default function OfferForm({ form, set }) {
       <div className="field-row">
         <div className="field">
           <label className="field-label">اسم العرض (عربي)</label>
-          <input className="inp" value={form.nameAr} onChange={e => set('nameAr', e.target.value)} placeholder="مثال: خصم الافتتاح" />
+          <input className={`inp${errors.nameAr ? ' inp--error' : ''}`} value={form.nameAr} onChange={e => set('nameAr', e.target.value)} placeholder="مثال: خصم الافتتاح" />
+          {errors.nameAr && <span className="field-error">{errors.nameAr}</span>}
         </div>
         <div className="field">
           <label className="field-label">اسم العرض (إنجليزي)</label>
@@ -134,7 +136,8 @@ export default function OfferForm({ form, set }) {
       <div className="field-row">
         <div className="field">
           <label className="field-label">{form.discount_type === 'percentage' ? 'نسبة الخصم (%)' : 'قيمة الخصم (ج.م)'}</label>
-          <input className="inp num" dir="ltr" type="number" min={0} value={form.discount_value} onChange={e => set('discount_value', e.target.value)} placeholder="20" />
+          <input className={`inp num${errors.discount_value ? ' inp--error' : ''}`} dir="ltr" type="number" min={0} value={form.discount_value} onChange={e => set('discount_value', e.target.value)} placeholder="20" />
+          {errors.discount_value && <span className="field-error">{errors.discount_value}</span>}
         </div>
         {form.discount_type === 'percentage' && (
           <div className="field">
@@ -146,12 +149,16 @@ export default function OfferForm({ form, set }) {
 
       <div className="field">
         <label className="field-label">نطاق العرض</label>
-        <select className="inp" value={form.scope} onChange={e => set('scope', e.target.value)}>
-          <option value="all">كل العيادات</option>
-          <option value="clinics">عيادات محددة</option>
-          <option value="doctors">أطباء محددون</option>
-          <option value="specializations">تخصصات محددة</option>
-        </select>
+        <SpecSelect
+          value={form.scope}
+          onChange={v => set('scope', v)}
+          options={[
+            { id: 'all',             label: 'كل العيادات'       },
+            { id: 'clinics',         label: 'عيادات محددة'      },
+            { id: 'doctors',         label: 'أطباء محددون'      },
+            { id: 'specializations', label: 'تخصصات محددة'      },
+          ]}
+        />
       </div>
 
       {form.scope === 'clinics' && (
@@ -191,10 +198,14 @@ export default function OfferForm({ form, set }) {
 
       <div className="field">
         <label className="field-label">الحالة</label>
-        <select className="inp" value={form.status} onChange={e => set('status', e.target.value)}>
-          <option value="active">نشط</option>
-          <option value="inactive">متوقف</option>
-        </select>
+        <SpecSelect
+          value={form.status}
+          onChange={v => set('status', v)}
+          options={[
+            { id: 'active',   label: 'نشط'     },
+            { id: 'inactive', label: 'متوقف'   },
+          ]}
+        />
       </div>
 
       <div style={{ display: 'flex', gap: 20, marginTop: 4 }}>

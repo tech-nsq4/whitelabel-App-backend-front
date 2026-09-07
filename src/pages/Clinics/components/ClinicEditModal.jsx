@@ -9,6 +9,7 @@ import {
   deleteSubSpecializationApi,
 } from "../../../api/sub-specializations.api";
 import { useToast } from "../../../components/ui/Toast";
+import { useValidation } from "../../../hooks/useValidation";
 import "../styles/ClinicModals.css";
 
 const EMPTY_SUB = { ar: "", en: "", descAr: "", descEn: "" };
@@ -24,6 +25,8 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
   const [subEditId, setSubEditId] = useState(null);
   const [subSaving, setSubSaving] = useState(false);
   const [subDeleting, setSubDeleting] = useState(null);
+  const { errors: infoErrors, validate: validateInfo, clearError: clearInfoError } = useValidation();
+  const { errors: subErrors, validate: validateSub, clearError: clearSubError, resetErrors: resetSubErrors } = useValidation();
 
   useEffect(() => {
     if (specialty) {
@@ -45,6 +48,8 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
   if (!specialty) return null;
 
   async function handleSaveInfo() {
+    const ok = validateInfo(form, { nameAr: 'اسم التخصص (عربي) مطلوب' });
+    if (!ok) return;
     setSaving(true);
     try {
       await updateSpecializationApi(specialty.id, {
@@ -63,6 +68,7 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
   function openSubCreate() {
     setSubForm(EMPTY_SUB);
     setSubEditId(null);
+    resetSubErrors();
     setSubModal("create");
   }
   function openSubEdit(sub) {
@@ -73,12 +79,13 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
       descEn: sub.description?.en || "",
     });
     setSubEditId(sub.id);
+    resetSubErrors();
     setSubModal("edit");
   }
 
   async function handleSubSave() {
-    if (!subForm.ar.trim() || !subForm.en.trim())
-      return showToast("أدخل الاسم بالعربي والإنجليزي", "error");
+    const ok = validateSub(subForm, { ar: 'الاسم بالعربي مطلوب', en: 'الاسم بالإنجليزي مطلوب' });
+    if (!ok) return;
     setSubSaving(true);
     try {
       const payload = {
@@ -114,7 +121,13 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
       setSubs((prev) => prev.filter((s) => s.id !== id));
       onSave?.();
     } catch (err) {
-      showToast(err.response?.data?.message || "تعذر الحذف", "error");
+      const msg = err.response?.data?.message || ''
+      const arabicMsg = msg.toLowerCase().includes('doctors')
+        ? 'لا يمكن الحذف لأن هناك أطباء مرتبطون بهذا التخصص'
+        : msg.toLowerCase().includes('appointments')
+        ? 'لا يمكن الحذف لأن هناك مواعيد مرتبطة بهذا التخصص'
+        : 'تعذر حذف التخصص الفرعي'
+      showToast(arabicMsg, "error");
     } finally {
       setSubDeleting(null);
     }
@@ -153,12 +166,11 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
               <div className="field">
                 <label className="field-label">اسم التخصص (عربي)</label>
                 <input
-                  className="inp"
+                  className={`inp${infoErrors.nameAr ? ' inp--error' : ''}`}
                   value={form.nameAr}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, nameAr: e.target.value }))
-                  }
+                  onChange={(e) => { setForm((p) => ({ ...p, nameAr: e.target.value })); clearInfoError('nameAr'); }}
                 />
+                {infoErrors.nameAr && <span className="field-error">{infoErrors.nameAr}</span>}
               </div>
               <div className="field">
                 <label className="field-label">اسم التخصص (إنجليزي)</label>
@@ -241,21 +253,23 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
         <div className="field">
           <label className="field-label">الاسم بالعربي</label>
           <input
-            className="inp"
+            className={`inp${subErrors.ar ? ' inp--error' : ''}`}
             value={subForm.ar}
-            onChange={(e) => setSubForm((p) => ({ ...p, ar: e.target.value }))}
+            onChange={(e) => { setSubForm((p) => ({ ...p, ar: e.target.value })); clearSubError('ar'); }}
             placeholder="مثال: جراحة العمود الفقري"
           />
+          {subErrors.ar && <span className="field-error">{subErrors.ar}</span>}
         </div>
         <div className="field">
           <label className="field-label">الاسم بالإنجليزي</label>
           <input
-            className="inp"
+            className={`inp${subErrors.en ? ' inp--error' : ''}`}
             dir="ltr"
             value={subForm.en}
-            onChange={(e) => setSubForm((p) => ({ ...p, en: e.target.value }))}
+            onChange={(e) => { setSubForm((p) => ({ ...p, en: e.target.value })); clearSubError('en'); }}
             placeholder="e.g. Spinal Surgery"
           />
+          {subErrors.en && <span className="field-error">{subErrors.en}</span>}
         </div>
         <div className="field">
           <label className="field-label">الوصف بالعربي</label>

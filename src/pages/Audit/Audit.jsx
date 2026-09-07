@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { auditLogs, actionFilters } from './audit.data'
 import { useToast } from '../../components/ui/Toast'
+import DemoBanner from '../../components/ui/DemoBanner'
 
 export default function Audit() {
   const { showToast } = useToast()
@@ -40,6 +41,8 @@ export default function Audit() {
           </button>
         </div>
       </div>
+
+      <DemoBanner page="سجل النشاط" />
 
       {/* Search + Filters */}
       <div className="panel" style={{ marginBottom: 16 }}>

@@ -1,6 +1,7 @@
 import { useClinics } from '../../../hooks/queries/useClinics'
 import { useDoctors } from '../../../hooks/queries/useDoctors'
 import { useSpecializations } from '../../../hooks/queries/useSpecializations'
+import SpecSelect from '../../../components/ui/SpecSelect'
 import './PromoCodeModal.css'
 
 const today = new Date().toISOString().slice(0, 10)
@@ -80,7 +81,7 @@ function MultiSelect({ label, options, selected, onChange }) {
   )
 }
 
-export default function PromoCodeForm({ form, set }) {
+export default function PromoCodeForm({ form, set, errors = {} }) {
   const { data: clinics = [] }         = useClinics()
   const { data: doctors = [] }         = useDoctors()
   const { data: specializations = [] } = useSpecializations()
@@ -89,8 +90,9 @@ export default function PromoCodeForm({ form, set }) {
     <>
       <div className="field">
         <label className="field-label">كود الخصم</label>
-        <input className="inp promo-code-inp" dir="ltr" placeholder="SAVE20"
+        <input className={`inp promo-code-inp${errors.code ? ' inp--error' : ''}`} dir="ltr" placeholder="SAVE20"
           value={form.code} onChange={e => set('code', e.target.value.toUpperCase())} />
+        {errors.code && <span className="field-error">{errors.code}</span>}
       </div>
 
       <div className="field">
@@ -107,7 +109,8 @@ export default function PromoCodeForm({ form, set }) {
       <div className="field-row">
         <div className="field">
           <label className="field-label">{form.discount_type === 'percentage' ? 'نسبة الخصم (%)' : 'قيمة الخصم (ج.م)'}</label>
-          <input className="inp num" dir="ltr" type="number" min={0} value={form.discount_value} onChange={e => set('discount_value', e.target.value)} placeholder="20" />
+          <input className={`inp num${errors.discount_value ? ' inp--error' : ''}`} dir="ltr" type="number" min={0} value={form.discount_value} onChange={e => set('discount_value', e.target.value)} placeholder="20" />
+          {errors.discount_value && <span className="field-error">{errors.discount_value}</span>}
         </div>
         <div className="field">
           <label className="field-label">الحد الأدنى للطلب (اختياري)</label>
@@ -117,13 +120,17 @@ export default function PromoCodeForm({ form, set }) {
 
       <div className="field">
         <label className="field-label">نطاق الكود</label>
-        <select className="inp" value={form.scope} onChange={e => set('scope', e.target.value)}>
-          <option value="all">كل العيادات</option>
-          <option value="clinics">عيادات محددة</option>
-          <option value="doctors">أطباء محددون</option>
-          <option value="specializations">تخصصات محددة</option>
-          <option value="first_visit">الزيارة الأولى</option>
-        </select>
+        <SpecSelect
+          value={form.scope}
+          onChange={v => set('scope', v)}
+          options={[
+            { id: 'all',             label: 'كل العيادات'   },
+            { id: 'clinics',         label: 'عيادات محددة'  },
+            { id: 'doctors',         label: 'أطباء محددون'  },
+            { id: 'specializations', label: 'تخصصات محددة'  },
+            { id: 'first_visit',     label: 'الزيارة الأولى' },
+          ]}
+        />
       </div>
 
       {form.scope === 'clinics' && (
@@ -163,11 +170,15 @@ export default function PromoCodeForm({ form, set }) {
 
       <div className="field">
         <label className="field-label">الحالة</label>
-        <select className="inp" value={form.status} onChange={e => set('status', e.target.value)}>
-          <option value="active">نشط</option>
-          <option value="paused">متوقف مؤقتاً</option>
-          <option value="inactive">غير نشط</option>
-        </select>
+        <SpecSelect
+          value={form.status}
+          onChange={v => set('status', v)}
+          options={[
+            { id: 'active', label: 'نشط'             },
+            { id: 'paused', label: 'متوقف مؤقتاً'    },
+            { id: 'inactive', label: 'غير نشط'       },
+          ]}
+        />
       </div>
 
       <Toggle label="إيقاف تلقائي عند انتهاء الاستخدام" checked={form.auto_stop} onChange={() => set('auto_stop', !form.auto_stop)} />

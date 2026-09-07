@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import Modal from '../../../components/ui/Modal'
 import { useUpdatePatient } from '../../../hooks/queries/usePatients'
 import { useToast } from '../../../components/ui/Toast'
+import { useValidation } from '../../../hooks/useValidation'
+import PhoneInput, { normalizeSaudiPhone } from '../../../components/ui/PhoneInput'
 
 const toForm = (p) => ({
   name:          p?.name          ?? '',
-  phone:         p?.phone         ?? '',
+  phone:         normalizeSaudiPhone(p?.phone ?? ''),
   email:         p?.email         ?? '',
   date_of_birth: p?.date_of_birth ?? '',
   height:        p?.height        ?? '',
@@ -16,15 +18,18 @@ export default function PatientEditModal({ patient, onClose, onSave }) {
   const { showToast }  = useToast()
   const updatePatient  = useUpdatePatient()
   const [form, setForm] = useState(toForm(patient))
+  const { errors, validate, clearError, resetErrors } = useValidation()
 
   useEffect(() => { setForm(toForm(patient)) }, [patient])
   if (!patient) return null
 
-  function update(field, value) { setForm((f) => ({ ...f, [field]: value })) }
+  function update(field, value) { setForm((f) => ({ ...f, [field]: value })); clearError(field) }
 
   function handleSave() {
+    const ok = validate(form, { name: 'الاسم مطلوب' })
+    if (!ok) return
     updatePatient.mutate({ id: patient.id, data: form }, {
-      onSuccess: () => { showToast('تم تحديث بيانات المريض'); onClose() },
+      onSuccess: () => { showToast('تم تحديث بيانات المريض'); resetErrors(); onClose() },
       onError:   () => showToast('حدث خطأ أثناء التحديث'),
     })
   }
@@ -33,12 +38,13 @@ export default function PatientEditModal({ patient, onClose, onSave }) {
     <Modal open={Boolean(patient)} onClose={onClose} title="تعديل بيانات المريض" subtitle="تحديث بيانات التواصل والمعلومات الصحية">
       <div className="field">
         <label className="field-label" htmlFor="edit-name">الاسم</label>
-        <input id="edit-name" className="inp" value={form.name} onChange={(e) => update('name', e.target.value)} />
+        <input id="edit-name" className={`inp${errors.name ? ' inp--error' : ''}`} value={form.name} onChange={(e) => update('name', e.target.value)} />
+        {errors.name && <span className="field-error">{errors.name}</span>}
       </div>
       <div className="field-row">
         <div className="field">
           <label className="field-label" htmlFor="edit-phone">الجوال</label>
-          <input id="edit-phone" className="inp num" dir="ltr" value={form.phone} onChange={(e) => update('phone', e.target.value)} />
+          <PhoneInput id="edit-phone" value={form.phone} onChange={v => update('phone', v)} />
         </div>
         <div className="field">
           <label className="field-label" htmlFor="edit-email">البريد الإلكتروني</label>

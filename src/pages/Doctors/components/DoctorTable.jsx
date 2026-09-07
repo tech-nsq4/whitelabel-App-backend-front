@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useToast } from '../../../components/ui/Toast'
 import DoctorFileModal from './DoctorFileModal'
 import DoctorEditModal from './DoctorEditModal'
@@ -25,16 +26,29 @@ const BG_COLORS = [
 
 function RowMenu({ onViewFile, onEdit, onSchedule, onDeactivate }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef(null)
+  const [pos, setPos]   = useState({ top: 0, left: 0 })
+  const btnRef = useRef(null)
+  const menuRef = useRef(null)
 
   useEffect(() => {
     if (!open) return
     function handler(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+      if (
+        menuRef.current && !menuRef.current.contains(e.target) &&
+        btnRef.current  && !btnRef.current.contains(e.target)
+      ) setOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
+
+  function handleOpen() {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 4, left: r.left })
+    }
+    setOpen(v => !v)
+  }
 
   const items = [
     { label: 'عرض الملف',      action: () => { onViewFile();   setOpen(false) } },
@@ -44,16 +58,16 @@ function RowMenu({ onViewFile, onEdit, onSchedule, onDeactivate }) {
   ]
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <button className="icon-btn" style={{ width: 32, height: 32 }} aria-label="المزيد" onClick={() => setOpen(v => !v)}>
+    <>
+      <button ref={btnRef} className="icon-btn" style={{ width: 32, height: 32 }} aria-label="المزيد" onClick={handleOpen}>
         {MORE_ICON}
       </button>
-      {open && (
-        <div style={{
-          position: 'absolute', top: '100%', left: 0, zIndex: 9999,
+      {open && createPortal(
+        <div ref={menuRef} style={{
+          position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999,
           background: 'var(--card)', border: '1px solid var(--line)',
           borderRadius: 10, boxShadow: '0 8px 24px rgba(10,31,27,0.12)',
-          minWidth: 155, overflow: 'hidden', marginTop: 4,
+          minWidth: 160, overflow: 'hidden',
         }}>
           {items.map((item) => (
             <button key={item.label} onClick={item.action}
@@ -62,9 +76,10 @@ function RowMenu({ onViewFile, onEdit, onSchedule, onDeactivate }) {
               onMouseLeave={e => e.currentTarget.style.background = 'none'}
             >{item.label}</button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   )
 }
 

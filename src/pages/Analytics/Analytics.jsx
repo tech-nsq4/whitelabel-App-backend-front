@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { useToast } from "../../components/ui/Toast";
+import DemoBanner from "../../components/ui/DemoBanner";
 
 import AnalyticsStats from "./components/AnalyticsStats";
 import RevenueBySpecialty from "./components/RevenueBySpecialty";
@@ -79,6 +80,7 @@ export default function Analytics() {
       </div>
 
       {/* Analytics Statistics */}
+      <DemoBanner page="التحليلات الشاملة" />
       <AnalyticsStats />
 
       {/* Charts */}

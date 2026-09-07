@@ -6,6 +6,9 @@ import { getSpecializationsApi } from "../../../api/specializations.api";
 import { useToast } from "../../../components/ui/Toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { DOCTORS_KEY } from "../../../hooks/queries/useDoctors";
+import { useValidation } from "../../../hooks/useValidation";
+import PhoneInput, { normalizeSaudiPhone } from "../../../components/ui/PhoneInput";
+import SpecSelect from "../../../components/ui/SpecSelect";
 
 export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
   const { showToast } = useToast();
@@ -16,6 +19,7 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
   const [saving, setSaving] = useState(false);
   const [pwForm, setPwForm] = useState({ password: '', password_confirmation: '' });
   const [savingPw, setSavingPw] = useState(false);
+  const { errors, validate, clearError, resetErrors } = useValidation();
 
   useEffect(() => {
     getClinicsApi()
@@ -32,7 +36,7 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
     setForm({
       first_name: nameParts[0] || "",
       last_name: nameParts.slice(1).join(" ") || "",
-      phone: doctor.phone || "",
+      phone: normalizeSaudiPhone(doctor.phone || ""),
       email: doctor.email || "",
       specialization_id: doctor.specializations?.[0]?.id || "",
       clinic_ids:
@@ -51,6 +55,7 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
 
   function set(k, v) {
     setForm((p) => ({ ...p, [k]: v }));
+    clearError(k);
   }
 
   function toggleClinic(id) {
@@ -63,7 +68,8 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
   }
 
   async function handleSave() {
-    if (!form.first_name.trim()) return showToast("أدخل الاسم الأول", "error");
+    const ok = validate(form, { first_name: 'الاسم الأول مطلوب' });
+    if (!ok) return;
     setSaving(true);
     try {
       await updateDoctorApi(doctor.id, {
@@ -87,6 +93,7 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
       });
       qc.invalidateQueries({ queryKey: DOCTORS_KEY });
       showToast("تم حفظ التغييرات بنجاح", "success");
+      resetErrors();
       onSave && onSave();
       onClose();
     } catch (err) {
@@ -126,10 +133,11 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
         <div className="field">
           <label className="field-label">الاسم الأول</label>
           <input
-            className="inp"
+            className={`inp${errors.first_name ? ' inp--error' : ''}`}
             value={form.first_name || ""}
             onChange={(e) => set("first_name", e.target.value)}
           />
+          {errors.first_name && <span className="field-error">{errors.first_name}</span>}
         </div>
         <div className="field">
           <label className="field-label">اسم العائلة</label>
@@ -145,28 +153,16 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
       <div className="field-row">
         <div className="field">
           <label className="field-label">التخصص</label>
-          <select
-            className="inp"
+          <SpecSelect
             value={form.specialization_id || ""}
-            onChange={(e) => set("specialization_id", e.target.value)}
-          >
-            <option value="">اختر التخصص</option>
-            {specializations.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.title?.ar}
-              </option>
-            ))}
-          </select>
+            onChange={v => set("specialization_id", v)}
+            options={specializations.map(s => ({ id: s.id, label: s.title?.ar || s.title }))}
+            placeholder="اختر التخصص"
+          />
         </div>
         <div className="field">
           <label className="field-label">الجوال</label>
-          <input
-            className="inp num"
-            dir="ltr"
-            placeholder="+966 55 XXX XXXX"
-            value={form.phone || ""}
-            onChange={(e) => set("phone", e.target.value)}
-          />
+          <PhoneInput value={form.phone || ""} onChange={v => set("phone", v)} />
         </div>
       </div>
 
@@ -278,7 +274,12 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
       {form.pricing_type === "per_branch" && (
         <div className="field">
           <label className="field-label">أسعار الفروع</label>
-          {clinics.map((c) => (
+          {clinics.filter(c => form.clinic_ids.includes(c.id)).length === 0 && (
+            <div style={{ fontSize: 12, color: "var(--warn)", marginTop: 8 }}>
+              ⚠️ اختر فرعاً على الأقل من قسم الفروع أعلاه
+            </div>
+          )}
+          {clinics.filter(c => form.clinic_ids.includes(c.id)).map((c) => (
             <div
               key={c.id}
               style={{

@@ -44,6 +44,7 @@ const COLS = [
   { key: "time", label: "الوقت", width: 90 },
   { key: "type", label: "النوع", width: 90 },
   { key: "status", label: "الحالة", width: 100 },
+  { key: "rating", label: "التقييم", width: 110 },
   { key: "actions", label: "", width: 50 },
 ];
 
@@ -280,6 +281,32 @@ export default function AppointmentsTable({ clinicFilter, dateRange }) {
                         >
                           {status.label}
                         </span>
+                      </td>
+
+                      <td>
+                        {a.rate ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: '#C9A227' }}>
+                                {Number(a.rate).toFixed(1)}
+                              </span>
+                              <div style={{ display: 'flex', gap: 1 }}>
+                                {[1,2,3,4,5].map(s => (
+                                  <svg key={s} width="11" height="11" viewBox="0 0 24 24" fill={s <= Math.round(a.rate) ? '#C9A227' : 'none'} stroke="#C9A227" strokeWidth="2">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                  </svg>
+                                ))}
+                              </div>
+                            </div>
+                            {a.comment && (
+                              <span style={{ fontSize: 10.5, color: 'var(--ink-45)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={a.comment}>
+                                {a.comment}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: 12, color: 'var(--ink-25)' }}>—</span>
+                        )}
                       </td>
 
                       <td>

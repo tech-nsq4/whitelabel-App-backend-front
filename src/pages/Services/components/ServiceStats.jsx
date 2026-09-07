@@ -73,7 +73,7 @@ export default function ServiceStats({
       id: "total",
       label: "إجمالي الخدمات",
       value: String(totalServices),
-      note: "تخصص فرعي",
+      note: "خدمة طبية",
       icon: "bag",
     },
     {
@@ -82,20 +82,6 @@ export default function ServiceStats({
       value: String(totalSpecialties),
       note: "تخصص طبي",
       icon: "grid",
-    },
-    {
-      id: "top",
-      label: "أعلى إيراداً",
-      value: "—",
-      note: "غير متاح",
-      icon: "trend",
-    },
-    {
-      id: "avg",
-      label: "متوسط سعر الكشف",
-      value: "—",
-      note: "غير متاح",
-      icon: "card",
     },
   ];
 

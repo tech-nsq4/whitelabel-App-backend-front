@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
 import { useClinics } from "../../../hooks/queries/useClinics";
 import { useDoctors } from "../../../hooks/queries/useDoctors";
+import { useValidation } from "../../../hooks/useValidation";
 import { ChevronDown, Check } from "lucide-react";
 
 // ── Custom Select ──────────────────────────────
@@ -136,13 +137,16 @@ const VISIT_TYPES = ["كشف عام", "إعادة كشف", "استشارة سر�
 
 export default function WalkInModal({ open, onClose, onSubmit }) {
   const [form, setForm] = useState(INITIAL);
+  const { errors, validate, clearError, resetErrors } = useValidation();
 
   const { data: clinics = [] } = useClinics();
   const { data: doctors = [] } = useDoctors();
 
   const filteredDoctors = useMemo(() => {
     if (!form.clinicId) return doctors;
-    return doctors.filter((d) => String(d.clinic_id) === String(form.clinicId));
+    return doctors.filter((d) =>
+      d.clinics?.some((c) => String(c.id) === String(form.clinicId))
+    );
   }, [doctors, form.clinicId]);
 
   const clinicOptions = clinics.map((c) => ({
@@ -161,10 +165,12 @@ export default function WalkInModal({ open, onClose, onSubmit }) {
       if (field === "clinicId") next.doctorId = "";
       return next;
     });
+    clearError(field);
   }
 
   function handleSubmit() {
-    if (!form.name.trim()) return;
+    const ok = validate(form, { name: 'اسم المريض مطلوب' });
+    if (!ok) return;
     const doctor = doctors.find((d) => String(d.id) === String(form.doctorId));
     const clinic = clinics.find((c) => String(c.id) === String(form.clinicId));
     onSubmit({
@@ -173,10 +179,12 @@ export default function WalkInModal({ open, onClose, onSubmit }) {
       clinicName: clinic?.name?.ar || "",
     });
     setForm(INITIAL);
+    resetErrors();
   }
 
   function handleClose() {
     setForm(INITIAL);
+    resetErrors();
     onClose();
   }
 
@@ -190,11 +198,12 @@ export default function WalkInModal({ open, onClose, onSubmit }) {
       <div className="field">
         <label className="field-label">المريض</label>
         <input
-          className="inp"
+          className={`inp${errors.name ? ' inp--error' : ''}`}
           placeholder="ابحث بالاسم أو رقم الملف…"
           value={form.name}
           onChange={(e) => set("name", e.target.value)}
         />
+        {errors.name && <span className="field-error">{errors.name}</span>}
       </div>
 
       <div className="field-row">
@@ -247,7 +256,6 @@ export default function WalkInModal({ open, onClose, onSubmit }) {
         <button
           className="btn btn-p"
           onClick={handleSubmit}
-          disabled={!form.name.trim()}
         >
           تسجيل في الطابور
         </button>

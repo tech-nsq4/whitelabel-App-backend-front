@@ -10,6 +10,7 @@ import {
 import { useCities } from "../../hooks/queries/useCities";
 import { SkeletonList } from "../../components/ui/Skeleton";
 import Modal from "../../components/ui/Modal";
+import SpecSelect from "../../components/ui/SpecSelect";
 
 const EMPTY = { ar: "", en: "", city_id: "", area_id: "" };
 
@@ -214,33 +215,21 @@ export default function Locations() {
         <div className="field-row">
           <div className="field">
             <label className="field-label">المدينة</label>
-            <select
-              className="inp"
-              value={form.city_id}
-              onChange={(e) => handleCityChange(e.target.value)}
-            >
-              {cities.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name?.ar}
-                </option>
-              ))}
-            </select>
+            <SpecSelect
+              value={String(form.city_id)}
+              onChange={(v) => handleCityChange(v)}
+              options={cities.map(c => ({ id: c.id, label: c.name?.ar || c.name }))}
+              placeholder="اختر المدينة"
+            />
           </div>
           <div className="field">
             <label className="field-label">المنطقة</label>
-            <select
-              className="inp"
-              value={form.area_id}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, area_id: Number(e.target.value) }))
-              }
-            >
-              {areas.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name?.ar}
-                </option>
-              ))}
-            </select>
+            <SpecSelect
+              value={String(form.area_id)}
+              onChange={(v) => setForm(p => ({ ...p, area_id: Number(v) }))}
+              options={areas.map(a => ({ id: a.id, label: a.name?.ar || a.name }))}
+              placeholder="اختر المنطقة"
+            />
           </div>
         </div>
         <div
