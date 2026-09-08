@@ -44,12 +44,17 @@ export default function EditClinicManagerModal({ manager, onClose }) {
     if (!ok) return;
     setSaving(true);
     try {
+      // Normalize phone: strip all prefixes, send bare local number e.g. 512345678
+      const phone = form.phone
+        ? form.phone.replace(/^\+966/, '').replace(/^966/, '').replace(/^0/, '').trim()
+        : ''
+
       await updateManager.mutateAsync({
         id: manager.id,
         data: {
           name:             form.name,
           email:            form.email,
-          phone:            form.phone,
+          phone,
           management_scope: form.management_scope,
           clinic_id:   form.management_scope === "clinic"   ? form.clinic_id   || null : null,
           location_id: form.management_scope === "location" ? form.location_id || null : null,

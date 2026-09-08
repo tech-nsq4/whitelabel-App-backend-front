@@ -43,10 +43,15 @@ export default function NewClinicManagerModal({ open, onClose }) {
     if (!ok) return;
     setSaving(true);
     try {
+      // Normalize phone: strip all prefixes, send bare local number e.g. 512345678
+      const phone = form.phone
+        ? form.phone.replace(/^\+966/, '').replace(/^966/, '').replace(/^0/, '').trim()
+        : ''
+
       await createManager.mutateAsync({
         name: form.name,
         email: form.email,
-        phone: form.phone,
+        phone,
         password: form.password,
         password_confirmation: form.password,
         management_scope: form.management_scope,

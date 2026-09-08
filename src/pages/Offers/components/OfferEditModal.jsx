@@ -27,7 +27,7 @@ export default function OfferEditModal({ open, offer, onClose }) {
     if (!ok) return
     setSaving(true)
     try {
-      await updateOffer.mutateAsync({ id: offer.id, data: buildOfferPayload(form) })
+      await updateOffer.mutateAsync({ id: offer.id, data: buildOfferPayload(form, true) })
       showToast('تم حفظ التغييرات', 'success')
       resetErrors()
       onClose()

@@ -85,9 +85,11 @@ function OfferCard({ offer, index, onEdit, onDelete }) {
       <div className="offer-card-header">
         <div
           className="offer-card-icon"
-          style={{ background: dCfg.bg, color: dCfg.color }}
+          style={offer.cover ? {} : { background: dCfg.bg, color: dCfg.color }}
         >
-          {dCfg.icon}
+          {offer.cover
+            ? <img src={offer.cover} alt={offer.name?.ar} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 10 }} />
+            : dCfg.icon}
         </div>
         <div className="offer-card-header-info">
           <div className="offer-card-name">{offer.name?.ar}</div>
