@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Modal from '../../../components/ui/Modal'
 import { useToast } from '../../../components/ui/Toast'
-import { useUpdateOffer } from '../../../hooks/queries/useOffers'
+import { useUpdateOffer, useOffer } from '../../../hooks/queries/useOffers'
 import OfferForm, { buildOfferPayload, offerToForm } from './OfferForm'
 import { useValidation } from '../../../hooks/useValidation'
 import './OfferModal.css'
@@ -13,9 +13,13 @@ export default function OfferEditModal({ open, offer, onClose }) {
   const updateOffer = useUpdateOffer()
   const { errors, validate, clearError, resetErrors } = useValidation()
 
+  // دايمًا نجيب أحدث بيانات من السيرفر لما المودال يفتح
+  const { data: freshOffer } = useOffer(open ? offer?.id : null)
+
   useEffect(() => {
-    if (offer) setForm(offerToForm(offer))
-  }, [offer])
+    const src = freshOffer || offer
+    if (src) setForm(offerToForm(src))
+  }, [freshOffer, offer])
 
   function set(k, v) { setForm(p => ({ ...p, [k]: v })); clearError(k) }
 

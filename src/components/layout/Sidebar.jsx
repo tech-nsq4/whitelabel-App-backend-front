@@ -25,6 +25,9 @@ import {
   CalendarClock,
   FileText,
   Tag,
+  Image,
+  Phone,
+  MessageSquare,
 } from "lucide-react";
 import "./Sidebar.css";
 import { useBranding } from "../../hooks/useBranding";
@@ -157,6 +160,13 @@ const NAV = [
         permission: "appointments.view",
       },
       {
+        id: "banners",
+        label: "البانرات الإعلانية",
+        path: "/banners",
+        icon: <Image size={18} strokeWidth={1.7} />,
+        permission: "banners.view",
+      },
+      {
         id: "offers",
         label: "العروض والخصومات",
         path: "/offers",
@@ -208,6 +218,20 @@ const NAV = [
   {
     section: "النظام",
     items: [
+      {
+        id: "contact-messages",
+        label: "رسائل التواصل",
+        path: "/contact-messages",
+        icon: <MessageSquare size={18} strokeWidth={1.7} />,
+        permission: "contact-messages.view",
+      },
+      {
+        id: "contact-info",
+        label: "بيانات التواصل",
+        path: "/contact-info",
+        icon: <Phone size={18} strokeWidth={1.7} />,
+        permission: "contact-info.view",
+      },
       {
         id: "branding",
         label: "الهوية البصرية",

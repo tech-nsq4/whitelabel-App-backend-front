@@ -1,5 +1,25 @@
 export const colorPalettes = [
   {
+    id: "viva",
+    label: "Viva Connect",
+    gradient: "linear-gradient(135deg,#113C7A,#00A0A1)",
+    vars: {
+      "--brand": "#113C7A",
+      "--brand-d": "#0d2f61",
+      "--brand-l": "#00A0A1",
+      "--ok": "#00A0A1",
+      "--focus-ring": "rgba(0,160,161,0.22)",
+      "--sand": "#E6F5F5",
+      "--paper": "#EFF8F8",
+      "--surface-subtle": "#F5FBFB",
+      "--sidebar-bg-top": "#0a2247",
+      "--sidebar-bg-bot": "#06152c",
+      "--sidebar-active-from": "rgba(0,160,161,.96)",
+      "--sidebar-active-to": "#006a6a",
+      "--sidebar-active-shadow": "rgba(0,106,106,0.34)",
+    },
+  },
+  {
     id: "emerald",
     label: "الزمردي",
     gradient: "linear-gradient(135deg,#0F6B5C,#1A8B77)",

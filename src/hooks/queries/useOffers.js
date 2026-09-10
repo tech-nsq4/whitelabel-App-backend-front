@@ -13,6 +13,7 @@ export function useOffers(params) {
   return useQuery({
     queryKey: [...OFFERS_KEY, params],
     queryFn: () => getOffersApi(params).then((r) => r.data.data || []),
+    staleTime: 0,
   });
 }
 
@@ -21,6 +22,7 @@ export function useOffer(id) {
     queryKey: [...OFFERS_KEY, id],
     queryFn: () => getOfferApi(id).then((r) => r.data.data),
     enabled: !!id,
+    staleTime: 0,
   });
 }
 

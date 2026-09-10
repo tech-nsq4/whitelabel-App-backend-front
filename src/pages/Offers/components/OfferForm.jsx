@@ -36,7 +36,7 @@ export function buildOfferPayload(form, isUpdate = false) {
   fd.append("description[ar]", form.descAr);
   fd.append("description[en]", form.descEn || form.descAr);
   fd.append("discount_type", form.discount_type);
-  fd.append("discount_value", Number(form.discount_value));
+  fd.append("discount_value", Number(form.discount_value) || 0);
   if (form.max_discount_amount)
     fd.append("max_discount_amount", Number(form.max_discount_amount));
   fd.append("scope", form.scope);
@@ -51,9 +51,10 @@ export function buildOfferPayload(form, isUpdate = false) {
   const doctorIds = form.scope === "doctors" ? form.doctor_ids : [];
   const specializationIds =
     form.scope === "specializations" ? form.specialization_ids : [];
-  clinicIds.forEach((id) => fd.append("clinic_ids[]", id));
-  doctorIds.forEach((id) => fd.append("doctor_ids[]", id));
-  specializationIds.forEach((id) => fd.append("specialization_ids[]", id));
+  // نبعت الـ arrays بس لو scope محدد — لو all مانبعتش حاجة
+  if (clinicIds.length > 0) clinicIds.forEach((id) => fd.append("clinic_ids[]", id));
+  if (doctorIds.length > 0) doctorIds.forEach((id) => fd.append("doctor_ids[]", id));
+  if (specializationIds.length > 0) specializationIds.forEach((id) => fd.append("specialization_ids[]", id));
   if (form.cover instanceof File) fd.append("cover", form.cover);
   return fd;
 }

@@ -66,6 +66,9 @@ const TimeTables = lazy(() => import("../pages/TimeTables/TimeTables"));
 const NewTimeTable = lazy(() => import("../pages/TimeTables/NewTimeTable"));
 const EditTimeTable = lazy(() => import("../pages/TimeTables/EditTimeTable"));
 const Pages = lazy(() => import("../pages/Pages/Pages"));
+const ContactMessages = lazy(() => import('../pages/ContactMessages/ContactMessages'))
+const ContactInfo = lazy(() => import('../pages/ContactInfo/ContactInfo'))
+const Banners = lazy(() => import('../pages/Banners/Banners'))
 const Offers = lazy(() => import("../pages/Offers/Offers"));
 const PromoCodes = lazy(() => import("../pages/PromoCodes/PromoCodes"));
 
@@ -112,6 +115,9 @@ const protectedRoutes = [
   { path: ROUTES.TIME_TABLES + "/new", element: <NewTimeTable /> },
   { path: ROUTES.TIME_TABLES + "/:id/edit", element: <EditTimeTable /> },
   { path: ROUTES.PAGES, element: <Pages /> },
+  { path: ROUTES.CONTACT_MESSAGES, element: <ContactMessages />, permission: 'contact-messages.view' },
+  { path: ROUTES.CONTACT_INFO, element: <ContactInfo />, permission: 'contact-info.view' },
+  { path: ROUTES.BANNERS, element: <Banners />, permission: 'banners.view' },
   { path: ROUTES.OFFERS, element: <Offers />, permission: "offers.view" },
   {
     path: ROUTES.PROMO_CODES,
