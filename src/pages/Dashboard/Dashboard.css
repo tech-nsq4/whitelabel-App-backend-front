@@ -339,6 +339,7 @@
 .dashboard-table-panel table.data td {
   padding-top: 15px;
   padding-bottom: 15px;
+  direction: rtl;
 }
 .dashboard-table-panel .avatar {
   box-shadow: 0 3px 8px rgba(15, 107, 92, 0.18);

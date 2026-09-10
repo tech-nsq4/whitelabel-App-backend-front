@@ -129,7 +129,6 @@ export default function ContactMessages() {
                     <th>الاسم</th>
                     <th>البريد الإلكتروني</th>
                     <th>الموضوع</th>
-                    <th>رقم الهاتف</th>
                     <th>التاريخ</th>
                     <th></th>
                   </tr>
@@ -150,7 +149,6 @@ export default function ContactMessages() {
                           {m.subject || '—'}
                         </span>
                       </td>
-                      <td dir="ltr" style={{ fontSize: 13, color: 'var(--ink-70)' }}>{m.phone || '—'}</td>
                       <td style={{ fontSize: 12, color: 'var(--ink-45)', whiteSpace: 'nowrap' }}>
                         {m.created_at ? new Date(m.created_at).toLocaleDateString('ar-EG') : '—'}
                       </td>
