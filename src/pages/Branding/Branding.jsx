@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { colorPalettes, defaultBranding } from "./branding.data";
 import { useToast } from "../../components/ui/Toast";
 import { saveBranding } from "../../hooks/useBranding";
+import { getVisualIdentityApi, updateVisualIdentityApi } from "../../api/visual-identity.api";
 
 const S = {
   stroke: "currentColor",
@@ -33,7 +34,30 @@ export default function Branding() {
   const [logo, setLogo] = useState(
     () => localStorage.getItem("brandingLogo") || null,
   );
+  const [logoFile, setLogoFile] = useState(null);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Load from API on mount
+  useEffect(() => {
+    getVisualIdentityApi().then(({ data }) => {
+      const d = data?.data;
+      if (!d) return;
+      if (d.clinic_name?.ar) setNameAr(d.clinic_name.ar);
+      if (d.clinic_name?.en) setNameEn(d.clinic_name.en);
+      if (d.logo) {
+        setLogo(d.logo);
+        saveBranding({ logo: d.logo });
+      }
+      if (d.color) {
+        const matched = colorPalettes.find(p => p.vars['--brand'] === d.color);
+        if (matched) {
+          setPalette(matched.id);
+          Object.entries(matched.vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+        }
+      }
+    }).catch(() => {});
+  }, []);
 
   function handleLogoFile(file) {
     if (!file) return;
@@ -41,6 +65,7 @@ export default function Branding() {
       showToast("الملف أكبر من 2MB");
       return;
     }
+    setLogoFile(file);
     const reader = new FileReader();
     reader.onload = (e) => {
       setLogo(e.target.result);
@@ -71,12 +96,27 @@ export default function Branding() {
         <div className="page-actions">
           <button
             className="btn btn-p"
-            onClick={() => {
-              saveBranding({ nameAr, nameEn, logo });
-              showToast("تم حفظ الإعدادات");
+            disabled={saving}
+            onClick={async () => {
+              setSaving(true);
+              try {
+                const activePal = colorPalettes.find(p => p.id === palette);
+                const formData = new FormData();
+                formData.append('clinic_name[ar]', nameAr);
+                formData.append('clinic_name[en]', nameEn);
+                formData.append('color', activePal?.vars['--brand'] || '#0F6B5C');
+                if (logoFile) formData.append('logo', logoFile);
+                await updateVisualIdentityApi(formData);
+                saveBranding({ nameAr, nameEn, logo });
+                showToast("تم حفظ الإعدادات", "success");
+              } catch {
+                showToast("حدث خطأ أثناء الحفظ", "error");
+              } finally {
+                setSaving(false);
+              }
             }}
           >
-            حفظ الإعدادات
+            {saving ? 'جاري الحفظ...' : 'حفظ الإعدادات'}
           </button>
         </div>
       </div>

@@ -32,4 +32,7 @@ export const ROUTES = {
   CLINIC_MANAGERS: '/clinic-managers',
   TIME_TABLES:     '/time-tables',
   PAGES:           '/pages',
+  SPLASHES:        '/splashes',
+  FINANCE:         '/finance',
+  DOCTOR_REVIEWS:  '/doctor-reviews',
 }

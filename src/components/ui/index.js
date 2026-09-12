@@ -1,6 +1,6 @@
 export { default as KpiCard }   from './KpiCard'
 export { default as Modal }     from './Modal'
-export { default as Toast, ToastProvider, useToast } from './Toast'
+export { ToastProvider, useToast } from './Toast'
 export { SkeletonList, SkeletonTable, SkeletonCards, SkeletonBox } from './Skeleton'
 export { default as PhoneInput } from './PhoneInput'
 export { default as SpecSelect } from './SpecSelect'

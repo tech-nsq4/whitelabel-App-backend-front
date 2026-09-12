@@ -28,6 +28,9 @@ import {
   Image,
   Phone,
   MessageSquare,
+  Smartphone,
+  TrendingUp,
+  Star,
 } from "lucide-react";
 import "./Sidebar.css";
 import { useBranding } from "../../hooks/useBranding";
@@ -120,6 +123,12 @@ const NAV = [
         permission: "time-tables.view",
       },
       {
+        id: "doctor-reviews",
+        label: "تقييمات الأطباء",
+        path: "/doctor-reviews",
+        icon: <Star size={18} strokeWidth={1.7} />,
+      },
+      {
         id: "services",
         label: "الخدمات والأسعار",
         path: "/services",
@@ -158,6 +167,12 @@ const NAV = [
         path: "/billing",
         icon: <CreditCard size={18} strokeWidth={1.7} />,
         permission: "appointments.view",
+      },
+      {
+        id: "finance",
+        label: "المالية",
+        path: "/finance",
+        icon: <TrendingUp size={18} strokeWidth={1.7} />,
       },
       {
         id: "banners",
@@ -245,6 +260,13 @@ const NAV = [
         path: "/pages",
         icon: <FileText size={18} strokeWidth={1.7} />,
         superAdminOnly: true,
+      },
+      {
+        id: "splashes",
+        label: "شاشات البداية",
+        path: "/splashes",
+        icon: <Smartphone size={18} strokeWidth={1.7} />,
+        permission: "splashes.view",
       },
       {
         id: "settings",

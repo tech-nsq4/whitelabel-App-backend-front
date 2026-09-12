@@ -71,6 +71,9 @@ const ContactInfo = lazy(() => import('../pages/ContactInfo/ContactInfo'))
 const Banners = lazy(() => import('../pages/Banners/Banners'))
 const Offers = lazy(() => import("../pages/Offers/Offers"));
 const PromoCodes = lazy(() => import("../pages/PromoCodes/PromoCodes"));
+const Splashes = lazy(() => import("../pages/Splashes/Splashes"));
+const Finance = lazy(() => import("../pages/Finance/Finance"));
+const DoctorReviews = lazy(() => import("../pages/DoctorReviews/DoctorReviews"));
 
 const protectedRoutes = [
   { path: ROUTES.DASHBOARD, element: <Dashboard /> },
@@ -124,6 +127,9 @@ const protectedRoutes = [
     element: <PromoCodes />,
     permission: "promo-codes.view",
   },
+  { path: ROUTES.SPLASHES, element: <Splashes />, permission: 'splashes.view' },
+  { path: ROUTES.FINANCE, element: <Finance /> },
+  { path: ROUTES.DOCTOR_REVIEWS, element: <DoctorReviews /> },
 ];
 
 export default function AppRoutes() {
