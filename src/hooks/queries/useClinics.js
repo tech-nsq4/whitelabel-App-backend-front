@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getClinicsApi,
+  getClinicApi,
   createClinicApi,
   updateClinicApi,
   deleteClinicApi,
@@ -16,10 +17,17 @@ export function useClinics() {
     queryKey: [...CLINICS_KEY, { adminClinicIds }],
     queryFn: async () => {
       const all = await getClinicsApi().then((r) => r.data.data || []);
-      // لو الأدمن محدود بعيادات، بنفلتر من الـ response
       if (managesAllClinics || !adminClinicIds?.length) return all;
       return all.filter((c) => adminClinicIds.includes(c.id));
     },
+  });
+}
+
+export function useClinic(id) {
+  return useQuery({
+    queryKey: [...CLINICS_KEY, id],
+    queryFn: () => getClinicApi(id).then((r) => r.data.data),
+    enabled: !!id,
   });
 }
 

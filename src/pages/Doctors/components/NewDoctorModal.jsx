@@ -70,13 +70,16 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
       return showToast("كلمة المرور غير متطابقة", "error");
     setSaving(true);
     try {
+      const phone = form.phone
+        ? form.phone.replace(/^\+966/, '').replace(/^966/, '').replace(/^0/, '').trim()
+        : ''
       await createDoctorApi({
         name: {
           ar: `${form.first_name} ${form.last_name}`.trim(),
           en: `${form.first_name} ${form.last_name}`.trim(),
         },
         description: { ar: form.descAr || "", en: form.descAr || "" },
-        phone: form.phone,
+        phone,
         email: form.email,
         password: form.password,
         password_confirmation: form.password_confirmation,

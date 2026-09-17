@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 
 function getStored() {
   return {
-    nameAr: localStorage.getItem("brandingNameAr") || "مجمع الشفاء",
-    nameEn: localStorage.getItem("brandingNameEn") || "Al Shifa Medical",
-    logo: localStorage.getItem("brandingLogo") || null,
+    nameAr: localStorage.getItem("brandingNameAr") || "مجمع الشفاء الطبي",
+    nameEn: localStorage.getItem("brandingNameEn") || "Al Shifa Medical Complex",
+    logo:   localStorage.getItem("brandingLogo")   || null,
   };
 }
 

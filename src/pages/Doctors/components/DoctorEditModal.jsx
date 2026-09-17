@@ -72,13 +72,16 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
     if (!ok) return;
     setSaving(true);
     try {
+      const phone = form.phone
+        ? form.phone.replace(/^\+966/, '').replace(/^966/, '').replace(/^0/, '').trim()
+        : ''
       await updateDoctorApi(doctor.id, {
         name: {
           ar: `${form.first_name} ${form.last_name}`.trim(),
           en: `${form.first_name} ${form.last_name}`.trim(),
         },
         description: { ar: form.descAr || "", en: form.descAr || "" },
-        phone: form.phone,
+        phone,
         email: form.email,
         experience: Number(form.experience) || 0,
         price: form.price,

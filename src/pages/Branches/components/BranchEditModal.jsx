@@ -6,7 +6,15 @@ import PhoneInput, { normalizeSaudiPhone } from "../../../components/ui/PhoneInp
 export default function BranchEditModal({ branch, onClose, onSave }) {
   const [form, setForm] = useState(branch);
   const { errors, validate, clearError, resetErrors } = useValidation();
-  useEffect(() => setForm(branch ? { ...branch, phone: normalizeSaudiPhone(branch.phone || '') } : branch), [branch]);
+  useEffect(() => {
+    if (!branch) { setForm(branch); return; }
+    setForm({
+      ...branch,
+      name: branch.name?.ar || branch.name || '',
+      address: branch.address?.ar || branch.address || '',
+      phone: normalizeSaudiPhone(branch.phone || ''),
+    });
+  }, [branch]);
   if (!branch || !form) return null;
   const update = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));

@@ -17,6 +17,7 @@ import {
 } from "../../hooks/queries/useClinics";
 
 import { useDoctors } from "../../hooks/queries/useDoctors";
+import { useUpdateClinicManager } from "../../hooks/queries/useClinicManagers";
 
 import "./styles/Branches.css";
 
@@ -49,6 +50,7 @@ export default function Branches() {
   const createClinic = useCreateClinic();
   const updateClinic = useUpdateClinic();
   const deleteClinic = useDeleteClinic();
+  const updateManager = useUpdateClinicManager();
 
   // ================================
   // Selected Clinic
@@ -133,7 +135,8 @@ export default function Branches() {
     }
 
     try {
-      await createClinic.mutateAsync({
+      // 1. Create the clinic
+      const res = await createClinic.mutateAsync({
         name: {
           ar: data.name,
           en: data.name,
@@ -146,12 +149,27 @@ export default function Branches() {
 
         location_id: data.location_id || null,
 
+        phone: data.phone || null,
+
+        status: data.status || "active",
+
         lat: 0,
         lng: 0,
       });
 
-      showToast("تم إضافة الفرع بنجاح");
+      // 2. If a manager was selected, link them to this new clinic
+      const newClinicId = res?.data?.data?.id;
+      if (data.manager_id && newClinicId) {
+        await updateManager.mutateAsync({
+          id: data.manager_id,
+          data: {
+            clinic_id: newClinicId,
+            management_scope: "clinic",
+          },
+        });
+      }
 
+      showToast("تم إضافة الفرع بنجاح");
       setModalOpen(false);
     } catch {
       showToast("فشل إضافة الفرع", "error");

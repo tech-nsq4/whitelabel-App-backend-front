@@ -25,8 +25,9 @@ export default function PhoneInput({ value = '', onChange, id, className = '', p
 
   function handleChange(e) {
     // Allow only digits and spaces
-    const raw = e.target.value.replace(/[^\d\s]/g, '')
-    const trimmed = raw.trimStart().slice(0, 13)
+    const raw = e.target.value.replace(/[^\d]/g, '')
+    // Saudi local number: 9 digits after +966 (e.g. 512345678)
+    const trimmed = raw.slice(0, 9)
     onChange(trimmed ? `${PREFIX}${trimmed}` : '')
   }
 

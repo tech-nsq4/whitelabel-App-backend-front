@@ -43,8 +43,14 @@ export default function Branding() {
     getVisualIdentityApi().then(({ data }) => {
       const d = data?.data;
       if (!d) return;
-      if (d.clinic_name?.ar) setNameAr(d.clinic_name.ar);
-      if (d.clinic_name?.en) setNameEn(d.clinic_name.en);
+      if (d.clinic_name?.ar) {
+        setNameAr(d.clinic_name.ar);
+        saveBranding({ nameAr: d.clinic_name.ar });
+      }
+      if (d.clinic_name?.en) {
+        setNameEn(d.clinic_name.en);
+        saveBranding({ nameEn: d.clinic_name.en });
+      }
       if (d.logo) {
         setLogo(d.logo);
         saveBranding({ logo: d.logo });

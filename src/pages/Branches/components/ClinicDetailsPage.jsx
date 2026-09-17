@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { ArrowRight, Phone, Clock, User, Star } from 'lucide-react'
-import { useClinicDashboard } from '../../../hooks/queries/useClinics'
+import { useClinicDashboard, useClinic } from '../../../hooks/queries/useClinics'
 import { useTimeTables } from '../../../hooks/queries/useTimeTables'
+import { useClinicManagers } from '../../../hooks/queries/useClinicManagers'
+import { normalizeSaudiPhone } from '../../../components/ui/PhoneInput'
 import { SkeletonTable } from '../../../components/ui/Skeleton'
 import BranchReportModal from './BranchReportModal'
 import '../styles/ClinicDetailsPage.css'
@@ -30,9 +32,39 @@ function fmt(n) {
 export default function ClinicDetailsPage({ clinic, onBack }) {
   const [reportOpen, setReportOpen] = useState(false)
   const { data: dash, isLoading } = useClinicDashboard(clinic?.id)
+  const { data: fullClinic } = useClinic(clinic?.id)
   const { data: timeTables = [] } = useTimeTables()
+  const { data: allManagers = [] } = useClinicManagers()
 
-  // compute working hours from active time tables for this clinic's doctors
+  // Find the manager assigned to this clinic
+  const clinicManager =
+    dash?.manager ||
+    allManagers.find(
+      (m) =>
+        m.management_scope === 'clinic' &&
+        String(m.clinic?.id ?? m.clinic_id ?? '') === String(clinic?.id)
+    ) ||
+    null
+
+  const managerName =
+    clinicManager?.name ||
+    clinicManager?.full_name ||
+    (clinicManager?.first_name
+      ? `${clinicManager.first_name} ${clinicManager.last_name || ''}`.trim()
+      : null) ||
+    null
+
+  const managerPhone = clinicManager?.phone
+    ? normalizeSaudiPhone(clinicManager.phone)
+    : clinic?.phone
+    ? normalizeSaudiPhone(clinic.phone)
+    : null
+
+  // compute working hours — prefer clinic's own work_start/work_end,
+  // fall back to deriving from active doctor time tables
+  const clinicWorkStart = dash?.clinic?.work_start || fullClinic?.work_start || clinic?.work_start || null
+  const clinicWorkEnd   = dash?.clinic?.work_end   || fullClinic?.work_end   || clinic?.work_end   || null
+
   const clinicTables = timeTables.filter(t =>
     String(t.doctor?.clinic_id) === String(clinic?.id) && t.active
   )
@@ -44,12 +76,16 @@ export default function ClinicDetailsPage({ clinic, onBack }) {
   )
   const earliest = allStarts.length ? allStarts.sort()[0] : null
   const latest   = allEnds.length   ? allEnds.sort().reverse()[0] : null
-  const hours    = earliest && latest ? `${earliest} — ${latest}` : 'غير محدد'
+
+  const hours = clinicWorkStart && clinicWorkEnd
+    ? `${clinicWorkStart} — ${clinicWorkEnd}`
+    : earliest && latest
+    ? `${earliest} — ${latest}`
+    : 'غير محدد'
 
   const stats       = dash?.stats        || {}
   const topDoctors  = dash?.top_doctors  || []
   const specs       = dash?.specializations || []
-  const manager     = dash?.manager
 
   const nameAr    = dash?.clinic?.name?.ar    || clinic?.name?.ar    || clinic?.name    || ''
   const addressAr = dash?.clinic?.address?.ar || clinic?.address?.ar || clinic?.address || ''
@@ -93,11 +129,11 @@ export default function ClinicDetailsPage({ clinic, onBack }) {
         <div className="cdp-meta">
           <div className="cdp-meta-item">
             <div className="cdp-meta-label"><Phone size={12} /> هاتف الفرع</div>
-            <div className="cdp-meta-value mono">{isLoading ? '...' : (dash?.manager?.phone || '—')}</div>
+            <div className="cdp-meta-value mono">{isLoading ? '...' : (managerPhone || '—')}</div>
           </div>
           <div className="cdp-meta-item">
             <div className="cdp-meta-label"><User size={12} /> مدير الفرع</div>
-            <div className="cdp-meta-value">{isLoading ? '...' : (dash?.manager?.name || 'غير محدد')}</div>
+            <div className="cdp-meta-value">{isLoading ? '...' : (managerName || 'غير محدد')}</div>
           </div>
           <div className="cdp-meta-item">
             <div className="cdp-meta-label"><Clock size={12} /> ساعات العمل</div>
