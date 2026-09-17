@@ -120,7 +120,7 @@ export default function NewClinicManagerModal({ open, onClose }) {
         <label className="field-label">كلمة المرور</label>
         <input
           className={`inp${errors.password ? ' inp--error' : ''}`}
-          type="password"
+          type="password" autoComplete="new-password"
           dir="ltr"
           value={form.password}
           onChange={(e) => set("password", e.target.value)}
@@ -197,3 +197,4 @@ export default function NewClinicManagerModal({ open, onClose }) {
     </Modal>
   );
 }
+

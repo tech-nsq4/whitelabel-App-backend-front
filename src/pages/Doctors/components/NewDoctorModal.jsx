@@ -184,7 +184,7 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
           <input
             className={`inp${errors.password ? " inp--error" : ""}`}
             dir="ltr"
-            type="password"
+            type="password" autoComplete="new-password"
             placeholder="••••••••"
             value={form.password}
             onChange={(e) => set("password", e.target.value)}
@@ -198,7 +198,7 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
           <input
             className="inp"
             dir="ltr"
-            type="password"
+            type="password" autoComplete="new-password"
             placeholder="••••••••"
             value={form.password_confirmation}
             onChange={(e) => set("password_confirmation", e.target.value)}
@@ -397,3 +397,4 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
     </Modal>
   );
 }
+

@@ -97,12 +97,12 @@ export default function NewStaffModal({ open, onClose }) {
       <div className="field-row">
         <div className="field">
           <label className="field-label">كلمة المرور</label>
-          <input className={`inp${errors.password ? ' inp--error' : ''}`} type="password" dir="ltr" value={form.password} onChange={e => set('password', e.target.value)} />
+          <input className={`inp${errors.password ? ' inp--error' : ''}`} type="password" autoComplete="new-password" dir="ltr" value={form.password} onChange={e => set('password', e.target.value)} />
           {errors.password && <span className="field-error">{errors.password}</span>}
         </div>
         <div className="field">
           <label className="field-label">تأكيد كلمة المرور</label>
-          <input className="inp" type="password" dir="ltr" value={form.password_confirmation} onChange={e => set('password_confirmation', e.target.value)} />
+          <input className="inp" type="password" autoComplete="new-password" dir="ltr" value={form.password_confirmation} onChange={e => set('password_confirmation', e.target.value)} />
         </div>
       </div>
 
@@ -152,3 +152,4 @@ export default function NewStaffModal({ open, onClose }) {
     </Modal>
   )
 }
+

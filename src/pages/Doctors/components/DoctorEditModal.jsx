@@ -349,13 +349,13 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
         <div className="field-row" style={{ marginBottom: 0 }}>
           <div className="field">
             <label className="field-label">كلمة المرور الجديدة</label>
-            <input className="inp" dir="ltr" type="password" placeholder="••••••••"
+            <input className="inp" dir="ltr" type="password" autoComplete="new-password" placeholder="••••••••"
               value={pwForm.password}
               onChange={e => setPwForm(p => ({ ...p, password: e.target.value }))} />
           </div>
           <div className="field">
             <label className="field-label">تأكيد كلمة المرور</label>
-            <input className="inp" dir="ltr" type="password" placeholder="••••••••"
+            <input className="inp" dir="ltr" type="password" autoComplete="new-password" placeholder="••••••••"
               value={pwForm.password_confirmation}
               onChange={e => setPwForm(p => ({ ...p, password_confirmation: e.target.value }))} />
           </div>
@@ -385,3 +385,4 @@ export default function DoctorEditModal({ open, onClose, doctor, onSave }) {
     </Modal>
   );
 }
+
