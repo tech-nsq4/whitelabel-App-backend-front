@@ -55,15 +55,8 @@ const TYPE_OPTIONS = [
     bg: "rgba(15,107,92,.1)",
   },
   {
-    value: "home",
-    label: "منزل",
-    icon: <Home size={15} strokeWidth={1.8} />,
-    color: "#2C6DAA",
-    bg: "rgba(44,109,170,.1)",
-  },
-  {
-    value: "video",
-    label: "فيديو",
+    value: "online",
+    label: "أونلاين",
     icon: <Video size={15} strokeWidth={1.8} />,
     color: "#7C3AED",
     bg: "rgba(124,58,237,.1)",
@@ -100,6 +93,7 @@ const INITIAL_FORM = {
   name: "",
   notes: "",
   type: "clinic",
+  types: ["clinic"],
   schedule_type: "all_days",
   start_date: "",
   end_date: "",
@@ -170,7 +164,7 @@ function useOutsideClick(onOutside) {
 // ================= Main Component =================
 export default function NewTimeTable() {
   const navigate = useNavigate();
-  const { mutate: create, isPending } = useCreateTimeTable();
+  const { mutateAsync: createAsync, isPending } = useCreateTimeTable();
   const { data: raw } = useDoctors({ per_page: 100 });
   const { showToast } = useToast();
 
@@ -205,7 +199,7 @@ export default function NewTimeTable() {
       prev.map((r) => (r.day === day ? { ...r, on: !r.on } : r)),
     );
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e?.preventDefault();
     const ok = validate(form, {
       doctor_id: 'اختر الطبيب',
@@ -214,15 +208,20 @@ export default function NewTimeTable() {
       end_date: 'تاريخ النهاية مطلوب',
     });
     if (!ok) return;
-    const payload = buildPayload(form, rows);
 
-    create(payload, {
-      onSuccess: () => {
-        showToast("تم إنشاء الجدول بنجاح", "success");
-        navigate("/time-tables");
-      },
-      onError: (err) => showToast(extractErrorMessage(err), "error"),
-    });
+    const selectedTypes = form.types?.length ? form.types : [form.type];
+    const { types: _t, ...formWithoutTypes } = form;
+
+    try {
+      for (const type of selectedTypes) {
+        const payload = buildPayload({ ...formWithoutTypes, type }, rows);
+        await createAsync(payload);
+      }
+      showToast(selectedTypes.length > 1 ? "تم إنشاء الجداول بنجاح" : "تم إنشاء الجدول بنجاح", "success");
+      navigate("/time-tables");
+    } catch (err) {
+      showToast(extractErrorMessage(err), "error");
+    }
   }
 
   const activeCount = rows.filter((r) => r.on).length;
@@ -372,11 +371,36 @@ function BasicInfoCard({ form, setField, doctors, onDoctorChange, errors = {} })
 
         <div className="nt-row nt-col-3">
           <Field label="نوع الزيارة">
-            <CustomSelect
-              options={TYPE_OPTIONS}
-              value={form.type}
-              onChange={(v) => setField("type", v)}
-            />
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingTop: 4 }}>
+              {TYPE_OPTIONS.map(opt => {
+                const checked = (form.types || [form.type]).includes(opt.value);
+                return (
+                  <label key={opt.value} style={{
+                    display: 'flex', alignItems: 'center', gap: 7,
+                    padding: '7px 14px', borderRadius: 8, cursor: 'pointer',
+                    border: `1.5px solid ${checked ? opt.color : 'var(--line)'}`,
+                    background: checked ? opt.bg : 'var(--card)',
+                    color: checked ? opt.color : 'var(--ink-70)',
+                    fontWeight: checked ? 600 : 400,
+                    fontSize: 13, transition: 'all .15s', userSelect: 'none',
+                  }}>
+                    <input type="checkbox" checked={checked} style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const current = form.types || [form.type].filter(Boolean);
+                        const next = e.target.checked
+                          ? [...current, opt.value]
+                          : current.filter(v => v !== opt.value);
+                        setField('types', next.length ? next : ['clinic']);
+                        setField('type', next[0] || 'clinic');
+                      }}
+                    />
+                    <span style={{ display: 'flex' }}>{opt.icon}</span>
+                    {opt.label}
+                    {checked && <span style={{ marginRight: 2, fontSize: 11 }}>✓</span>}
+                  </label>
+                );
+              })}
+            </div>
           </Field>
           <Field label="نوع الجدول">
             <CustomSelect

@@ -7,13 +7,18 @@ import {
   updatePatientApi,
   deletePatientApi,
 } from "../../api/patients.api";
+import { useAuth } from "../../context/AuthContext";
 
 export const PATIENTS_KEY = ["patients"];
 
 export function usePatients(params) {
+  const { getClinicParams } = useAuth();
+  const clinicParams = getClinicParams();
+  const mergedParams = clinicParams !== null ? { ...clinicParams, ...params } : params;
   return useQuery({
-    queryKey: [...PATIENTS_KEY, params],
-    queryFn: () => getPatientsApi(params).then((r) => r.data.data || []),
+    queryKey: [...PATIENTS_KEY, mergedParams],
+    enabled: clinicParams !== null,
+    queryFn: () => getPatientsApi(mergedParams).then((r) => r.data.data || []),
   });
 }
 

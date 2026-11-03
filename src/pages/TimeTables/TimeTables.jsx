@@ -33,6 +33,7 @@ const TYPE_MAP = {
   clinic: { label: "عيادة", bg: "rgba(15,107,92,.1)", color: "#0F6B5C" },
   home: { label: "منزل", bg: "rgba(44,109,170,.1)", color: "#2C6DAA" },
   video: { label: "فيديو", bg: "rgba(124,58,237,.1)", color: "#7C3AED" },
+  online: { label: "أونلاين", bg: "rgba(124,58,237,.1)", color: "#7C3AED" },
 };
 
 const SCHEDULE_MAP = {
@@ -41,7 +42,7 @@ const SCHEDULE_MAP = {
   flexible_schedule: "جدول مرن",
 };
 
-const FILTER_TYPES = ["all", "clinic", "home", "video"];
+const FILTER_TYPES = ["all", "clinic", "online"];
 
 const STATS = [
   {
@@ -56,8 +57,7 @@ const STATS = [
     icon: <Stethoscope size={16} />,
     cls: "blue",
   },
-  { key: "home", label: "منزل", icon: <Home size={16} />, cls: "purple" },
-  { key: "video", label: "فيديو", icon: <Video size={16} />, cls: "gold" },
+  { key: "online", label: "أونلاين", icon: <Video size={16} />, cls: "purple" },
 ];
 
 const TABLE_HEADERS = [
@@ -99,10 +99,21 @@ export default function TimeTables() {
 
   const [selectedId, setSelectedId] = useState(null);
   const [filterType, setFilterType] = useState("all");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const rows = Array.isArray(data) ? data : (data?.data ?? []);
   const filtered =
     filterType === "all" ? rows : rows.filter((r) => r.type === filterType);
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // reset page when filter changes
+  function handleFilterChange(type) {
+    setFilterType(type);
+    setPage(1);
+  }
 
   function handleDelete(tt) {
     if (!window.confirm(`حذف جدول "${tt.name}"؟`)) return;
@@ -120,7 +131,7 @@ export default function TimeTables() {
     <div className="tt-page">
       <PageHeader
         filterType={filterType}
-        onFilterChange={setFilterType}
+        onFilterChange={handleFilterChange}
         onCreate={() => navigate("/time-tables/new")}
       />
 
@@ -130,11 +141,48 @@ export default function TimeTables() {
         {isLoading ? (
           <SkeletonTable rows={5} cols={7} />
         ) : (
-          <TimeTablesTable
-            rows={filtered}
-            onSelect={(id) => navigate(`/time-tables/${id}/edit`)}
-            onDelete={handleDelete}
-          />
+          <>
+            <TimeTablesTable
+              rows={paginated}
+              onSelect={(id) => navigate(`/time-tables/${id}/edit`)}
+              onDelete={handleDelete}
+            />
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, padding: '16px 0 8px' }}>
+                <button
+                  className="btn btn-q"
+                  style={{ minWidth: 36, padding: '6px 12px', fontSize: 13 }}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  ‹ السابق
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    style={{
+                      minWidth: 32, height: 32, borderRadius: 6, border: 'none',
+                      background: p === page ? 'var(--brand)' : 'var(--paper)',
+                      color: p === page ? '#fff' : 'var(--ink-70)',
+                      fontWeight: p === page ? 600 : 400,
+                      cursor: 'pointer', fontSize: 13,
+                    }}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  className="btn btn-q"
+                  style={{ minWidth: 36, padding: '6px 12px', fontSize: 13 }}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
+                  التالي ›
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

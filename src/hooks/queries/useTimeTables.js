@@ -12,9 +12,12 @@ export const TIME_TABLES_KEY = ["time-tables"];
 
 export function useTimeTables(params) {
   const { getClinicParams } = useAuth();
-  const mergedParams = { ...getClinicParams(), ...params };
+  const clinicParams = getClinicParams();
+  // clinicParams === null means no clinics assigned — skip call
+  const mergedParams = clinicParams !== null ? { ...clinicParams, ...params } : params;
   return useQuery({
     queryKey: [...TIME_TABLES_KEY, mergedParams],
+    enabled: clinicParams !== null,
     queryFn: () =>
       getTimeTablesApi(mergedParams).then((r) => r.data.data || []),
   });

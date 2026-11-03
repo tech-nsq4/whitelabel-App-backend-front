@@ -75,7 +75,7 @@ const Splashes = lazy(() => import("../pages/Splashes/Splashes"));
 const Finance = lazy(() => import("../pages/Finance/Finance"));
 const DoctorReviews = lazy(() => import("../pages/DoctorReviews/DoctorReviews"));
 
-const protectedRoutes = [
+export const protectedRoutes = [
   { path: ROUTES.DASHBOARD, element: <Dashboard /> },
   { path: ROUTES.QUEUE, element: <Queue />, permission: "appointments.view" },
   {
@@ -83,19 +83,25 @@ const protectedRoutes = [
     element: <Calendar />,
     permission: "appointments.view",
   },
-  { path: ROUTES.PATIENTS, element: <Patients /> },
+  // "users.view" mirrors the Sidebar NAV permission for Patients
+  { path: ROUTES.PATIENTS, element: <Patients />, permission: "users.view" },
   { path: ROUTES.BRANCHES, element: <Branches />, permission: "clinics.view" },
   { path: ROUTES.CLINICS, element: <Clinics />, permission: "clinics.view" },
   { path: ROUTES.DOCTORS, element: <Doctors />, permission: "doctors.view" },
-  { path: ROUTES.SERVICES, element: <Services /> },
+  { path: ROUTES.SERVICES, element: <Services />, permission: "sub-specializations.view" },
   { path: ROUTES.STAFF, element: <Staff />, permission: "admins.view" },
-  { path: ROUTES.BILLING, element: <Billing /> },
-  { path: ROUTES.INSURANCE, element: <Insurance /> },
-  { path: ROUTES.REPORTS, element: <Reports /> },
-  { path: ROUTES.ANALYTICS, element: <Analytics /> },
-  { path: ROUTES.AUDIT, element: <Audit /> },
-  { path: ROUTES.BRANDING, element: <Branding /> },
-  { path: ROUTES.SETTINGS, element: <Settings /> },
+  // Billing and Insurance share the "appointments.view" permission used in the Sidebar
+  { path: ROUTES.BILLING, element: <Billing />, permission: "appointments.view" },
+  { path: ROUTES.INSURANCE, element: <Insurance />, permission: "appointments.view" },
+  // Reports and Analytics share the "appointments.view" permission used in the Sidebar
+  { path: ROUTES.REPORTS, element: <Reports />, permission: "appointments.view" },
+  { path: ROUTES.ANALYTICS, element: <Analytics />, permission: "appointments.view" },
+  // Audit requires the same admin-management permission used in the Sidebar
+  { path: ROUTES.AUDIT, element: <Audit />, permission: "admins.view" },
+  // Branding, Settings, Pages are super-admin-only — enforced at route level,
+  // not just hidden from the Sidebar
+  { path: ROUTES.BRANDING, element: <Branding />, superAdminOnly: true },
+  { path: ROUTES.SETTINGS, element: <Settings />, superAdminOnly: true },
   { path: ROUTES.ACCOUNT, element: <Account /> },
   { path: ROUTES.ROLES, element: <Roles />, permission: "roles.view" },
   { path: ROUTES.CITIES, element: <Cities />, permission: "cities.view" },
@@ -114,10 +120,12 @@ const protectedRoutes = [
     element: <Notifications />,
     permission: "push-notifications.view",
   },
-  { path: ROUTES.TIME_TABLES, element: <TimeTables /> },
-  { path: ROUTES.TIME_TABLES + "/new", element: <NewTimeTable /> },
-  { path: ROUTES.TIME_TABLES + "/:id/edit", element: <EditTimeTable /> },
-  { path: ROUTES.PAGES, element: <Pages /> },
+  // TimeTables: use the permission defined in the Sidebar
+  { path: ROUTES.TIME_TABLES, element: <TimeTables />, permission: "time-tables.view" },
+  { path: ROUTES.TIME_TABLES + "/new", element: <NewTimeTable />, permission: "time-tables.view" },
+  { path: ROUTES.TIME_TABLES + "/:id/edit", element: <EditTimeTable />, permission: "time-tables.view" },
+  // Pages is super-admin-only (superAdminOnly flag in Sidebar)
+  { path: ROUTES.PAGES, element: <Pages />, superAdminOnly: true },
   { path: ROUTES.CONTACT_MESSAGES, element: <ContactMessages />, permission: 'contact-messages.view' },
   { path: ROUTES.CONTACT_INFO, element: <ContactInfo />, permission: 'contact-info.view' },
   { path: ROUTES.BANNERS, element: <Banners />, permission: 'banners.view' },
@@ -128,6 +136,8 @@ const protectedRoutes = [
     permission: "promo-codes.view",
   },
   { path: ROUTES.SPLASHES, element: <Splashes />, permission: 'splashes.view' },
+  // Finance has no permission in the Sidebar — keep consistent, leave open to
+  // any authenticated user for now (aligns with current Sidebar behaviour)
   { path: ROUTES.FINANCE, element: <Finance /> },
   { path: ROUTES.DOCTOR_REVIEWS, element: <DoctorReviews /> },
 ];
@@ -141,12 +151,14 @@ export default function AppRoutes() {
         <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
         {/* Protected — requires authentication */}
-        {protectedRoutes.map(({ path, element, permission }) => (
+        {protectedRoutes.map(({ path, element, permission, superAdminOnly }) => (
           <Route
             key={path}
             path={path}
             element={
-              <ProtectedRoute permission={permission}>{element}</ProtectedRoute>
+              <ProtectedRoute permission={permission} superAdminOnly={superAdminOnly}>
+                {element}
+              </ProtectedRoute>
             }
           />
         ))}

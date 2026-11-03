@@ -14,8 +14,8 @@ export function AuthProvider({ children }) {
   });
 
   const permissions = user?.permissions ?? [];
-  const isSuperAdmin =
-    user?.is_super_admin === true || permissions.length === 0;
+
+  const isSuperAdmin = user?.is_super_admin === true;
 
   const managesAllClinics = user?.manages_all_clinics === true;
   const adminClinicIds = managesAllClinics
@@ -28,7 +28,8 @@ export function AuthProvider({ children }) {
   }
 
   function getClinicParams() {
-    if (managesAllClinics || !adminClinicIds?.length) return {};
+    if (managesAllClinics || adminClinicIds === null) return {};
+    if (adminClinicIds.length === 0) return null;
     return { clinic_id: adminClinicIds[0] };
   }
 

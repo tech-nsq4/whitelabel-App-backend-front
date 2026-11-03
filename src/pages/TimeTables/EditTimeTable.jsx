@@ -13,6 +13,7 @@ import {
 import {
   useTimeTable,
   useUpdateTimeTable,
+  useCreateTimeTable,
 } from "../../hooks/queries/useTimeTables";
 import { useDoctors } from "../../hooks/queries/useDoctors";
 import { useToast } from "../../components/ui/Toast";
@@ -55,15 +56,8 @@ const TYPE_OPTIONS = [
     bg: "rgba(15,107,92,.1)",
   },
   {
-    value: "home",
-    label: "منزل",
-    icon: <Home size={15} strokeWidth={1.8} />,
-    color: "#2C6DAA",
-    bg: "rgba(44,109,170,.1)",
-  },
-  {
-    value: "video",
-    label: "فيديو",
+    value: "online",
+    label: "أونلاين",
     icon: <Video size={15} strokeWidth={1.8} />,
     color: "#7C3AED",
     bg: "rgba(124,58,237,.1)",
@@ -94,6 +88,7 @@ export default function EditTimeTable() {
   const { showToast } = useToast();
   const { data: tt, isLoading } = useTimeTable(id);
   const { mutate: update, isPending } = useUpdateTimeTable();
+  const { mutateAsync: createAsync } = useCreateTimeTable();
   const { data: raw } = useDoctors({ per_page: 100 });
 
   const doctors = Array.isArray(raw) ? raw : (raw?.data ?? []);
@@ -112,6 +107,7 @@ export default function EditTimeTable() {
       name: tt.name || "",
       notes: tt.notes || "",
       type: tt.type || "clinic",
+      types: [tt.type || "clinic"],
       schedule_type: tt.schedule_type || "all_days",
       start_date: tt.start_date || "",
       end_date: tt.end_date || "",
@@ -170,26 +166,54 @@ export default function EditTimeTable() {
       third_shift_start: firstRow.third_shift_start || null,
       third_shift_end: firstRow.third_shift_end || null,
     };
+    const { types: _t, ...formWithoutTypes } = form;
     const fullPayload = {
-      ...form,
+      ...formWithoutTypes,
+      type: form.type,
       doctor_id: Number(form.doctor_id),
       schedules: activeRows,
     };
     if (form.schedule_type !== "flexible_schedule") fullPayload.shift = shift;
 
-    // Try full payload first
+    const selectedTypes = form.types?.length ? form.types : [form.type];
+    const extraTypes = selectedTypes.filter(t => t !== form.type);
+
+    // Update current record
     update(
-      { id, data: fullPayload },
+      { id, data: { ...fullPayload, type: form.type } },
       {
         onSuccess: () => {
-          showToast("تم حفظ التغييرات بنجاح", "success");
-          navigate("/time-tables");
+          // لو في نوع إضافي، اعمله كجدول جديد بعد ما الـ update يخلص
+          if (extraTypes.length > 0) {
+            const createNext = async (index) => {
+              if (index >= extraTypes.length) {
+                showToast("تم حفظ التغييرات بنجاح", "success");
+                navigate("/time-tables");
+                return;
+              }
+              try {
+                await new Promise(r => setTimeout(r, 500));
+                await createAsync({ ...fullPayload, type: extraTypes[index] });
+                await createNext(index + 1);
+              } catch (err) {
+                const msg = err?.response?.data?.message || "فشل إنشاء النوع الإضافي";
+                showToast(msg, "error");
+                navigate("/time-tables");
+              }
+            };
+            createNext(0);
+          } else {
+            showToast("تم حفظ التغييرات بنجاح", "success");
+            navigate("/time-tables");
+          }
         },
         onError: (err) => {
           const serverMsg = err?.response?.data?.message || "";
           const isScheduleBlocked =
             serverMsg.toLowerCase().includes("appointments") ||
-            !!err?.response?.data?.errors?.time_table;
+            serverMsg.toLowerCase().includes("shift") ||
+            !!err?.response?.data?.errors?.time_table ||
+            !!err?.response?.data?.errors?.shift;
 
           if (isScheduleBlocked) {
             // API rejects any shift/schedules when appointments exist — send basic fields only
@@ -306,11 +330,33 @@ export default function EditTimeTable() {
             <div className="nt-row nt-col-3">
               <div className="nt-field">
                 <label className="nt-label">نوع الزيارة</label>
-                <CustomSelect
-                  options={TYPE_OPTIONS}
-                  value={form.type}
-                  onChange={(v) => set("type", v)}
-                />
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', paddingTop: 4 }}>
+                  {TYPE_OPTIONS.map(opt => {
+                    const checked = (form.types || [form.type]).includes(opt.value);
+                    return (
+                      <label key={opt.value} style={{
+                        display: 'flex', alignItems: 'center', gap: 7,
+                        padding: '7px 14px', borderRadius: 8, cursor: 'pointer',
+                        border: `1.5px solid ${checked ? opt.color : 'var(--line)'}`,
+                        background: checked ? opt.bg : 'var(--card)',
+                        color: checked ? opt.color : 'var(--ink-70)',
+                        fontWeight: checked ? 600 : 400,
+                        fontSize: 13, transition: 'all .15s', userSelect: 'none',
+                      }} onClick={() => {
+                        const current = form.types || [form.type].filter(Boolean);
+                        const next = checked
+                          ? current.filter(v => v !== opt.value)
+                          : [...current, opt.value];
+                        set('types', next.length ? next : ['clinic']);
+                        set('type', (next.length ? next : ['clinic'])[0]);
+                      }}>
+                        <span style={{ display: 'flex' }}>{opt.icon}</span>
+                        {opt.label}
+                        {checked && <span style={{ marginRight: 2, fontSize: 11 }}>✓</span>}
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
               <div className="nt-field">
                 <label className="nt-label">نوع الجدول</label>

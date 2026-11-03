@@ -15,9 +15,14 @@ export function useClinics() {
   const { managesAllClinics, adminClinicIds } = useAuth();
   return useQuery({
     queryKey: [...CLINICS_KEY, { adminClinicIds }],
+    // Disable when the user has manages_all_clinics:false but zero clinics
+    // assigned.  Returning all clinics in that case would be a data-leak.
+    enabled: managesAllClinics || adminClinicIds === null || (Array.isArray(adminClinicIds) && adminClinicIds.length > 0),
     queryFn: async () => {
       const all = await getClinicsApi().then((r) => r.data.data || []);
-      if (managesAllClinics || !adminClinicIds?.length) return all;
+      // Full access — return everything the backend sent
+      if (managesAllClinics || adminClinicIds === null) return all;
+      // Scoped access — filter to assigned clinic IDs only
       return all.filter((c) => adminClinicIds.includes(c.id));
     },
   });

@@ -23,9 +23,11 @@ const DAY_ORDER = [
 ];
 
 const TYPE_META = {
-  clinic: { label: "عيادة", color: "#0F6B5C", soft: "#e8f5f2" },
-  home: { label: "منزل", color: "#2C6DAA", soft: "#e8f0fa" },
-  video: { label: "فيديو", color: "#7C3AED", soft: "#f0ebfd" },
+  clinic:  { label: "عيادة",           color: "#0F6B5C", soft: "#e8f5f2" },
+  online:  { label: "أونلاين",          color: "#7C3AED", soft: "#f0ebfd" },
+  offline: { label: "خارج العيادة",     color: "#2C6DAA", soft: "#e8f0fa" },
+  home:    { label: "منزل",             color: "#D97706", soft: "#fdf3e3" },
+  video:   { label: "فيديو",            color: "#7C3AED", soft: "#f0ebfd" },
 };
 
 const SCHEDULE_TYPE_AR = {
@@ -230,8 +232,8 @@ export default function CalendarView({ clinicFilter = "all", dateRange }) {
           {[
             { id: "all", label: "الكل" },
             { id: "clinic", label: "عيادة" },
-            { id: "home", label: "منزل" },
-            { id: "video", label: "فيديو" },
+            { id: "online", label: "أونلاين" },
+            { id: "offline", label: "خارج العيادة" },
           ].map((f) => (
             <button
               key={f.id}

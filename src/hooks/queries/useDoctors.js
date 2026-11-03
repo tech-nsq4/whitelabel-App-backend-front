@@ -12,9 +12,12 @@ export const DOCTORS_KEY = ["doctors"];
 
 export function useDoctors(params) {
   const { getClinicParams } = useAuth();
-  const mergedParams = { ...getClinicParams(), ...params };
+  const clinicParams = getClinicParams();
+  // clinicParams === null means the user has no clinics assigned — skip call
+  const mergedParams = clinicParams !== null ? { ...clinicParams, ...params } : params;
   return useQuery({
     queryKey: [...DOCTORS_KEY, mergedParams],
+    enabled: clinicParams !== null,
     queryFn: () => getDoctorsApi(mergedParams).then((r) => r.data.data || []),
   });
 }

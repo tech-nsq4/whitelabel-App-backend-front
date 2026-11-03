@@ -18,9 +18,11 @@ const STATUSES = {
 };
 
 const VISIT_TYPES = {
-  clinic: { label: "عيادة", bg: "rgba(15,107,92,.08)", color: "#0F6B5C" },
-  home: { label: "منزل", bg: "rgba(44,109,170,.08)", color: "#2C6DAA" },
-  video: { label: "فيديو", bg: "rgba(124,58,237,.08)", color: "#7C3AED" },
+  clinic:  { label: "عيادة",        bg: "rgba(15,107,92,.08)",  color: "#0F6B5C" },
+  online:  { label: "أونلاين",       bg: "rgba(124,58,237,.08)", color: "#7C3AED" },
+  offline: { label: "خارج العيادة",  bg: "rgba(44,109,170,.08)", color: "#2C6DAA" },
+  home:    { label: "منزل",          bg: "rgba(217,119,6,.08)",  color: "#D97706" },
+  video:   { label: "فيديو",         bg: "rgba(124,58,237,.08)", color: "#7C3AED" },
 };
 
 const AVATAR_COLORS = [

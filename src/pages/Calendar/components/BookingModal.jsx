@@ -4,6 +4,7 @@ import { useDoctors } from "../../../hooks/queries/useDoctors";
 import { useSpecializations } from "../../../hooks/queries/useSpecializations";
 import { useClinics } from "../../../hooks/queries/useClinics";
 import { useTimeTables } from "../../../hooks/queries/useTimeTables";
+import { usePatients } from "../../../hooks/queries/usePatients";
 import { useCreateAppointment } from "../../../hooks/queries/useAppointments";
 import { useToast } from "../../../components/ui/Toast";
 import { useValidation } from "../../../hooks/useValidation";
@@ -12,19 +13,20 @@ import "../styles/booking-modal.css";
 const today = new Date().toISOString().slice(0, 10);
 
 const INITIAL = {
-  patient: "",
+  user_id: "",
   clinic_id: "",
   specialization_id: "",
   doctor_id: "",
   date: today,
-  time: "",
+  slot: null,
   visitType: "clinic",
 };
 
 const VISIT_TYPES = [
-  { value: "clinic", label: "كشف عيادة" },
-  { value: "home", label: "زيارة منزلية" },
-  { value: "video", label: "استشارة فيديو" },
+  { value: "clinic",  label: "كشف عيادة" },
+  { value: "home",    label: "زيارة منزلية" },
+  { value: "online",  label: "أونلاين" },
+  { value: "offline", label: "كشف خارج العيادة" },
 ];
 
 const DAYS_EN = [
@@ -68,6 +70,8 @@ function SearchSelect({
   onChange,
   options,
   placeholder = "اختر…",
+  hasError,
+  errorMsg,
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -181,6 +185,7 @@ function SearchSelect({
           </div>
         )}
       </div>
+      {hasError && errorMsg && <span className="field-error">{errorMsg}</span>}
     </div>
   );
 }
@@ -195,7 +200,6 @@ function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
 
   const table = useMemo(() => {
     if (!doctorId || !date) return null;
-    // Filter by visitType to match the time table type
     return timeTables.find(
       (t) =>
         String(t.doctor_id) === String(doctorId) &&
@@ -203,14 +207,7 @@ function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
         t.end_date >= date &&
         t.active &&
         t.type === visitType,
-    ) || timeTables.find(
-      // Fallback: any active table for this doctor+date if no type match
-      (t) =>
-        String(t.doctor_id) === String(doctorId) &&
-        t.start_date <= date &&
-        t.end_date >= date &&
-        t.active,
-    );
+    ) || null;
   }, [timeTables, doctorId, date, visitType]);
 
   const schedule = useMemo(() => {
@@ -223,22 +220,33 @@ function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
     const duration = table.session_hours || 30;
     const gap = table.duration_between_sessions || 0;
     const step = duration + gap;
+
+    function makeSlots(shiftStart, shiftEnd, shiftId) {
+      return generateSlots(shiftStart, shiftEnd, step).map(label => {
+        // Extract start time from "من HH:MM الى HH:MM"
+        const rawStart = label.replace(/^من\s*/, '').split(' الى ')[0].trim();
+        // Convert 24h to 12h AM/PM format expected by API
+        const [hStr, mStr] = rawStart.split(':');
+        const h = parseInt(hStr, 10);
+        const m = mStr || '00';
+        const period = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 === 0 ? 12 : h % 12;
+        const times = `${String(h12).padStart(2,'0')}:${m} ${period}`;
+        return {
+          label,
+          time_table_id: table.id,
+          schedule_id: schedule.id,
+          shift_id: shiftId,
+          clinic_id: table.clinic_id || null,
+          times,
+        };
+      });
+    }
+
     return [
-      ...generateSlots(
-        schedule.first_shift_start,
-        schedule.first_shift_end,
-        step,
-      ),
-      ...generateSlots(
-        schedule.second_shift_start,
-        schedule.second_shift_end,
-        step,
-      ),
-      ...generateSlots(
-        schedule.third_shift_start,
-        schedule.third_shift_end,
-        step,
-      ),
+      ...makeSlots(schedule.first_shift_start,  schedule.first_shift_end,  'first'),
+      ...makeSlots(schedule.second_shift_start, schedule.second_shift_end, 'second'),
+      ...makeSlots(schedule.third_shift_start,  schedule.third_shift_end,  'third'),
     ];
   }, [schedule, table]);
 
@@ -247,7 +255,13 @@ function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
   if (!table)
     return (
       <div className="bk-notice warn">
-        لا يوجد جدول نشط لهذا الطبيب في التاريخ المختار ({date})
+        {visitType === 'video'
+          ? 'هذا الطبيب لا يدعم المواعيد الأونلاين'
+          : visitType === 'online'
+          ? 'هذا الطبيب لا يدعم المواعيد الأونلاين'
+          : visitType === 'home'
+          ? 'هذا الطبيب لا يدعم الزيارات المنزلية'
+          : `لا يوجد جدول نشط لهذا الطبيب في التاريخ المختار (${date})`}
       </div>
     );
 
@@ -260,12 +274,12 @@ function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
       <div className="bk-slots-wrap">
         {slots.map((slot) => (
           <button
-            key={slot}
+            key={slot.label}
             type="button"
-            className={`bk-slot-btn${value === slot ? " selected" : ""}`}
+            className={`bk-slot-btn${value?.label === slot.label ? " selected" : ""}`}
             onClick={() => onChange(slot)}
           >
-            {slot}
+            {slot.label}
           </button>
         ))}
       </div>
@@ -281,6 +295,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
   const { data: specializations = [] } = useSpecializations();
   const { data: clinics = [] } = useClinics();
   const { data: timeTables = [] } = useTimeTables();
+  const { data: patients = [] } = usePatients();
   const createAppointment = useCreateAppointment();
   const { showToast } = useToast();
   const { errors, validate, clearError, resetErrors } = useValidation();
@@ -290,7 +305,9 @@ export default function BookingModal({ open, onClose, onSubmit }) {
       doctors.filter((d) => {
         const matchClinic =
           !form.clinic_id ||
-          d.clinics?.some((c) => String(c.id) === String(form.clinic_id));
+          d.clinics?.some((c) => String(c.id) === String(form.clinic_id)) ||
+          String(d.clinic_id) === String(form.clinic_id) ||
+          String(d.clinic?.id) === String(form.clinic_id);
         const matchSpec =
           !form.specialization_id ||
           d.specializations?.some(
@@ -311,9 +328,9 @@ export default function BookingModal({ open, onClose, onSubmit }) {
       const next = { ...prev, [field]: value };
       if (field === "clinic_id" || field === "specialization_id") {
         next.doctor_id = "";
-        next.time = "";
+        next.slot = null;
       }
-      if (field === "doctor_id" || field === "date" || field === "visitType") next.time = "";
+      if (field === "doctor_id" || field === "date" || field === "visitType") next.slot = null;
       return next;
     });
     clearError(field);
@@ -321,21 +338,28 @@ export default function BookingModal({ open, onClose, onSubmit }) {
 
   async function handleSubmit() {
     const ok = validate(form, {
-      patient: 'اسم المريض مطلوب',
+      user_id:   'اختر المريض',
       doctor_id: 'اختر الطبيب',
-      clinic_id: 'اختر العيادة',
     });
     if (!ok) return;
+    if (!form.slot) { showToast('اختر وقت الموعد', 'error'); return; }
     try {
-      await createAppointment.mutateAsync({
-        patient_name: form.patient,
-        clinic_id: form.clinic_id,
-        doctor_id: form.doctor_id,
-        date: form.date,
-        time: form.time,
-        type: form.visitType,
-        specialization_id: form.specialization_id || undefined,
-      });
+      const payload = {
+        user_id:        Number(form.user_id),
+        doctor_id:      Number(form.doctor_id),
+        clinic_id:      Number(form.clinic_id) || form.slot.clinic_id || selectedDoctor?.clinics?.[0]?.id || selectedDoctor?.clinic_id,
+        time_table_id:  form.slot.time_table_id,
+        schedule_id:    form.slot.schedule_id,
+        shift_id:       form.slot.shift_id,
+        times:          form.slot.times,
+        date:           form.date,
+        type:           form.visitType,
+        family_member_id: null,
+        offer_id:       null,
+        promo_code:     null,
+        specialization_id: form.specialization_id ? Number(form.specialization_id) : undefined,
+      };
+      await createAppointment.mutateAsync(payload);
       onSubmit(form);
       setForm(INITIAL);
       resetErrors();
@@ -350,6 +374,13 @@ export default function BookingModal({ open, onClose, onSubmit }) {
     onClose();
   }
 
+  const patientOptions = [
+    { value: "", label: "اختر المريض" },
+    ...patients.map((p) => ({
+      value: p.id,
+      label: p.name || p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || `مريض #${p.id}`,
+    })),
+  ];
   const clinicOptions = [
     { value: "", label: "كل العيادات" },
     ...clinics.map((c) => ({ value: c.id, label: c.name?.ar || c.name })),
@@ -381,19 +412,16 @@ export default function BookingModal({ open, onClose, onSubmit }) {
       subtitle="حجز موعد لمريض"
     >
       {/* Patient */}
-      <div className="field">
-        <label className="field-label" htmlFor="bk-patient">
-          المريض
-        </label>
-        <input
-          id="bk-patient"
-          className={`inp${errors.patient ? ' inp--error' : ''}`}
-          placeholder="ابحث بالاسم أو رقم الملف…"
-          value={form.patient}
-          onChange={(e) => set("patient", e.target.value)}
-        />
-        {errors.patient && <span className="field-error">{errors.patient}</span>}
-      </div>
+      <SearchSelect
+        id="bk-patient"
+        label="المريض"
+        value={form.user_id}
+        onChange={(v) => set("user_id", v)}
+        options={patientOptions}
+        placeholder="ابحث باسم المريض..."
+        hasError={!!errors.user_id}
+        errorMsg={errors.user_id}
+      />
 
       {/* Clinic + Specialty */}
       <div className="field-row">
@@ -473,8 +501,8 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         doctorId={form.doctor_id}
         date={form.date}
         visitType={form.visitType}
-        value={form.time}
-        onChange={(v) => set("time", v)}
+        value={form.slot}
+        onChange={(v) => set("slot", v)}
       />
 
       <div className="bk-footer">

@@ -14,9 +14,12 @@ export const APPOINTMENTS_KEY = ["appointments"];
 
 export function useAppointments(params) {
   const { getClinicParams } = useAuth();
-  const mergedParams = { ...getClinicParams(), ...params };
+  const clinicParams = getClinicParams();
+  // clinicParams === null means no clinics assigned — skip call
+  const mergedParams = clinicParams !== null ? { ...clinicParams, ...params } : params;
   return useQuery({
     queryKey: [...APPOINTMENTS_KEY, mergedParams],
+    enabled: clinicParams !== null,
     queryFn: () =>
       getAppointmentsApi(mergedParams).then((r) => r.data.data || []),
   });
