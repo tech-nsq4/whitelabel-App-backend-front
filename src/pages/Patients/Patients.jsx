@@ -34,14 +34,22 @@ export default function Patients() {
     setCurrentPage(1)
   }
 
-  function handleNewPatient(data) {
+  function handleNewPatient(data, setApiErrors) {
     createPatient.mutate(data, {
       onSuccess: () => { showToast('تم إضافة المريض بنجاح'); setModalOpen(false) },
       onError:   (err) => {
-        const msg = err?.response?.data?.message
-          ?? Object.values(err?.response?.data?.errors ?? {})?.[0]?.[0]
-          ?? 'حدث خطأ أثناء إضافة المريض'
-        showToast(msg)
+        const apiErrors = err?.response?.data?.errors
+        if (apiErrors && Object.keys(apiErrors).length > 0) {
+          // Map backend field errors inline in the modal
+          const mapped = {}
+          Object.entries(apiErrors).forEach(([field, msgs]) => {
+            mapped[field] = Array.isArray(msgs) ? msgs[0] : msgs
+          })
+          setApiErrors?.(mapped)
+        } else {
+          const msg = err?.response?.data?.message ?? 'حدث خطأ أثناء إضافة المريض'
+          showToast(msg, 'error')
+        }
       },
     })
   }

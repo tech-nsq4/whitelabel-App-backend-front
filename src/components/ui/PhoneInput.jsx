@@ -1,34 +1,28 @@
 /**
- * PhoneInput — Saudi phone field (+966)
- * Stores the full value including +966 prefix in the form state.
- * Displays only the local part (after +966) for editing.
- * Normalizes incoming values that may already contain +966 or 00966.
+ * PhoneInput — Saudi phone field
+ * Sends: 5XXXXXXXXX (9 digits, no prefix) to the backend
+ * Displays: +966 prefix for UX clarity
  */
 
-const PREFIX = '+966'
+const DISPLAY_PREFIX = '+966'
 
-/** Normalize any phone value to always start with +966 */
+/** Normalize any phone value to bare 9-digit local number */
 export function normalizeSaudiPhone(value = '') {
   if (!value) return ''
   const v = String(value).trim()
-  if (v.startsWith('+966')) return v
-  if (v.startsWith('00966')) return '+966' + v.slice(5)
-  if (v.startsWith('0')) return '+966' + v.slice(1)
-  // bare number like 566677788
-  return PREFIX + v
+  let digits = v.replace(/[^\d]/g, '')
+  if (digits.startsWith('966')) digits = digits.slice(3)
+  if (digits.startsWith('0')) digits = digits.slice(1)
+  return digits.slice(0, 9)
 }
 
-export default function PhoneInput({ value = '', onChange, id, className = '', placeholder = '5X XXX XXXX', hasError }) {
-  // Normalize incoming value and strip prefix for display
-  const normalized = normalizeSaudiPhone(value)
-  const local = normalized.startsWith(PREFIX) ? normalized.slice(PREFIX.length).trimStart() : normalized
+export default function PhoneInput({ value = '', onChange, id, className = '', placeholder = '5XXXXXXXX', hasError }) {
+  const local = normalizeSaudiPhone(value)
 
   function handleChange(e) {
-    // Allow only digits and spaces
     const raw = e.target.value.replace(/[^\d]/g, '')
-    // Saudi local number: 9 digits after +966 (e.g. 512345678)
     const trimmed = raw.slice(0, 9)
-    onChange(trimmed ? `${PREFIX}${trimmed}` : '')
+    onChange(trimmed)
   }
 
   return (
@@ -44,7 +38,7 @@ export default function PhoneInput({ value = '', onChange, id, className = '', p
         fontVariantNumeric: 'tabular-nums',
         userSelect: 'none',
       }}>
-        {PREFIX}
+        {DISPLAY_PREFIX}
       </span>
       <input
         id={id}

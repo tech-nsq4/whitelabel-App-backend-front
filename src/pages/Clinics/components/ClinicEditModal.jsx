@@ -12,12 +12,12 @@ import { useToast } from "../../../components/ui/Toast";
 import { useValidation } from "../../../hooks/useValidation";
 import "../styles/ClinicModals.css";
 
-const EMPTY_SUB = { ar: "", en: "", descAr: "", descEn: "" };
+const EMPTY_SUB = { ar: "", en: "", descAr: "", descEn: "", online: false };
 
 export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
   const { showToast } = useToast();
   const [tab, setTab] = useState("info");
-  const [form, setForm] = useState({ nameAr: "", nameEn: "" });
+  const [form, setForm] = useState({ nameAr: "", nameEn: "", online: false });
   const [saving, setSaving] = useState(false);
   const [subs, setSubs] = useState([]);
   const [subModal, setSubModal] = useState(null);
@@ -29,14 +29,15 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
   const { errors: subErrors, validate: validateSub, clearError: clearSubError, resetErrors: resetSubErrors } = useValidation();
 
   useEffect(() => {
-    if (specialty) {
+    if (open && specialty) {
       setForm({
         nameAr: specialty.title?.ar || specialty.nameAr || "",
         nameEn: specialty.title?.en || specialty.nameEn || "",
+        online: specialty.online ?? false,
       });
       loadSubs();
     }
-  }, [specialty]);
+  }, [open, specialty]);
 
   function loadSubs() {
     if (!specialty?.id) return;
@@ -54,9 +55,10 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
     try {
       await updateSpecializationApi(specialty.id, {
         title: { ar: form.nameAr, en: form.nameEn },
+        online: form.online,
       });
       showToast("تم حفظ التغييرات");
-      onSave?.();
+      onSave?.({ online: form.online, title: { ar: form.nameAr, en: form.nameEn } });
       onClose();
     } catch {
       showToast("تعذر حفظ التغييرات", "error");
@@ -77,6 +79,7 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
       en: sub.title?.en || "",
       descAr: sub.description?.ar || "",
       descEn: sub.description?.en || "",
+      online: sub.online ?? false,
     });
     setSubEditId(sub.id);
     resetSubErrors();
@@ -95,6 +98,7 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
           ar: subForm.descAr || subForm.ar,
           en: subForm.descEn || subForm.en,
         },
+        online: subForm.online,
       };
       if (subModal === "create") {
         await createSubSpecializationApi(payload);
@@ -184,6 +188,40 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
                 />
               </div>
             </div>
+            <div className="field">
+              <label className="field-label" style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", userSelect: "none" }}>
+                <div
+                  role="switch"
+                  aria-checked={form.online}
+                  onClick={() => setForm((p) => ({ ...p, online: !p.online }))}
+                  style={{
+                    width: 42,
+                    height: 24,
+                    borderRadius: 12,
+                    background: form.online ? "var(--primary, #0F6B5C)" : "#d1d5db",
+                    position: "relative",
+                    cursor: "pointer",
+                    transition: "background 0.2s",
+                    flexShrink: 0,
+                  }}
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: 3,
+                      left: form.online ? 21 : 3,
+                      width: 18,
+                      height: 18,
+                      borderRadius: "50%",
+                      background: "#fff",
+                      transition: "left 0.2s",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                    }}
+                  />
+                </div>
+                يقبل حجوزات أونلاين
+              </label>
+            </div>
             <div className="cm-footer">
               <button className="btn btn-q" onClick={onClose}>
                 إلغاء
@@ -216,7 +254,12 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
               {subs.map((sub) => (
                 <div key={sub.id} className="cm-sub-row">
                   <div className="cm-sub-names">
-                    <div className="cm-sub-name-ar">{sub.title?.ar}</div>
+                    <div className="cm-sub-name-ar">
+                      {sub.title?.ar}
+                      {sub.online && (
+                        <span style={{ marginRight: 6, fontSize: 11, color: "#0F6B5C", fontWeight: 600 }}>• أونلاين</span>
+                      )}
+                    </div>
                     <div className="cm-sub-name-en">{sub.title?.en}</div>
                   </div>
                   <button
@@ -293,6 +336,29 @@ export default function ClinicEditModal({ open, onClose, specialty, onSave }) {
             }
             placeholder="Brief description"
           />
+        </div>
+        <div className="field">
+          <label className="field-label" style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", userSelect: "none" }}>
+            <div
+              role="switch"
+              aria-checked={subForm.online}
+              onClick={() => setSubForm((p) => ({ ...p, online: !p.online }))}
+              style={{
+                width: 42, height: 24, borderRadius: 12,
+                background: subForm.online ? "var(--primary, #0F6B5C)" : "#d1d5db",
+                position: "relative", cursor: "pointer", transition: "background 0.2s", flexShrink: 0,
+              }}
+            >
+              <span style={{
+                position: "absolute", top: 3,
+                left: subForm.online ? 21 : 3,
+                width: 18, height: 18, borderRadius: "50%",
+                background: "#fff", transition: "left 0.2s",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+              }} />
+            </div>
+            يقبل حجوزات أونلاين
+          </label>
         </div>
         <div className="cm-footer">
           <button className="btn btn-q" onClick={() => setSubModal(null)}>

@@ -186,7 +186,7 @@ function SearchSelect({
 }
 
 /* ── Time slots ── */
-function TimeSlots({ timeTables, doctorId, date, value, onChange }) {
+function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
   const dayName = useMemo(() => {
     if (!date) return null;
     const [y, m, d] = date.split("-").map(Number);
@@ -195,14 +195,23 @@ function TimeSlots({ timeTables, doctorId, date, value, onChange }) {
 
   const table = useMemo(() => {
     if (!doctorId || !date) return null;
+    // Filter by visitType to match the time table type
     return timeTables.find(
+      (t) =>
+        String(t.doctor_id) === String(doctorId) &&
+        t.start_date <= date &&
+        t.end_date >= date &&
+        t.active &&
+        t.type === visitType,
+    ) || timeTables.find(
+      // Fallback: any active table for this doctor+date if no type match
       (t) =>
         String(t.doctor_id) === String(doctorId) &&
         t.start_date <= date &&
         t.end_date >= date &&
         t.active,
     );
-  }, [timeTables, doctorId, date]);
+  }, [timeTables, doctorId, date, visitType]);
 
   const schedule = useMemo(() => {
     if (!table || !dayName) return null;
@@ -304,7 +313,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         next.doctor_id = "";
         next.time = "";
       }
-      if (field === "doctor_id" || field === "date") next.time = "";
+      if (field === "doctor_id" || field === "date" || field === "visitType") next.time = "";
       return next;
     });
     clearError(field);
@@ -463,6 +472,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         timeTables={timeTables}
         doctorId={form.doctor_id}
         date={form.date}
+        visitType={form.visitType}
         value={form.time}
         onChange={(v) => set("time", v)}
       />

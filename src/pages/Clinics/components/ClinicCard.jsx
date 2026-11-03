@@ -279,6 +279,25 @@ export default function ClinicCard({
 
         {/* Body */}
         <div className="cc-body">
+          {/* Online badge */}
+          {specialty.online && (
+            <div style={{ marginBottom: 8 }}>
+              <span style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "2px 10px",
+                borderRadius: 20,
+                background: "rgba(15,107,92,0.1)",
+                color: "#0F6B5C",
+                fontSize: 12,
+                fontWeight: 600,
+              }}>
+                <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#0F6B5C"/></svg>
+                يقبل أونلاين
+              </span>
+            </div>
+          )}
           {/* Stats strip */}
           <div className="cc-stats">
             {[

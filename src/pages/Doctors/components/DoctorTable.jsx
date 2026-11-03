@@ -142,7 +142,25 @@ export default function DoctorTable({ doctors, onDelete, onRefresh }) {
                   <td><span className="chip mut" style={{ fontSize: 11 }}>{specialty}</span></td>
                   <td><span className="num" style={{ fontWeight: 700 }}>{doc.price}</span> <span style={{ fontSize: 11, color: 'var(--ink-45)' }}>ر.س</span></td>
                   <td><span className="num">{doc.experience}</span> <span style={{ fontSize: 11, color: 'var(--ink-45)' }}>سنة</span></td>
-                  <td><span className="chip ok">نشط</span></td>
+                  <td>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
+                      <span className="chip ok">نشط</span>
+                      {doc.live_appointment && (
+                        <span className="chip" style={{
+                          background: 'rgba(15,107,92,0.1)',
+                          color: '#0F6B5C',
+                          fontSize: 10,
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 3,
+                        }}>
+                          <svg width="6" height="6" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#0F6B5C"/></svg>
+                          أونلاين
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td style={{ overflow: 'visible' }}>
                     <div style={{ display: 'flex', gap: 5, justifyContent: 'flex-end', position: 'relative' }}>
                       <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => setEditModal({ open: true, doctor: doc })}>

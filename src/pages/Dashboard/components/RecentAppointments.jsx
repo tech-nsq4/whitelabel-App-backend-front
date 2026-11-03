@@ -14,7 +14,6 @@ const STATUS_MAP = {
 
 function formatDateTime(dateStr, timeStr) {
   if (!dateStr) return '—'
-  // لو عندنا وقت منفصل (مثلاً "09:00 AM") نعرضه مع التاريخ
   if (timeStr) {
     const d = new Date(dateStr)
     const dateFormatted = new Intl.DateTimeFormat('ar-SA-u-ca-gregory', {

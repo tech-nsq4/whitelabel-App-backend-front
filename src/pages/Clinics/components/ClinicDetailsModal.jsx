@@ -25,6 +25,7 @@ export default function ClinicDetailsModal({ open, onClose, specialty }) {
         )}
         <Row label="عدد الأطباء"        value={`${specialty.doctors_count ?? specialty.doctors ?? 0} طبيب`} />
         <Row label="التخصصات الفرعية"   value={`${specialty.sub_specializations_count ?? subs.length} تخصص`} />
+        <Row label="يقبل أونلاين"       value={specialty.online ? "نعم ✓" : "لا"} highlight={specialty.online} />
         {subs.length > 0 && (
           <Row label="التخصصات الفرعية" value={subs.map((s) => s.title?.ar || s.title).join("، ")} />
         )}

@@ -135,6 +135,7 @@ export default function Clinics() {
           ar: form.descAr || form.nameAr,
           en: form.descEn || form.nameEn,
         },
+        online: form.online ?? false,
       });
       showToast("تم إضافة التخصص بنجاح");
       setModalOpen(false);

@@ -25,6 +25,7 @@ const INITIAL = {
   price: "150",
   experience: "",
   descAr: "",
+  live_appointment: false,
 };
 
 export default function NewDoctorModal({ open, onClose, onSubmit }) {
@@ -93,6 +94,7 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
         sub_specialization_ids: [],
         license_number: form.license_number,
         license_expiry: form.license_expiry,
+        live_appointment: form.live_appointment,
       });
       qc.invalidateQueries({ queryKey: DOCTORS_KEY });
       showToast("تم إضافة الطبيب بنجاح", "success");
@@ -377,6 +379,31 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
           value={form.descAr}
           onChange={(e) => set("descAr", e.target.value)}
         />
+      </div>
+
+      {/* حجز أونلاين */}
+      <div className="field">
+        <label className="field-label" style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", userSelect: "none" }}>
+          <div
+            role="switch"
+            aria-checked={form.live_appointment}
+            onClick={() => set("live_appointment", !form.live_appointment)}
+            style={{
+              width: 42, height: 24, borderRadius: 12,
+              background: form.live_appointment ? "var(--primary, #0F6B5C)" : "#d1d5db",
+              position: "relative", cursor: "pointer", transition: "background 0.2s", flexShrink: 0,
+            }}
+          >
+            <span style={{
+              position: "absolute", top: 3,
+              left: form.live_appointment ? 21 : 3,
+              width: 18, height: 18, borderRadius: "50%",
+              background: "#fff", transition: "left 0.2s",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+            }} />
+          </div>
+          يقبل حجوزات أونلاين
+        </label>
       </div>
 
       <div
