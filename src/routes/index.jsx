@@ -3,149 +3,153 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { ROUTES } from "../constants";
 import ProtectedRoute from "./ProtectedRoute";
 
-// Simple full-page loader shown while lazy chunks download
+/* ─── Page Loader ────────────────────────────────────────── */
 function PageLoader() {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "60vh",
-        flexDirection: "column",
-        gap: 16,
-        color: "var(--ink-45)",
-      }}
-    >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="var(--brand)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        style={{ animation: "spin 0.8s linear infinite" }}
-      >
-        <path d="M21 12a9 9 0 11-6.219-8.56" />
-      </svg>
-      <span style={{ fontSize: 13 }}>جاري التحميل...</span>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "70vh",
+      flexDirection: "column",
+      gap: 20,
+    }}>
+      <div style={{ position: "relative", width: 52, height: 52 }}>
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none"
+          style={{ position: "absolute", inset: 0 }}>
+          <circle cx="26" cy="26" r="22" stroke="var(--line)" strokeWidth="4" />
+        </svg>
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none"
+          style={{ position: "absolute", inset: 0, animation: "pl-spin 0.75s linear infinite" }}>
+          <circle cx="26" cy="26" r="22" stroke="var(--brand)" strokeWidth="4"
+            strokeLinecap="round" strokeDasharray="138" strokeDashoffset="100" />
+        </svg>
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--brand)", opacity: 0.25 }} />
+        </div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>جاري التحميل</span>
+        <span style={{ fontSize: 11.5, color: "var(--ink-45)" }}>يرجى الانتظار لحظة...</span>
+      </div>
+      <style>{`@keyframes pl-spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
 
-const Login = lazy(() => import("../pages/Login/Login"));
-const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
-const Queue = lazy(() => import("../pages/Queue/Queue"));
-const Calendar = lazy(() => import("../pages/Calendar/Calendar"));
-const Patients = lazy(() => import("../pages/Patients/Patients"));
-const Branches = lazy(() => import("../pages/Branches/Branches"));
-const Clinics = lazy(() => import("../pages/Clinics/Clinics"));
-const Doctors = lazy(() => import("../pages/Doctors/Doctors"));
-const Services = lazy(() => import("../pages/Services/Services"));
-const Staff = lazy(() => import("../pages/Staff/Staff"));
-const Billing = lazy(() => import("../pages/Billing/Billing"));
-const Insurance = lazy(() => import("../pages/Insurance/Insurance"));
-const Reports = lazy(() => import("../pages/Reports/Reports"));
-const Analytics = lazy(() => import("../pages/Analytics/Analytics"));
-const Audit = lazy(() => import("../pages/Audit/Audit"));
-const Branding = lazy(() => import("../pages/Branding/Branding"));
-const Settings = lazy(() => import("../pages/Settings/Settings"));
-const Account = lazy(() => import("../pages/Account/Account"));
-const Roles = lazy(() => import("../pages/Roles/Roles"));
-const Cities = lazy(() => import("../pages/Cities/Cities"));
-const Locations = lazy(() => import("../pages/Locations/Locations"));
-const ClinicManagers = lazy(
-  () => import("../pages/ClinicManagers/ClinicManagers"),
-);
-const Notifications = lazy(
-  () => import("../pages/Notifications/Notifications"),
-);
-const TimeTables = lazy(() => import("../pages/TimeTables/TimeTables"));
-const NewTimeTable = lazy(() => import("../pages/TimeTables/NewTimeTable"));
-const EditTimeTable = lazy(() => import("../pages/TimeTables/EditTimeTable"));
-const Pages = lazy(() => import("../pages/Pages/Pages"));
-const ContactMessages = lazy(() => import('../pages/ContactMessages/ContactMessages'))
-const ContactInfo = lazy(() => import('../pages/ContactInfo/ContactInfo'))
-const Banners = lazy(() => import('../pages/Banners/Banners'))
-const Offers = lazy(() => import("../pages/Offers/Offers"));
-const PromoCodes = lazy(() => import("../pages/PromoCodes/PromoCodes"));
-const Splashes = lazy(() => import("../pages/Splashes/Splashes"));
-const Finance = lazy(() => import("../pages/Finance/Finance"));
-const DoctorReviews = lazy(() => import("../pages/DoctorReviews/DoctorReviews"));
-const LoyaltySettings = lazy(() => import("../pages/LoyaltySettings/LoyaltySettings"));
-const Packages = lazy(() => import("../pages/Packages/Packages"));
+/* ─── Lazy Imports ───────────────────────────────────────── */
 
+// Auth
+const Login           = lazy(() => import("../pages/Login/Login"));
+
+// Core
+const Dashboard       = lazy(() => import("../pages/Dashboard/Dashboard"));
+const Account         = lazy(() => import("../pages/Account/Account"));
+
+// Appointments
+const Queue           = lazy(() => import("../pages/Queue/Queue"));
+const Calendar        = lazy(() => import("../pages/Calendar/Calendar"));
+
+// People
+const Patients        = lazy(() => import("../pages/Patients/Patients"));
+const Doctors         = lazy(() => import("../pages/Doctors/Doctors"));
+const DoctorReviews   = lazy(() => import("../pages/DoctorReviews/DoctorReviews"));
+const Staff           = lazy(() => import("../pages/Staff/Staff"));
+const Roles           = lazy(() => import("../pages/Roles/Roles"));
+const ClinicManagers  = lazy(() => import("../pages/ClinicManagers/ClinicManagers"));
+
+// Clinics & Services
+const Branches        = lazy(() => import("../pages/Branches/Branches"));
+const Clinics         = lazy(() => import("../pages/Clinics/Clinics"));
+const Services        = lazy(() => import("../pages/Services/Services"));
+const TimeTables      = lazy(() => import("../pages/TimeTables/TimeTables"));
+const NewTimeTable    = lazy(() => import("../pages/TimeTables/NewTimeTable"));
+const EditTimeTable   = lazy(() => import("../pages/TimeTables/EditTimeTable"));
+
+// Finance & Marketing
+const Billing         = lazy(() => import("../pages/Billing/Billing"));
+const Insurance       = lazy(() => import("../pages/Insurance/Insurance"));
+const Finance         = lazy(() => import("../pages/Finance/Finance"));
+const Offers          = lazy(() => import("../pages/Offers/Offers"));
+const PromoCodes      = lazy(() => import("../pages/PromoCodes/PromoCodes"));
+const Packages        = lazy(() => import("../pages/Packages/Packages"));
+const LoyaltySettings = lazy(() => import("../pages/LoyaltySettings/LoyaltySettings"));
+
+// Analytics
+const Reports         = lazy(() => import("../pages/Reports/Reports"));
+const Analytics       = lazy(() => import("../pages/Analytics/Analytics"));
+const Audit           = lazy(() => import("../pages/Audit/Audit"));
+
+// Locations
+const Cities          = lazy(() => import("../pages/Cities/Cities"));
+const Locations       = lazy(() => import("../pages/Locations/Locations"));
+
+// System
+const Notifications   = lazy(() => import("../pages/Notifications/Notifications"));
+const ContactMessages = lazy(() => import("../pages/ContactMessages/ContactMessages"));
+const ContactInfo     = lazy(() => import("../pages/ContactInfo/ContactInfo"));
+const Banners         = lazy(() => import("../pages/Banners/Banners"));
+const Splashes        = lazy(() => import("../pages/Splashes/Splashes"));
+const Pages           = lazy(() => import("../pages/Pages/Pages"));
+const Branding        = lazy(() => import("../pages/Branding/Branding"));
+const Settings        = lazy(() => import("../pages/Settings/Settings"));
+
+/* ─── Protected Routes ───────────────────────────────────── */
 export const protectedRoutes = [
+
+  // ── Core ──────────────────────────────────────────────
   { path: ROUTES.DASHBOARD, element: <Dashboard /> },
-  { path: ROUTES.QUEUE, element: <Queue />, permission: "appointments.view" },
-  {
-    path: ROUTES.CALENDAR,
-    element: <Calendar />,
-    permission: "appointments.view",
-  },
-  // "users.view" mirrors the Sidebar NAV permission for Patients
-  { path: ROUTES.PATIENTS, element: <Patients />, permission: "users.view" },
-  { path: ROUTES.BRANCHES, element: <Branches />, permission: "clinics.view" },
-  { path: ROUTES.CLINICS, element: <Clinics />, permission: "clinics.view" },
-  { path: ROUTES.DOCTORS, element: <Doctors />, permission: "doctors.view" },
-  { path: ROUTES.SERVICES, element: <Services />, permission: "sub-specializations.view" },
-  { path: ROUTES.STAFF, element: <Staff />, permission: "admins.view" },
-  // Billing and Insurance share the "appointments.view" permission used in the Sidebar
-  { path: ROUTES.BILLING, element: <Billing />, permission: "appointments.view" },
-  { path: ROUTES.INSURANCE, element: <Insurance />, permission: "appointments.view" },
-  // Reports and Analytics share the "appointments.view" permission used in the Sidebar
-  { path: ROUTES.REPORTS, element: <Reports />, permission: "appointments.view" },
-  { path: ROUTES.ANALYTICS, element: <Analytics />, permission: "appointments.view" },
-  // Audit requires the same admin-management permission used in the Sidebar
-  { path: ROUTES.AUDIT, element: <Audit />, permission: "admins.view" },
-  // Branding, Settings, Pages are super-admin-only — enforced at route level,
-  // not just hidden from the Sidebar
-  { path: ROUTES.BRANDING, element: <Branding />, superAdminOnly: true },
-  { path: ROUTES.SETTINGS, element: <Settings />, superAdminOnly: true },
-  { path: ROUTES.ACCOUNT, element: <Account /> },
-  { path: ROUTES.ROLES, element: <Roles />, permission: "roles.view" },
-  { path: ROUTES.CITIES, element: <Cities />, permission: "cities.view" },
-  {
-    path: ROUTES.LOCATIONS,
-    element: <Locations />,
-    permission: "locations.view",
-  },
-  {
-    path: ROUTES.CLINIC_MANAGERS,
-    element: <ClinicManagers />,
-    permission: "clinic-managers.view",
-  },
-  {
-    path: ROUTES.NOTIFICATIONS,
-    element: <Notifications />,
-    permission: "push-notifications.view",
-  },
-  // TimeTables: use the permission defined in the Sidebar
-  { path: ROUTES.TIME_TABLES, element: <TimeTables />, permission: "time-tables.view" },
-  { path: ROUTES.TIME_TABLES + "/new", element: <NewTimeTable />, permission: "time-tables.view" },
-  { path: ROUTES.TIME_TABLES + "/:id/edit", element: <EditTimeTable />, permission: "time-tables.view" },
-  // Pages is super-admin-only (superAdminOnly flag in Sidebar)
-  { path: ROUTES.PAGES, element: <Pages />, superAdminOnly: true },
-  { path: ROUTES.CONTACT_MESSAGES, element: <ContactMessages />, permission: 'contact-messages.view' },
-  { path: ROUTES.CONTACT_INFO, element: <ContactInfo />, permission: 'contact-info.view' },
-  { path: ROUTES.BANNERS, element: <Banners />, permission: 'banners.view' },
-  { path: ROUTES.OFFERS, element: <Offers />, permission: "offers.view" },
-  {
-    path: ROUTES.PROMO_CODES,
-    element: <PromoCodes />,
-    permission: "promo-codes.view",
-  },
-  { path: ROUTES.SPLASHES, element: <Splashes />, permission: 'splashes.view' },
-  // Finance has no permission in the Sidebar — keep consistent, leave open to
-  // any authenticated user for now (aligns with current Sidebar behaviour)
-  { path: ROUTES.FINANCE, element: <Finance /> },
+  { path: ROUTES.ACCOUNT,   element: <Account /> },
+
+  // ── Appointments ──────────────────────────────────────
+  { path: ROUTES.QUEUE,     element: <Queue />,    permission: "appointments.view" },
+  { path: ROUTES.CALENDAR,  element: <Calendar />, permission: "appointments.view" },
+
+  // ── People ────────────────────────────────────────────
+  { path: ROUTES.PATIENTS,       element: <Patients />,       permission: "users.view" },
+  { path: ROUTES.DOCTORS,        element: <Doctors />,        permission: "doctors.view" },
   { path: ROUTES.DOCTOR_REVIEWS, element: <DoctorReviews /> },
-  { path: ROUTES.LOYALTY_SETTINGS, element: <LoyaltySettings />, superAdminOnly: true },
-  { path: ROUTES.PACKAGES, element: <Packages /> },
+  { path: ROUTES.STAFF,          element: <Staff />,          permission: "admins.view" },
+  { path: ROUTES.ROLES,          element: <Roles />,          permission: "roles.view" },
+  { path: ROUTES.CLINIC_MANAGERS,element: <ClinicManagers />, permission: "clinic-managers.view" },
+
+  // ── Clinics & Services ────────────────────────────────
+  { path: ROUTES.BRANCHES,  element: <Branches />, permission: "clinics.view" },
+  { path: ROUTES.CLINICS,   element: <Clinics />,  permission: "clinics.view" },
+  { path: ROUTES.SERVICES,  element: <Services />, permission: "sub-specializations.view" },
+  { path: ROUTES.TIME_TABLES,              element: <TimeTables />,   permission: "time-tables.view" },
+  { path: ROUTES.TIME_TABLES + "/new",     element: <NewTimeTable />, permission: "time-tables.view" },
+  { path: ROUTES.TIME_TABLES + "/:id/edit",element: <EditTimeTable />,permission: "time-tables.view" },
+
+  { path: ROUTES.BILLING,         element: <Billing />,        permission: "appointments.view" },
+  { path: ROUTES.INSURANCE,       element: <Insurance />,      permission: "appointments.view" },
+  { path: ROUTES.FINANCE,         element: <Finance /> },
+  { path: ROUTES.OFFERS,          element: <Offers />,         permission: "offers.view" },
+  { path: ROUTES.PROMO_CODES,     element: <PromoCodes />,     permission: "promo-codes.view" },
+  { path: ROUTES.PACKAGES,        element: <Packages /> },
+  { path: ROUTES.LOYALTY_SETTINGS,element: <LoyaltySettings />,superAdminOnly: true },
+
+  // ── Analytics ─────────────────────────────────────────
+  { path: ROUTES.REPORTS,   element: <Reports />,   permission: "appointments.view" },
+  { path: ROUTES.ANALYTICS, element: <Analytics />, permission: "appointments.view" },
+  { path: ROUTES.AUDIT,     element: <Audit />,     permission: "admins.view" },
+
+  // ── Locations ─────────────────────────────────────────
+  { path: ROUTES.CITIES,    element: <Cities />,    permission: "cities.view" },
+  { path: ROUTES.LOCATIONS, element: <Locations />, permission: "locations.view" },
+
+  // ── System ────────────────────────────────────────────
+  { path: ROUTES.NOTIFICATIONS,    element: <Notifications />,   permission: "push-notifications.view" },
+  { path: ROUTES.CONTACT_MESSAGES, element: <ContactMessages />, permission: "contact-messages.view" },
+  { path: ROUTES.CONTACT_INFO,     element: <ContactInfo />,     permission: "contact-info.view" },
+  { path: ROUTES.BANNERS,          element: <Banners />,         permission: "banners.view" },
+  { path: ROUTES.SPLASHES,         element: <Splashes />,        permission: "splashes.view" },
+  { path: ROUTES.PAGES,            element: <Pages />,           superAdminOnly: true },
+  { path: ROUTES.BRANDING,         element: <Branding />,        superAdminOnly: true },
+  { path: ROUTES.SETTINGS,         element: <Settings />,        superAdminOnly: true },
 ];
 
+/* ─── App Routes ─────────────────────────────────────────── */
 export default function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -154,7 +158,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
-        {/* Protected — requires authentication */}
+        {/* Protected */}
         {protectedRoutes.map(({ path, element, permission, superAdminOnly }) => (
           <Route
             key={path}

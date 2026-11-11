@@ -1,25 +1,14 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-/**
- * Renders children only when the user passes all access checks:
- *  1. Must be authenticated (has a valid session in context).
- *  2. If `superAdminOnly` is true  → user must have isSuperAdmin === true.
- *  3. If `permission` string given  → user must have that permission slug.
- *
- * Hiding a route from the Sidebar is NOT a security control — this component
- * is the actual enforcement layer for every protected page.
- */
 export default function ProtectedRoute({ children, permission, superAdminOnly }) {
   const { isAuthenticated, hasPermission, isSuperAdmin } = useAuth();
   const location = useLocation();
 
-  // Not logged in → redirect to login, preserve intended destination
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Super-admin-only pages (Branding, Settings, Pages)
   const denied =
     (superAdminOnly && !isSuperAdmin) ||
     (permission && !hasPermission(permission));
