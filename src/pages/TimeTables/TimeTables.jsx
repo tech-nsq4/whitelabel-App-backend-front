@@ -30,10 +30,11 @@ const DAYS_AR = {
 };
 
 const TYPE_MAP = {
-  clinic: { label: "عيادة", bg: "rgba(15,107,92,.1)", color: "#0F6B5C" },
-  home: { label: "منزل", bg: "rgba(44,109,170,.1)", color: "#2C6DAA" },
-  video: { label: "فيديو", bg: "rgba(124,58,237,.1)", color: "#7C3AED" },
-  online: { label: "أونلاين", bg: "rgba(124,58,237,.1)", color: "#7C3AED" },
+  clinic:     { label: "عيادة",   bg: "rgba(15,107,92,.1)",   color: "#0F6B5C" },
+  home:       { label: "منزل",    bg: "rgba(99,102,241,.1)",  color: "#6366F1" },
+  home_visit: { label: "منزلي",   bg: "rgba(99,102,241,.1)",  color: "#6366F1" },
+  video:      { label: "فيديو",   bg: "rgba(124,58,237,.1)",  color: "#7C3AED" },
+  online:     { label: "أونلاين", bg: "rgba(124,58,237,.1)",  color: "#7C3AED" },
 };
 
 const SCHEDULE_MAP = {
@@ -42,7 +43,7 @@ const SCHEDULE_MAP = {
   flexible_schedule: "جدول مرن",
 };
 
-const FILTER_TYPES = ["all", "clinic", "online"];
+const FILTER_TYPES = ["all", "clinic", "online", "home_visit"];
 
 const STATS = [
   {
@@ -57,7 +58,8 @@ const STATS = [
     icon: <Stethoscope size={16} />,
     cls: "blue",
   },
-  { key: "online", label: "أونلاين", icon: <Video size={16} />, cls: "purple" },
+  { key: "online",     label: "أونلاين", icon: <Video size={16} />,  cls: "purple" },
+  { key: "home_visit", label: "منزلي",   icon: <Home size={16} />,   cls: "indigo" },
 ];
 
 const TABLE_HEADERS = [

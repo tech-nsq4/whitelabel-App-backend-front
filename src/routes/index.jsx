@@ -74,6 +74,8 @@ const PromoCodes = lazy(() => import("../pages/PromoCodes/PromoCodes"));
 const Splashes = lazy(() => import("../pages/Splashes/Splashes"));
 const Finance = lazy(() => import("../pages/Finance/Finance"));
 const DoctorReviews = lazy(() => import("../pages/DoctorReviews/DoctorReviews"));
+const LoyaltySettings = lazy(() => import("../pages/LoyaltySettings/LoyaltySettings"));
+const Packages = lazy(() => import("../pages/Packages/Packages"));
 
 export const protectedRoutes = [
   { path: ROUTES.DASHBOARD, element: <Dashboard /> },
@@ -140,6 +142,8 @@ export const protectedRoutes = [
   // any authenticated user for now (aligns with current Sidebar behaviour)
   { path: ROUTES.FINANCE, element: <Finance /> },
   { path: ROUTES.DOCTOR_REVIEWS, element: <DoctorReviews /> },
+  { path: ROUTES.LOYALTY_SETTINGS, element: <LoyaltySettings />, superAdminOnly: true },
+  { path: ROUTES.PACKAGES, element: <Packages /> },
 ];
 
 export default function AppRoutes() {

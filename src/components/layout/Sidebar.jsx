@@ -31,6 +31,8 @@ import {
   Smartphone,
   TrendingUp,
   Star,
+  Gift,
+  Package2,
 } from "lucide-react";
 import "./Sidebar.css";
 import { useBranding } from "../../hooks/useBranding";
@@ -267,6 +269,19 @@ const NAV = [
         path: "/splashes",
         icon: <Smartphone size={18} strokeWidth={1.7} />,
         permission: "splashes.view",
+      },
+      {
+        id: "loyalty-settings",
+        label: "إعدادات الولاء",
+        path: "/loyalty-settings",
+        icon: <Gift size={18} strokeWidth={1.7} />,
+        superAdminOnly: true,
+      },
+      {
+        id: "packages",
+        label: "الباقات",
+        path: "/packages",
+        icon: <Package2 size={18} strokeWidth={1.7} />,
       },
       {
         id: "settings",

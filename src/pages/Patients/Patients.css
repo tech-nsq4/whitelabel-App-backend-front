@@ -22,6 +22,7 @@
   overflow: hidden;
   border-color: transparent;
   border-radius: 17px;
+  box-shadow: rgba(53, 55, 81, 0.14) 0px 8px 28px 0px;
 }
 .patients-kpi::before {
   content: "";

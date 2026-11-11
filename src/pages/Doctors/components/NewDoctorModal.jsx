@@ -3,12 +3,15 @@ import Modal from "../../../components/ui/Modal";
 import { createDoctorApi } from "../../../api/doctors.api";
 import { getClinicsApi } from "../../../api/clinics.api";
 import { getSpecializationsApi } from "../../../api/specializations.api";
+import { getCitiesApi } from "../../../api/cities.api";
+import { getAreasApi } from "../../../api/areas.api";
 import { useToast } from "../../../components/ui/Toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { DOCTORS_KEY } from "../../../hooks/queries/useDoctors";
 import { useValidation } from "../../../hooks/useValidation";
 import PhoneInput from "../../../components/ui/PhoneInput";
 import SpecSelect from "../../../components/ui/SpecSelect";
+import { Home } from "lucide-react";
 
 const INITIAL = {
   first_name: "",
@@ -26,6 +29,9 @@ const INITIAL = {
   experience: "",
   descAr: "",
   live_appointment: false,
+  home_visit: false,
+  home_visit_city_id: "",
+  home_visit_areas: [],
 };
 
 export default function NewDoctorModal({ open, onClose, onSubmit }) {
@@ -34,6 +40,8 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
   const [form, setForm] = useState(INITIAL);
   const [clinics, setClinics] = useState([]);
   const [specializations, setSpecializations] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [areas, setAreas] = useState([]);
   const [saving, setSaving] = useState(false);
   const { errors, validate, clearError, resetErrors } = useValidation();
 
@@ -44,7 +52,18 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
     getSpecializationsApi()
       .then(({ data }) => setSpecializations(data.data || []))
       .catch(() => {});
+    getCitiesApi()
+      .then(({ data }) => setCities(data.data || []))
+      .catch(() => {});
   }, []);
+
+  // جلب المناطق عند تغيير المدينة
+  useEffect(() => {
+    if (!form.home_visit_city_id) { setAreas([]); return; }
+    getAreasApi({ city_id: form.home_visit_city_id })
+      .then(({ data }) => setAreas(data.data || []))
+      .catch(() => setAreas([]));
+  }, [form.home_visit_city_id]);
 
   function set(k, v) {
     setForm((p) => ({ ...p, [k]: v }));
@@ -57,6 +76,29 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
       clinic_ids: p.clinic_ids.includes(id)
         ? p.clinic_ids.filter((x) => x !== id)
         : [...p.clinic_ids, id],
+    }));
+  }
+
+  function addVisitArea() {
+    setForm((p) => ({
+      ...p,
+      home_visit_areas: [...p.home_visit_areas, { area_id: "", cost: "" }],
+    }));
+  }
+
+  function updateVisitArea(index, key, value) {
+    setForm((p) => {
+      const updated = p.home_visit_areas.map((a, i) =>
+        i === index ? { ...a, [key]: value } : a
+      );
+      return { ...p, home_visit_areas: updated };
+    });
+  }
+
+  function removeVisitArea(index) {
+    setForm((p) => ({
+      ...p,
+      home_visit_areas: p.home_visit_areas.filter((_, i) => i !== index),
     }));
   }
 
@@ -95,6 +137,17 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
         license_number: form.license_number,
         license_expiry: form.license_expiry,
         live_appointment: form.live_appointment,
+        home_visit: form.home_visit,
+        ...(form.home_visit && form.home_visit_city_id
+          ? { home_visit_city_id: form.home_visit_city_id }
+          : {}),
+        ...(form.home_visit && form.home_visit_areas.length > 0
+          ? {
+              home_visit_areas: form.home_visit_areas
+                .filter((a) => a.area_id && a.cost)
+                .map((a) => ({ area_id: Number(a.area_id), cost: Number(a.cost) })),
+            }
+          : {}),
       });
       qc.invalidateQueries({ queryKey: DOCTORS_KEY });
       showToast("تم إضافة الطبيب بنجاح", "success");
@@ -405,6 +458,179 @@ export default function NewDoctorModal({ open, onClose, onSubmit }) {
           يقبل حجوزات أونلاين
         </label>
       </div>
+
+      {/* زيارة منزلية */}
+      <div className="field">
+        <label
+          className="field-label"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            cursor: "pointer",
+            userSelect: "none",
+          }}
+        >
+          <div
+            role="switch"
+            aria-checked={form.home_visit}
+            onClick={() => set("home_visit", !form.home_visit)}
+            style={{
+              width: 42,
+              height: 24,
+              borderRadius: 12,
+              background: form.home_visit ? "var(--primary, #0F6B5C)" : "#d1d5db",
+              position: "relative",
+              cursor: "pointer",
+              transition: "background 0.2s",
+              flexShrink: 0,
+            }}
+          >
+            <span
+              style={{
+                position: "absolute",
+                top: 3,
+                left: form.home_visit ? 21 : 3,
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                background: "#fff",
+                transition: "left 0.2s",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+              }}
+            />
+          </div>
+          يقبل الزيارات المنزلية
+        </label>
+      </div>
+
+      {/* تفاصيل الزيارة المنزلية */}
+      {form.home_visit && (
+        <div
+          style={{
+            background: "var(--paper)",
+            border: "1px solid var(--line)",
+            borderRadius: 10,
+            padding: "14px 16px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", display: "flex", alignItems: "center", gap: 6 }}>
+            <Home size={15} strokeWidth={2} style={{ color: "var(--brand)" }} />
+            تفاصيل الزيارة المنزلية
+          </div>
+
+          {/* المدينة */}
+          <div className="field" style={{ margin: 0 }}>
+            <label className="field-label">مدينة الزيارة المنزلية</label>
+            <select
+              className="inp"
+              value={form.home_visit_city_id}
+              onChange={(e) => {
+                set("home_visit_city_id", e.target.value);
+                setForm((p) => ({ ...p, home_visit_areas: [] }));
+              }}
+            >
+              <option value="">-- اختر المدينة --</option>
+              {cities.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name?.ar || c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* المناطق وتكلفة الزيارة */}
+          <div className="field" style={{ margin: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 8,
+              }}
+            >
+              <label className="field-label" style={{ margin: 0 }}>
+                مناطق الزيارة وتكلفتها
+              </label>
+              <button
+                type="button"
+                className="btn btn-q"
+                style={{ fontSize: 12, padding: "4px 12px" }}
+                onClick={addVisitArea}
+              >
+                + إضافة منطقة
+              </button>
+            </div>
+
+            {form.home_visit_areas.length === 0 && (
+              <div
+                style={{ fontSize: 12, color: "var(--ink-45)", textAlign: "center", padding: "10px 0" }}
+              >
+                لم تُضف أي منطقة بعد
+              </div>
+            )}
+
+            {form.home_visit_areas.map((area, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginTop: 8,
+                  background: "var(--surface, #fff)",
+                  borderRadius: 8,
+                  padding: "8px 10px",
+                  border: "1px solid var(--line)",
+                }}
+              >
+                <select
+                  className="inp"
+                  style={{ flex: 1, margin: 0 }}
+                  value={area.area_id}
+                  onChange={(e) => updateVisitArea(idx, "area_id", e.target.value)}
+                >
+                  <option value="">-- اختر المنطقة --</option>
+                  {areas.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name?.ar || a.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  className="inp num"
+                  dir="ltr"
+                  placeholder="150"
+                  style={{ width: 100, margin: 0 }}
+                  value={area.cost}
+                  onChange={(e) => updateVisitArea(idx, "cost", e.target.value)}
+                />
+                <span style={{ fontSize: 12, color: "var(--ink-45)", flexShrink: 0 }}>ر.س</span>
+                <button
+                  type="button"
+                  onClick={() => removeVisitArea(idx)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--danger, #e53e3e)",
+                    fontSize: 18,
+                    lineHeight: 1,
+                    flexShrink: 0,
+                    padding: "0 4px",
+                  }}
+                  aria-label="حذف المنطقة"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div
         style={{

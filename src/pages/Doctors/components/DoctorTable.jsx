@@ -159,6 +159,20 @@ export default function DoctorTable({ doctors, onDelete, onRefresh }) {
                           أونلاين
                         </span>
                       )}
+                      {doc.home_visit && (
+                        <span className="chip" style={{
+                          background: 'rgba(99,102,241,0.1)',
+                          color: '#6366F1',
+                          fontSize: 10,
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 3,
+                        }}>
+                          <svg width="6" height="6" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#6366F1"/></svg>
+                          منزلي
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td style={{ overflow: 'visible' }}>

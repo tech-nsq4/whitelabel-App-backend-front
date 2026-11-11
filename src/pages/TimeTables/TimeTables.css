@@ -58,6 +58,10 @@
   --stat-bg: rgba(201, 162, 39, 0.1);
   --stat-color: #c9a227;
 }
+.tt-stat-icon.indigo {
+  --stat-bg: rgba(99, 102, 241, 0.1);
+  --stat-color: #6366F1;
+}
 
 .tt-stat-val {
   font-size: 20px;

@@ -98,18 +98,18 @@
 /* ─── Panel ───────────────────────────────── */
 .tile {
   background: var(--card);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-lg);
   padding: 18px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: rgba(53, 55, 81, 0.14) 0px 8px 28px 0px;
 }
 
 .panel {
   background: var(--card);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-xs);
+  box-shadow: rgba(53, 55, 81, 0.14) 0px 8px 28px 0px;
 }
 .panel-head {
   padding: 17px 20px;
@@ -162,17 +162,15 @@
 }
 .kpi {
   background: var(--card);
-  border: 1px solid var(--line);
+  border: none;
   border-radius: var(--radius-lg);
   padding: 19px 19px 17px;
   position: relative;
-  transition:
-    box-shadow 0.2s,
-    transform 0.2s;
+  box-shadow: rgba(53, 55, 81, 0.14) 0px 8px 28px 0px;
+  transition: transform 0.2s;
 }
 .kpi:hover {
-  border-color: rgba(15, 107, 92, 0.2);
-  box-shadow: var(--shadow-sm);
+  box-shadow: rgba(53, 55, 81, 0.14) 0px 8px 28px 0px;
   transform: translateY(-2px);
 }
 .kpi-head {

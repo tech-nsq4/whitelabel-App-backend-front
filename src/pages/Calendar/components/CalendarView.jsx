@@ -24,10 +24,11 @@ const DAY_ORDER = [
 
 const TYPE_META = {
   clinic:  { label: "عيادة",           color: "#0F6B5C", soft: "#e8f5f2" },
-  online:  { label: "أونلاين",          color: "#7C3AED", soft: "#f0ebfd" },
-  offline: { label: "خارج العيادة",     color: "#2C6DAA", soft: "#e8f0fa" },
-  home:    { label: "منزل",             color: "#D97706", soft: "#fdf3e3" },
-  video:   { label: "فيديو",            color: "#7C3AED", soft: "#f0ebfd" },
+  online:     { label: "أونلاين",    color: "#7C3AED", soft: "#f0ebfd" },
+  offline:    { label: "خارج العيادة", color: "#2C6DAA", soft: "#e8f0fa" },
+  home:       { label: "منزلي",      color: "#6366F1", soft: "#eef2ff" },
+  home_visit: { label: "منزلي",      color: "#6366F1", soft: "#eef2ff" },
+  video:      { label: "فيديو",      color: "#7C3AED", soft: "#f0ebfd" },
 };
 
 const SCHEDULE_TYPE_AR = {
@@ -230,10 +231,10 @@ export default function CalendarView({ clinicFilter = "all", dateRange }) {
           style={{ position: "static", transform: "none" }}
         >
           {[
-            { id: "all", label: "الكل" },
-            { id: "clinic", label: "عيادة" },
-            { id: "online", label: "أونلاين" },
-            { id: "offline", label: "خارج العيادة" },
+            { id: "all",        label: "الكل" },
+            { id: "clinic",     label: "عيادة" },
+            { id: "online",     label: "أونلاين" },
+            { id: "home_visit", label: "منزلي" },
           ].map((f) => (
             <button
               key={f.id}

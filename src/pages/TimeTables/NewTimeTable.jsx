@@ -61,6 +61,13 @@ const TYPE_OPTIONS = [
     color: "#7C3AED",
     bg: "rgba(124,58,237,.1)",
   },
+  {
+    value: "home_visit",
+    label: "منزلي",
+    icon: <Home size={15} strokeWidth={1.8} />,
+    color: "#6366F1",
+    bg: "rgba(99,102,241,.1)",
+  },
 ];
 
 const SCHED_OPTIONS = [

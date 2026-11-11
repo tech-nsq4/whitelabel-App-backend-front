@@ -20,13 +20,14 @@ const INITIAL = {
   date: today,
   slot: null,
   visitType: "clinic",
+  area_id: "",
 };
 
 const VISIT_TYPES = [
-  { value: "clinic",  label: "كشف عيادة" },
-  { value: "home",    label: "زيارة منزلية" },
-  { value: "online",  label: "أونلاين" },
-  { value: "offline", label: "كشف خارج العيادة" },
+  { value: "clinic",     label: "كشف عيادة" },
+  { value: "home_visit", label: "زيارة منزلية" },
+  { value: "online",     label: "أونلاين" },
+  { value: "offline",    label: "كشف خارج العيادة" },
 ];
 
 const DAYS_EN = [
@@ -191,7 +192,7 @@ function SearchSelect({
 }
 
 /* ── Time slots ── */
-function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
+function TimeSlots({ timeTables, doctorId, date, visitType, selectedDoctor, value, onChange }) {
   const dayName = useMemo(() => {
     if (!date) return null;
     const [y, m, d] = date.split("-").map(Number);
@@ -252,6 +253,14 @@ function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
 
   if (!doctorId || !date) return null;
 
+  // تحقق مبكر: الطبيب لا يدعم الزيارات المنزلية أصلاً
+  if (visitType === 'home_visit' && selectedDoctor && !selectedDoctor.home_visit)
+    return (
+      <div className="bk-notice warn">
+        هذا الطبيب لا يدعم الزيارات المنزلية
+      </div>
+    );
+
   if (!table)
     return (
       <div className="bk-notice warn">
@@ -259,8 +268,8 @@ function TimeSlots({ timeTables, doctorId, date, visitType, value, onChange }) {
           ? 'هذا الطبيب لا يدعم المواعيد الأونلاين'
           : visitType === 'online'
           ? 'هذا الطبيب لا يدعم المواعيد الأونلاين'
-          : visitType === 'home'
-          ? 'هذا الطبيب لا يدعم الزيارات المنزلية'
+          : visitType === 'home_visit'
+          ? 'لا يوجد جدول زيارات منزلية نشط لهذا الطبيب في التاريخ المختار'
           : `لا يوجد جدول نشط لهذا الطبيب في التاريخ المختار (${date})`}
       </div>
     );
@@ -331,6 +340,7 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         next.slot = null;
       }
       if (field === "doctor_id" || field === "date" || field === "visitType") next.slot = null;
+      if (field === "doctor_id" || field === "visitType") next.area_id = "";
       return next;
     });
     clearError(field);
@@ -342,6 +352,10 @@ export default function BookingModal({ open, onClose, onSubmit }) {
       doctor_id: 'اختر الطبيب',
     });
     if (!ok) return;
+    if (form.visitType === 'home_visit' && !form.area_id) {
+      showToast('اختر المنطقة للزيارة المنزلية', 'error');
+      return;
+    }
     if (!form.slot) { showToast('اختر وقت الموعد', 'error'); return; }
     try {
       const payload = {
@@ -354,6 +368,9 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         times:          form.slot.times,
         date:           form.date,
         type:           form.visitType,
+        ...(form.visitType === 'home_visit' && form.area_id
+          ? { area_id: Number(form.area_id) }
+          : {}),
         family_member_id: null,
         offer_id:       null,
         promo_code:     null,
@@ -495,12 +512,33 @@ export default function BookingModal({ open, onClose, onSubmit }) {
         />
       </div>
 
+      {/* Area (home visit only) */}
+      {form.visitType === 'home_visit' && selectedDoctor && selectedDoctor.home_visit && (
+        <div className="field">
+          <label className="field-label">المنطقة</label>
+          <select
+            className="inp"
+            value={form.area_id}
+            onChange={(e) => set("area_id", e.target.value)}
+          >
+            <option value="">-- اختر المنطقة --</option>
+            {(selectedDoctor.home_visit_areas || []).map((a) => (
+              <option key={a.area_id ?? a.id} value={a.area_id ?? a.id}>
+                {a.area?.name?.ar || a.area?.name || `منطقة #${a.area_id ?? a.id}`}
+                {a.cost ? ` — ${a.cost} ر.س` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Time slots */}
       <TimeSlots
         timeTables={timeTables}
         doctorId={form.doctor_id}
         date={form.date}
         visitType={form.visitType}
+        selectedDoctor={selectedDoctor}
         value={form.slot}
         onChange={(v) => set("slot", v)}
       />

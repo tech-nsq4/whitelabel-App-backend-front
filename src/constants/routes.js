@@ -35,4 +35,6 @@ export const ROUTES = {
   SPLASHES:        '/splashes',
   FINANCE:         '/finance',
   DOCTOR_REVIEWS:  '/doctor-reviews',
+  LOYALTY_SETTINGS: '/loyalty-settings',
+  PACKAGES:         '/packages',
 }
